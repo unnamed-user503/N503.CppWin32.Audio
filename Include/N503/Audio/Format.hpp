@@ -64,15 +64,6 @@ namespace N503::Audio
         }
     };
 
-    /// Audio::Format に対するストリーム演算子のオーバーロード
-    inline std::ostream& operator<<(std::ostream& os, const Format& format)
-    {
-        os << "{"
-           << "  SampleRate: " << format.SamplePerSecond << " Hz"
-           << ", Channels: " << format.Channels << ", BitsPerSample: " << format.BitsPerSample << ", BytesPerSecond: " << format.BytesPerSecond << ", BlockAlign: " << format.BlockAlign << ", FormatTag: 0x" << std::hex << format.Tag << std::dec << "}";
-        return os;
-    }
-
 #pragma pack(pop)
 
 } // namespace N503::Audio

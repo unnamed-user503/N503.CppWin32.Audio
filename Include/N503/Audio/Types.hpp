@@ -70,7 +70,7 @@ namespace N503::Audio
 
     struct AssetHandle final
     {
-        Handle::ResourceID ResourceID;
+        Handle::ResourceID ResourceID{ Handle::ResourceID::InvalidValue };
 
         [[nodiscard]]
         explicit operator bool() const noexcept

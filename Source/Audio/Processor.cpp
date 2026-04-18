@@ -76,6 +76,7 @@ namespace N503::Audio
                     queue.push(ticket);
                     return true;
                 }
+
                 return false;
             });
         }
@@ -153,7 +154,6 @@ namespace N503::Audio
         std::visit([](auto& node)
         {
             using T = std::decay_t<decltype(node)>;
-
             if constexpr (!std::is_same_v<T, std::monostate>)
             {
                 node.Disconnect();
@@ -178,7 +178,6 @@ namespace N503::Audio
         std::visit([](auto& node)
         {
             using T = std::decay_t<decltype(node)>;
-
             if constexpr (!std::is_same_v<T, std::monostate>)
             {
                 node.Pause();
@@ -203,7 +202,6 @@ namespace N503::Audio
         std::visit([](auto& node)
         {
             using T = std::decay_t<decltype(node)>;
-
             if constexpr (!std::is_same_v<T, std::monostate>)
             {
                 node.Resume();

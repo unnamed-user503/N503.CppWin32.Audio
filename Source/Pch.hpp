@@ -12,19 +12,11 @@
 #include <vector>
 
 // Windows Dependencies
+// 以下の定義はPremake5にて設定済み
 // #define WIN32_LEAN_AND_MEAN
 // #define NOMINMAX
 // #define STRICT
 // #define STRICT_TYPED_ITEMIDS
-#ifndef WINVER
-#define WINVER 0x0A00 // Windows 10
-#endif
-
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0A00 // Windows 10
-#endif
-
-// Windows ヘッダーのインクルード
 #include <Windows.h>     // 基本型 (WORD, DWORD) と Windows API 用
 #include <mfapi.h>       // Media Foundation API
 #include <mfidl.h>       // メディアプレゼンテーション関連インターフェース
