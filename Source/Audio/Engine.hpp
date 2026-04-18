@@ -4,8 +4,10 @@
 
 #include <N503/Diagnostics/Sink.hpp>
 
+#include <atomic>
 #include <memory>
 #include <thread>
+#include <stop_token>
 
 namespace N503::Audio::Command
 {
@@ -39,11 +41,11 @@ namespace N503::Audio
 
         /// @brief
         /// @return
-        auto Startup() -> void;
+        auto Start() -> void;
 
         /// @brief
         /// @return
-        auto Shutdown() -> void;
+        auto Stop() -> void;
 
         /// @brief
         /// @return
@@ -84,7 +86,14 @@ namespace N503::Audio
         /// @brief
         Engine();
 
+        /// @brief
+        /// @return
+        auto Run(const std::stop_token stopToken) -> void;
+
     private:
+        /// @brief 
+        std::atomic<bool> m_IsThreadRunning{ false };
+
         /// @brief
         std::jthread m_AudioThread;
 

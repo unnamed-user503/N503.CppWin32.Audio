@@ -11,10 +11,7 @@
 
 // 依存関係のインクルード(外部プロジェクト)
 #include <N503/Diagnostics/ConsoleSink.hpp>
-#include <N503/Diagnostics/FileSink.hpp>
 #include <N503/Diagnostics/Reporter.hpp>
-#include <N503/Diagnostics/Severity.hpp>
-#include <N503/Diagnostics/Sink.hpp>
 
 // C++ 標準ライブラリのインクルード
 #include <chrono>
@@ -22,14 +19,15 @@
 #include <semaphore>
 #include <stop_token>
 #include <thread>
+#include <utility>
 
 // Windows ヘッダーのインクルード
 #include <Windows.h>
 #include <mfapi.h>
 
 // WIL (Windows Implementation Library)
-#include <vector>
 #include <wil/resource.h>
+#include <wil/result_macros.h>
 
 namespace N503::Audio
 {
@@ -47,7 +45,6 @@ namespace N503::Audio
     {
         m_CommandQueue = std::make_unique<Command::Queue>();
         m_ResourceContainer = std::make_unique<Resource::Container>();
-        Startup();
     }
 
     /// @brief
@@ -57,67 +54,83 @@ namespace N503::Audio
 
     /// @brief
     /// @return
-    auto Engine::Startup() -> void
+    auto Engine::Start() -> void
     {
+        if (m_IsThreadRunning.load(std::memory_order_acquire))
+        {
+            return;
+        }
+
+        // スレッド開始同期用シグナル
         std::binary_semaphore signal{ 0 };
 
-        auto delegate = [this, &signal](const std::stop_token& stopToken)
+        m_AudioThread = std::jthread([this, &signal](std::stop_token stopToken)
         {
             signal.release();
+            this->Run(std::move(stopToken));
+        });
 
-            Diagnostics::Reporter reporter{};
-            reporter.AddSink(std::make_shared<Diagnostics::ConsoleSink>());
-            // reporter.AddSink(std::make_shared<Diagnostics::FileSink>("log.txt"));
+        // スレッドが開始されるのを待つ
+        signal.acquire();
 
-            auto CoUninitializeReservedCall = wil::CoInitializeEx();
-            ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
+        // スレッドを開始したのでフラグを立てておく
+        m_IsThreadRunning.store(true, std::memory_order_release);
+    }
 
-            m_DeviceContext = std::make_unique<Device::Context>();
-            m_AudioProcessor = std::make_unique<Audio::Processor>();
+    auto Engine::Stop() -> void
+    {
+    }
 
-            Command::Dispatcher commandDispatcher;
-            Command::Executor commandExecutor;
+    auto Engine::Run(const std::stop_token stopToken) -> void
+    {
+        Diagnostics::Reporter reporter{};
+        reporter.AddSink(std::make_shared<Diagnostics::ConsoleSink>());
+        // reporter.AddSink(std::make_shared<Diagnostics::FileSink>("log.txt"));
 
-            auto wakeupHandles = { m_CommandQueue->GetWakeupEventHandle() };
+        auto CoUninitializeReservedCall = wil::CoInitializeEx();
+        ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
 
-            while (!stopToken.stop_requested())
+        m_DeviceContext = std::make_unique<Device::Context>();
+        m_AudioProcessor = std::make_unique<Audio::Processor>();
+
+        Command::Dispatcher commandDispatcher;
+        Command::Executor commandExecutor;
+
+        auto wakeupHandles = { m_CommandQueue->GetWakeupEventHandle() };
+
+        while (!stopToken.stop_requested())
+        {
+            if (!m_CommandQueue->IsEmpty())
             {
-                if (!m_CommandQueue->IsEmpty())
+                try
                 {
                     commandDispatcher.Dispatch(*m_CommandQueue, commandExecutor);
                 }
-
-                auto isAnyActive = m_AudioProcessor->Process();
-                reporter.Submit(m_DiagnosticsSink);
-
-                if (m_CommandQueue->IsEmpty() && !isAnyActive)
-                {
-                    auto result = ::WaitForMultipleObjectsEx(static_cast<DWORD>(wakeupHandles.size()), wakeupHandles.begin(), FALSE, INFINITE, FALSE);
-
-                    if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + wakeupHandles.size()))
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                }
+                CATCH_LOG();
             }
 
-            ::MFShutdown();
-        };
+            auto isAnyActive = m_AudioProcessor->Process();
+            reporter.Submit(m_DiagnosticsSink);
 
-        // オーディオスレッドの開始
-        m_AudioThread = std::jthread(delegate);
-        // 開始するまで待機する
-        signal.acquire();
-    }
+            if (m_CommandQueue->IsEmpty() && !isAnyActive)
+            {
+                auto result = ::WaitForMultipleObjectsEx(static_cast<DWORD>(wakeupHandles.size()), wakeupHandles.begin(), FALSE, INFINITE, FALSE);
 
-    /// @brief
-    /// @return
-    auto Engine::Shutdown() -> void
-    {
+                if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + wakeupHandles.size()))
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+        }
+
+        ::MFShutdown();
+
+        // スレッドが終了するのでフラグを下げて置く
+        m_IsThreadRunning.store(true, std::memory_order_release);
     }
 
 } // namespace N503::Audio

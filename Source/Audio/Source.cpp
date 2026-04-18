@@ -31,6 +31,7 @@ namespace N503::Audio
             .Path = filepath.data(),
         };
 
+        Engine::Instance().Start();
         Engine::Instance().GetCommandQueue().PushSync(std::move(packet));
 
         if (!m_Entity->m_AssetHandle)

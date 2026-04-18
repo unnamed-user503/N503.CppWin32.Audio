@@ -19,16 +19,16 @@
 #include <Windows.h>
 #include <mfobjects.h>
 #include <mfreadwrite.h>
-#include <strsafe.h>
 
 // 6. C++ Standard Libraries
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
+#include <format>
 #include <memory>
 #include <span>
 #include <stdexcept>
-#include <string.h>
 #include <string>
 #include <string_view>
 
@@ -60,7 +60,14 @@ namespace N503::Audio::Codec
 
     SourceReader::SourceReader(std::string_view path)
     {
-        THROW_IF_FAILED(::MFCreateSourceReaderFromURL(TranscodeUtf8ToWide(path).data(), nullptr, m_ConcreteReader.put()));
+        auto wide = TranscodeUtf8ToWide(path);
+
+        if (!std::filesystem::exists(wide))
+        {
+            throw std::runtime_error(std::format("[Audio] StreamReader: File not found: {}", path));
+        }
+
+        THROW_IF_FAILED(::MFCreateSourceReaderFromURL(wide.data(), nullptr, m_ConcreteReader.put()));
 
         m_StreamSelector = std::make_unique<StreamSelector>(m_ConcreteReader);
         m_StreamSelector->SelectFirst();
