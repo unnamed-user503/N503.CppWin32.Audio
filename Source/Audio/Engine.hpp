@@ -6,8 +6,8 @@
 
 #include <atomic>
 #include <memory>
-#include <thread>
 #include <stop_token>
+#include <thread>
 
 namespace N503::Audio::Command
 {
@@ -91,7 +91,7 @@ namespace N503::Audio
         auto Run(const std::stop_token stopToken) -> void;
 
     private:
-        /// @brief 
+        /// @brief
         std::atomic<bool> m_IsThreadRunning{ false };
 
         /// @brief
