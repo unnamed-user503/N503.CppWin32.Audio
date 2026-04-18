@@ -62,9 +62,11 @@ namespace N503::Audio::Codec
     {
         auto wide = TranscodeUtf8ToWide(path);
 
-        if (!std::filesystem::exists(wide))
+        auto attributes = ::GetFileAttributesW(wide.data());
+        if (attributes == INVALID_FILE_ATTRIBUTES)
         {
-            throw std::runtime_error(std::format("[Audio] StreamReader: File not found: {}", path));
+            auto error = ::GetLastError();
+            throw std::runtime_error(std::format("[Audio] StreamReader: Failed to access file (Error: {}): {}", error, path));
         }
 
         THROW_IF_FAILED(::MFCreateSourceReaderFromURL(wide.data(), nullptr, m_ConcreteReader.put()));
