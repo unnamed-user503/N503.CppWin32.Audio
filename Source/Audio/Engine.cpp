@@ -130,7 +130,7 @@ namespace N503::Audio
         ::MFShutdown();
 
         // スレッドが終了するのでフラグを下げて置く
-        m_IsThreadRunning.store(true, std::memory_order_release);
+        m_IsThreadRunning.store(false, std::memory_order_release);
     }
 
 } // namespace N503::Audio
