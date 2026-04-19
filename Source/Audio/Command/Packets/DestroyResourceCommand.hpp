@@ -19,6 +19,8 @@ namespace N503::Audio::Command::Packets
     struct DestroyResourceCommand final
     {
         Audio::AssetHandle Handle;
+
+        Audio::ProcessHandle ProcessHandle;
     };
 
 } // namespace N503::Audio::Command::Packets

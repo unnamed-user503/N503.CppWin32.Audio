@@ -27,7 +27,6 @@ namespace N503::Audio::Node
 
     auto Effect::Update(Context& context) -> bool
     {
-
         if (context.Descriptor.Status == Audio::Status::Paused)
         {
             return false;
@@ -35,7 +34,7 @@ namespace N503::Audio::Node
 
         auto& fade = context.Effect.Fade;
 
-        // 1. 【最優先】全体の停止号令(Stopping)を確認
+        // 【最優先】全体の停止号令(Stopping)を確認
         // QueueがEOSを検知してStoppingになったら、フェード中であっても
         // 「音量が0（またはフェード設定なし）」なら即座に終了を報告する。
         if (context.Descriptor.Status == Audio::Status::Stopping)
@@ -45,24 +44,25 @@ namespace N503::Audio::Node
 
             if (!isBusyFadingOut)
             {
-                return true; // これで Node[1]=o になり、Pathが解体されます
+                return true;
             }
         }
 
-        // 2. フェード設定がない通常の再生継続
+        // フェード設定がない通常の再生継続
         if (fade.Threshold.count() <= 0)
         {
-            return false;
+            // 使用するべきエフェクトがない=仕事が無い状態なのでNode::Effectは何時でも再生を終了してもよい状態
+            return true;
         }
 
-        // 3. フェード進行処理
+        // フェード進行処理
         fade.Elapsed += fade.Direction;
         float progress = std::clamp(static_cast<float>(std::abs(fade.Elapsed.count())) / fade.Threshold.count(), 0.0f, 1.0f);
 
         const bool isFadeOut = fade.Direction.count() >= 0;
         context.Descriptor.Volume = isFadeOut ? (1.0f - progress) : progress;
 
-        // 4. 完了判定（手動フェードアウト用）
+        // 完了判定（手動フェードアウト用）
         if (progress >= 1.0f)
         {
             if (isFadeOut)
@@ -72,6 +72,7 @@ namespace N503::Audio::Node
                 {
                     context.Descriptor.Status = Audio::Status::Stopping;
                 }
+
                 return true;
             }
 

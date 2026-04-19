@@ -120,7 +120,15 @@ namespace N503::Audio::Node
         /// @return
         auto Disconnect() -> bool
         {
-            if (m_Context->Descriptor.Status != Audio::Status::Playing || m_Context->Descriptor.Status == Audio::Status::Stopping)
+            if (m_Context->Descriptor.Status == Audio::Status::Paused)
+            {
+                m_Context->Descriptor.Status = Audio::Status::Stopping;
+                m_Context->Effect.Fade.Threshold = std::chrono::microseconds(0);
+                m_Context->Effect.Fade.Elapsed = std::chrono::microseconds(0);
+                m_Context->Effect.Fade.Direction = std::chrono::microseconds(0);
+                return true;
+            }
+            else if (m_Context->Descriptor.Status != Audio::Status::Playing || m_Context->Descriptor.Status == Audio::Status::Stopping)
             {
                 return false;
             }
@@ -242,7 +250,7 @@ namespace N503::Audio::Node
             // 先に現在のノードを動かす
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
 #ifdef _DEBUG
-            //::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
+            ::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
 #endif
             if constexpr (Index > 0)
             {
@@ -251,7 +259,7 @@ namespace N503::Audio::Node
                 return currentFinished && forwardFinished;
             }
 #ifdef _DEBUG
-            //::OutputDebugStringA("\n");
+            ::OutputDebugStringA("\n");
 #endif
             return currentFinished;
         }

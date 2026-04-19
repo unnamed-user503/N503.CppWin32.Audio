@@ -28,8 +28,8 @@ namespace N503::Audio::Node
         /// @brief 
         struct
         {
-            Node::Entry* Submit{nullptr};   ///< 
-            Node::Entry* Cache{nullptr};    ///< 
+            Node::Entry* Submit{ nullptr };   ///< 
+            Node::Entry* Cache{ nullptr };    ///< 
         }
         Buffers;
 
@@ -38,9 +38,9 @@ namespace N503::Audio::Node
         {
             struct
             {
-                std::chrono::microseconds Elapsed{0};    ///< 
-                std::chrono::microseconds Direction{0};  ///< 
-                std::chrono::microseconds Threshold{0};  ///< 
+                std::chrono::microseconds Elapsed{ 0 };    ///< 
+                std::chrono::microseconds Direction{ 0 };  ///< 
+                std::chrono::microseconds Threshold{ 0 };  ///< 
             }
             Fade;
         }
@@ -49,27 +49,27 @@ namespace N503::Audio::Node
         /// @brief 
         struct
         {
-            std::uint64_t TotalSubmittedCount{0};    ///< 
-            std::uint64_t TotalCompletedCount{0};    ///< 
-            std::uint64_t TotalSubmittedFrame{0};    ///< 
-            std::uint64_t TotalCompletedFrame{0};    ///< 
+            std::uint64_t TotalSubmittedCount{ 0 };    ///< 
+            std::uint64_t TotalCompletedCount{ 0 };    ///< 
+            std::uint64_t TotalSubmittedFrame{ 0 };    ///< 
+            std::uint64_t TotalCompletedFrame{ 0 };    ///< 
         }
         Statistics;
 
         /// @brief 
         struct
         {
-            std::uint64_t Current{0};       ///< 
-            std::uint64_t Completed{0};     ///< 
+            std::uint64_t Current{ 0 };       ///< 
+            std::uint64_t Completed{ 0 };     ///< 
         }
         Position;
 
         /// @brief 
         struct
         {
-            std::chrono::duration<double> Elapsed{0.0};   ///< 
-            std::chrono::duration<double> Now{0.0};       ///< 
-            std::chrono::duration<double> Delta{0.0};     ///< 
+            std::chrono::duration<double> Elapsed{ 0.0 };   ///< 
+            std::chrono::duration<double> Now{ 0.0 };       ///< 
+            std::chrono::duration<double> Delta{ 0.0 };     ///< 
         }
         Time;
     };

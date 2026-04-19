@@ -53,6 +53,7 @@ namespace N503::Audio::Command
 
     auto Executor::operator()(const Packets::DestroyResourceCommand& command) -> void
     {
+        Audio::Engine::Instance().GetAudioProcessor().Stop(command.ProcessHandle);
     }
 
     auto Executor::operator()(const Packets::PlayCommand& command) -> void

@@ -18,6 +18,7 @@
 
 // 5. Windows Headers
 #include <Windows.h>
+#include <chrono>
 
 // 6. C++ Standard Libraries
 
@@ -62,20 +63,42 @@ namespace N503::Audio::Node
             return true;
         }
 
-        if (context.Descriptor.Status == Audio::Status::Paused)
-        {
-            m_SourceVoice->Stop();
-            return false; // 再生処理を継続する
-        }
+        //if (context.Descriptor.Status == Audio::Status::Paused)
+        //{
+        //    //m_SourceVoice->Stop();
+        //    return false; // 再生処理を継続する
+        //}
 
+        //if (context.Descriptor.Status == Audio::Status::Stopping)
+        //{
+        //    if (m_SourceVoice->GetBuffersQueued() == 0)
+        //    {
+        //        return true;
+        //    }
+
+        //    return false; // 再生処理を継続する
+        //}
         if (context.Descriptor.Status == Audio::Status::Stopping)
         {
+            // フェード時間が 0 (即時切断) の場合
+            if (context.Effect.Fade.Threshold == std::chrono::microseconds(0))
+            {
+                m_SourceVoice->Stop();   // 鳴らすのを止める
+                m_SourceVoice->Flush();  // キューにあるバッファを全部捨てる
+            }
+            else
+            {
+                // フェードアウトさせる場合、XAudio2 が動いている必要がある
+                m_SourceVoice->Start();
+            }
+
+            // Flush されたか、鳴りきればここを通過してノードが解体される
             if (m_SourceVoice->GetBuffersQueued() == 0)
             {
                 return true;
             }
 
-            return false; // 再生処理を継続する
+            return false;
         }
 
         // 再生再開（Pause から Playing に戻った瞬間のケア）
