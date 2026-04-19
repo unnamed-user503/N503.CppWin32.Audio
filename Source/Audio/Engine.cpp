@@ -67,7 +67,10 @@ namespace N503::Audio
         m_AudioThread = std::jthread([this, &signal](std::stop_token stopToken)
         {
             signal.release();
+            auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
+            ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
             this->Run(std::move(stopToken));
+            ::MFShutdown();
         });
 
         // スレッドが開始されるのを待つ
@@ -85,10 +88,6 @@ namespace N503::Audio
     {
         Diagnostics::Reporter reporter{};
         reporter.AddSink(std::make_shared<Diagnostics::ConsoleSink>());
-        // reporter.AddSink(std::make_shared<Diagnostics::FileSink>("log.txt"));
-
-        auto CoUninitializeReservedCall = wil::CoInitializeEx();
-        ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
 
         m_DeviceContext = std::make_unique<Device::Context>();
         m_AudioProcessor = std::make_unique<Audio::Processor>();
@@ -126,8 +125,6 @@ namespace N503::Audio
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
         }
-
-        ::MFShutdown();
 
         // スレッドが終了するのでフラグを下げて置く
         m_IsThreadRunning.store(false, std::memory_order_release);

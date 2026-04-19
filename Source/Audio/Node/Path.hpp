@@ -250,7 +250,7 @@ namespace N503::Audio::Node
             // 先に現在のノードを動かす
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
 #ifdef _DEBUG
-            ::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
+            //::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
 #endif
             if constexpr (Index > 0)
             {
@@ -259,7 +259,7 @@ namespace N503::Audio::Node
                 return currentFinished && forwardFinished;
             }
 #ifdef _DEBUG
-            ::OutputDebugStringA("\n");
+            //::OutputDebugStringA("\n");
 #endif
             return currentFinished;
         }
