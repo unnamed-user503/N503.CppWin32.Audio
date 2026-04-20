@@ -32,7 +32,7 @@ namespace N503::Audio::Node
     auto Endpoint::OnPlay(const Audio::Format& format) -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnostics().AddEntry("[Endpoint::OnPlay] AcquireSourceVoice");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Endpoint::OnPlay] AcquireSourceVoice");
 #endif
         if (!m_SourceVoice)
         {
@@ -44,7 +44,7 @@ namespace N503::Audio::Node
     auto Endpoint::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnostics().AddEntry("[Endpoint::OnStop] ReleaseSourceVoice");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Endpoint::OnStop] ReleaseSourceVoice");
 #endif
         if (m_SourceVoice)
         {

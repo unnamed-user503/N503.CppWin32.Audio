@@ -39,13 +39,13 @@ namespace N503::Audio::Node
 
     auto Stream::OnPlay(const Node::Descriptor& descriptor) -> void
     {
-        Audio::Engine::Instance().GetDiagnostics().AddEntry("[Stream::OnPlay] Decoder created new instance.");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Stream::OnPlay] Decoder created new instance.");
         m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Path);
     }
 
     auto Stream::OnStop() -> void
     {
-        Audio::Engine::Instance().GetDiagnostics().AddEntry("[Stream::OnStop] Decoder.reset() called.");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Stream::OnStop] Decoder.reset() called.");
         m_Decoder.reset();
     }
 

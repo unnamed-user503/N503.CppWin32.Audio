@@ -97,7 +97,7 @@ namespace N503::Audio::Device
         if (buffer.Size != bytesFromFrames)
         {
 #ifdef _DEBUG
-            Audio::Engine::Instance().GetDiagnostics().AddEntry({ Diagnostics::Severity::Warning, std::format("[SourceVoice::Submit] 注意: decoder が報告する Size({}) と FrameCount*BlockAlign({}) が不一致。FrameCount ベースを採用します", buffer.Size, bytesFromFrames).data() });
+            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Warning, std::format("[SourceVoice::Submit] 注意: decoder が報告する Size({}) と FrameCount*BlockAlign({}) が不一致。FrameCount ベースを採用します", buffer.Size, bytesFromFrames).data() });
 #endif
         }
 
@@ -107,7 +107,7 @@ namespace N503::Audio::Device
         if (audioBytes64 > UINT32_MAX)
         {
 #ifdef _DEBUG
-            Audio::Engine::Instance().GetDiagnostics().AddEntry({ Diagnostics::Severity::Warning, std::format("[SourceVoice::Submit] 注意: AudioBytes が UINT32_MAX を超過 frames={} blockAlign={} bytes64={}", buffer.Count, m_Format.BlockAlign, audioBytes64).data() });
+            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Warning, std::format("[SourceVoice::Submit] 注意: AudioBytes が UINT32_MAX を超過 frames={} blockAlign={} bytes64={}", buffer.Count, m_Format.BlockAlign, audioBytes64).data() });
 #endif
             audioBytes64 = UINT32_MAX;
         }
@@ -129,7 +129,7 @@ namespace N503::Audio::Device
 
         // 送信直前のログ記録
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnostics().AddEntry({ Diagnostics::Severity::Info, std::format("[SourceVoice::Submit] SubmitSourceBuffer AudioBytes={} pAudioData={} pCtx={} eos={}", xBuffer.AudioBytes, static_cast<const void*>(xBuffer.pAudioData), xBuffer.pContext, buffer.IsEndOfStream ? 1 : 0).data() });
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Info, std::format("[SourceVoice::Submit] SubmitSourceBuffer AudioBytes={} pAudioData={} pCtx={} eos={}", xBuffer.AudioBytes, static_cast<const void*>(xBuffer.pAudioData), xBuffer.pContext, buffer.IsEndOfStream ? 1 : 0).data() });
 #endif
         // XAudio2 ボイスにデータを投入
         if (FAILED(m_SourceVoice->SubmitSourceBuffer(&xBuffer)))

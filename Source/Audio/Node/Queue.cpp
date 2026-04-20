@@ -48,7 +48,7 @@ namespace N503::Audio::Node
     auto Queue::OnPlay() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnostics().AddEntry("[Queue::OnPlay]");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Queue::OnPlay]");
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -76,7 +76,7 @@ namespace N503::Audio::Node
     auto Queue::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnostics().AddEntry("[Queue::OnStop]");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Queue::OnStop]");
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -205,7 +205,7 @@ namespace N503::Audio::Node
             {
                 const bool wasEndOfStream = m_Entries[i].Frames->IsEndOfStream;
 #ifdef _DEBUG
-                Audio::Engine::Instance().GetDiagnostics().AddEntry(
+                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(
                     std::format("[Audio] Queue: <Completed> Index={} Bytes={} Size={} Used={} EndOfStream={}", i, static_cast<const void*>(m_Entries[i].Frames->Bytes), m_Entries[i].Frames->Size, m_Entries[i].Frames->Count * m_BytesPerFrame, (wasEndOfStream ? 1 : 0)).data());
 #endif
                 m_Entries[i].Frames->Count = 0;

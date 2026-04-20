@@ -1,7 +1,7 @@
 ﻿#include "Pch.hpp"
 #include "Engine.hpp"
 
-// 依存関係のインクルード(内部プロジェクト)
+// 1. Project Headers
 #include "Command/Dispatcher.hpp"
 #include "Command/Executor.hpp"
 #include "Command/Queue.hpp"
@@ -9,27 +9,26 @@
 #include "Processor.hpp"
 #include "Resource/Container.hpp"
 
-// 依存関係のインクルード(外部プロジェクト)
+// 2. Project Dependencies
 #include <N503/Diagnostics/ConsoleSink.hpp>
 #include <N503/Diagnostics/Reporter.hpp>
 
-// C++ 標準ライブラリのインクルード
+// 3. WIL (Windows Implementation Library)
+#include <wil/resource.h>
+
+// 4. Third-party Libraries
+
+// 5. Windows Headers
+#include <Windows.h>
+#include <mfapi.h>
+
+// 6. C++ Standard Libraries
 #include <chrono>
 #include <memory>
 #include <semaphore>
 #include <stop_token>
 #include <thread>
 #include <utility>
-
-// Windows ヘッダーのインクルード
-#include <Windows.h>
-#include <mfapi.h>
-
-// WIL (Windows Implementation Library)
-#include <wil/resource.h>
-#include <wil/result_macros.h>
-#include <iostream>
-#include <format>
 
 namespace N503::Audio
 {
@@ -47,6 +46,8 @@ namespace N503::Audio
     {
         m_CommandQueue = std::make_unique<Command::Queue>();
         m_ResourceContainer = std::make_unique<Resource::Container>();
+
+        m_DiagnosticsReporter.AddSink(std::make_shared<Diagnostics::ConsoleSink>());
     }
 
     /// @brief
@@ -70,12 +71,13 @@ namespace N503::Audio
         {
             // スレッドに名前を付ける
             ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Thread.Worker.Audio");
-            // スレッドが開始されたのでロックを解放する
-            signal.release();
 
             // スレッドのメッセージキューを強制する
             MSG msg;
             ::PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+
+            // スレッドが開始されたのでロックを解放する
+            signal.release();
 
             // COMの初期化
             auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
@@ -84,11 +86,13 @@ namespace N503::Audio
 
             // オーディオスレッド終了用のシグナル
             wil::unique_event done{ ::CreateEventW(nullptr, FALSE, FALSE, L"Local\\N503.CppWin32.Event.Audio.Done") };
+
             // オーディオスレッドの開始
             this->Run(std::move(stopToken));
+
             // オーディオスレッドが終了した事を示す
             done.SetEvent();
-            ::OutputDebugStringA("************* AudioThread END OF THREAD FUNCTION ***********************************\n");
+            ::OutputDebugStringA("******************** AudioThread END OF THREAD FUNCTION ********************\n");
         });
 
         // スレッドが開始されるのを待つ
@@ -104,9 +108,6 @@ namespace N503::Audio
 
     auto Engine::Run(const std::stop_token stopToken) -> void
     {
-        Diagnostics::Reporter reporter{};
-        reporter.AddSink(std::make_shared<Diagnostics::ConsoleSink>());
-
         m_DeviceContext = std::make_unique<Device::Context>();
         m_AudioProcessor = std::make_unique<Audio::Processor>();
 
@@ -162,7 +163,7 @@ namespace N503::Audio
             }
 
             isAnyActive = m_AudioProcessor->Process();
-            reporter.Submit(m_DiagnosticsSink);
+            m_DiagnosticsReporter.Submit(m_DiagnosticsSink);
 
             //std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::milliseconds(1));

@@ -87,7 +87,7 @@ namespace N503::Audio
         });
 
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnostics().AddEntry(std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size()));
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size()));
 #endif
         return !m_Issued.empty();
     }

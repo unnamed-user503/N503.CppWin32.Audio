@@ -33,7 +33,7 @@ namespace N503::Audio::Command
         if (!command.Result)
         {
 #ifdef _DEBUG
-            Audio::Engine::Instance().GetDiagnostics().AddEntry({ Diagnostics::Severity::Error, "[Audio] Executor: command.Result is empty." });
+            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Error, "[Audio] Executor: command.Result is empty." });
 #endif
             return;
         }
