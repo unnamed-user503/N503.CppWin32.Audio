@@ -28,6 +28,8 @@
 // WIL (Windows Implementation Library)
 #include <wil/resource.h>
 #include <wil/result_macros.h>
+#include <iostream>
+#include <format>
 
 namespace N503::Audio
 {
@@ -66,11 +68,27 @@ namespace N503::Audio
 
         m_AudioThread = std::jthread([this, &signal](std::stop_token stopToken)
         {
+            // スレッドに名前を付ける
+            ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Thread.Worker.Audio");
+            // スレッドが開始されたのでロックを解放する
             signal.release();
+
+            // スレッドのメッセージキューを強制する
+            MSG msg;
+            ::PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+
+            // COMの初期化
             auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
             ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
+            auto mfshutdown = wil::scope_exit([]{ ::MFShutdown(); });
+
+            // オーディオスレッド終了用のシグナル
+            wil::unique_event done{ ::CreateEventW(nullptr, FALSE, FALSE, L"Local\\N503.CppWin32.Event.Done.Audio") };
+            // オーディオスレッドの開始
             this->Run(std::move(stopToken));
-            ::MFShutdown();
+            // オーディオスレッドが終了した事を示す
+            done.SetEvent();
+            ::OutputDebugStringA("************* AudioThread END OF THREAD FUNCTION ***********************************\n");
         });
 
         // スレッドが開始されるのを待つ
@@ -92,42 +110,63 @@ namespace N503::Audio
         m_DeviceContext = std::make_unique<Device::Context>();
         m_AudioProcessor = std::make_unique<Audio::Processor>();
 
+        auto CleanupResources = wil::scope_exit([&]
+        {
+            m_AudioProcessor.reset();
+            m_DeviceContext.reset();
+
+            m_IsThreadRunning.store(false, std::memory_order_release);
+        });
+
+        auto OSMessageDispatch = []() -> bool
+        {
+            MSG message{};
+            while (::PeekMessage(&message, nullptr, 0, 0, PM_REMOVE))
+            {
+                if (message.message == WM_QUIT)
+                {
+                    return false;
+                }
+                ::TranslateMessage(&message);
+                ::DispatchMessageW(&message);
+            }
+            return true;
+        };
+
+        auto wakeupHandles =
+        {
+            m_CommandQueue->GetWakeupEventHandle()
+        };
+
         Command::Dispatcher commandDispatcher;
         Command::Executor commandExecutor;
 
-        auto wakeupHandles = { m_CommandQueue->GetWakeupEventHandle() };
+        bool isAnyActive = false;
 
         while (!stopToken.stop_requested())
         {
-            if (!m_CommandQueue->IsEmpty())
+            auto timeout = isAnyActive ? 0 : INFINITE;
+            auto result = ::MsgWaitForMultipleObjectsEx(static_cast<DWORD>(wakeupHandles.size()), wakeupHandles.begin(), timeout, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+
+            if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + wakeupHandles.size()))
             {
-                try
+                commandDispatcher.Dispatch(*m_CommandQueue, commandExecutor);
+            }
+            else if (result == WAIT_OBJECT_0 + wakeupHandles.size())
+            {
+                if (!OSMessageDispatch())
                 {
-                    commandDispatcher.Dispatch(*m_CommandQueue, commandExecutor);
+                    m_AudioProcessor->StopAll();
+                    return;
                 }
-                CATCH_LOG();
             }
 
-            auto isAnyActive = m_AudioProcessor->Process();
+            isAnyActive = m_AudioProcessor->Process();
             reporter.Submit(m_DiagnosticsSink);
 
-            if (m_CommandQueue->IsEmpty() && !isAnyActive)
-            {
-                auto result = ::WaitForMultipleObjectsEx(static_cast<DWORD>(wakeupHandles.size()), wakeupHandles.begin(), FALSE, INFINITE, FALSE);
-
-                if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + wakeupHandles.size()))
-                {
-                    continue;
-                }
-            }
-            else
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            }
+            //std::this_thread::yield();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-
-        // スレッドが終了するのでフラグを下げて置く
-        m_IsThreadRunning.store(false, std::memory_order_release);
     }
 
 } // namespace N503::Audio

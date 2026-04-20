@@ -95,9 +95,6 @@ namespace N503::Audio
         std::atomic<bool> m_IsThreadRunning{ false };
 
         /// @brief
-        std::jthread m_AudioThread;
-
-        /// @brief
         Diagnostics::Sink m_DiagnosticsSink;
 
         /// @brief
@@ -111,6 +108,9 @@ namespace N503::Audio
 
         /// @brief
         std::unique_ptr<Audio::Processor> m_AudioProcessor;
+
+        /// @brief
+        std::jthread m_AudioThread;
     };
 
 } // namespace N503::Audio
