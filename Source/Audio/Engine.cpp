@@ -83,7 +83,7 @@ namespace N503::Audio
             auto mfshutdown = wil::scope_exit([]{ ::MFShutdown(); });
 
             // オーディオスレッド終了用のシグナル
-            wil::unique_event done{ ::CreateEventW(nullptr, FALSE, FALSE, L"Local\\N503.CppWin32.Event.Done.Audio") };
+            wil::unique_event done{ ::CreateEventW(nullptr, FALSE, FALSE, L"Local\\N503.CppWin32.Event.Audio.Done") };
             // オーディオスレッドの開始
             this->Run(std::move(stopToken));
             // オーディオスレッドが終了した事を示す
