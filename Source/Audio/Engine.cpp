@@ -29,6 +29,7 @@
 #include <stop_token>
 #include <thread>
 #include <utility>
+#include <N503/Diagnostics/Severity.hpp>
 
 namespace N503::Audio
 {
@@ -84,15 +85,8 @@ namespace N503::Audio
             ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
             auto mfshutdown = wil::scope_exit([]{ ::MFShutdown(); });
 
-            // オーディオスレッド終了用のシグナル
-            wil::unique_event done{ ::CreateEventW(nullptr, FALSE, FALSE, L"Local\\N503.CppWin32.Event.Audio.Done") };
-
             // オーディオスレッドの開始
             this->Run(std::move(stopToken));
-
-            // オーディオスレッドが終了した事を示す
-            done.SetEvent();
-            ::OutputDebugStringA("******************** AudioThread END OF THREAD FUNCTION ********************\n");
         });
 
         // スレッドが開始されるのを待つ
@@ -106,7 +100,7 @@ namespace N503::Audio
     {
         if (!::PostThreadMessage(::GetThreadId(m_AudioThread.native_handle()), WM_QUIT, 0, 0))
         {
-            ::OutputDebugStringW(std::format(L"PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data());
+            m_DiagnosticsSink.AddEntry({ Diagnostics::Severity::Error, std::format("PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data() });
         }
     }
 
@@ -160,6 +154,7 @@ namespace N503::Audio
             {
                 if (!OSMessageDispatch())
                 {
+                    // [重要] XAudio2がリソースを参照中なのにリソースを解放してはいけない
                     m_AudioProcessor->WaitForAllStop();
                     return;
                 }

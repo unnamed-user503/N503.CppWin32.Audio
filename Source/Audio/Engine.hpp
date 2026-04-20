@@ -8,6 +8,7 @@
 #include <N503/Diagnostics/Sink.hpp>
 
 // 3. WIL (Windows Implementation Library)
+#include <wil/resource.h>
 
 // 4. Third-party Libraries
 
@@ -126,6 +127,9 @@ namespace N503::Audio
 
         /// @brief
         std::unique_ptr<Audio::Processor> m_AudioProcessor;
+
+        /// @brief 
+        wil::unique_event m_ThreadStartedEvent;
 
         /// @brief
         Diagnostics::Sink m_DiagnosticsSink;
