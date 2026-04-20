@@ -22,9 +22,11 @@
 #include <format>
 #include <map>
 #include <ranges>
+#include <thread>
 #include <type_traits>
 #include <variant>
 #include <vector>
+#include <chrono>
 
 namespace N503::Audio
 {
@@ -212,11 +214,11 @@ namespace N503::Audio
         }, m_VoicePaths[index]);
     }
 
-    auto Processor::StopAll() -> void
+    auto Processor::Stop() -> void
     {
-        auto allActiveTickets = m_Issued | std::views::values | std::views::join;
+        auto availableTickets = m_Issued | std::views::values | std::views::join;
 
-        std::ranges::for_each(allActiveTickets, [this](Audio::Handle::Ticket ticket)
+        std::ranges::for_each(availableTickets, [this](Audio::Handle::Ticket ticket)
         {
             std::visit([](auto& node)
             {
@@ -227,6 +229,16 @@ namespace N503::Audio
                 }
             }, m_VoicePaths[static_cast<std::uint64_t>(ticket)]);
         });
+    }
+
+    auto Processor::WaitForAllStop() -> void
+    {
+        Stop();
+
+        while (Process())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
     }
 
 } // namespace N503::Audio

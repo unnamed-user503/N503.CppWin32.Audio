@@ -23,6 +23,7 @@
 
 // 6. C++ Standard Libraries
 #include <chrono>
+#include <format>
 #include <memory>
 #include <semaphore>
 #include <stop_token>
@@ -103,6 +104,10 @@ namespace N503::Audio
 
     auto Engine::Stop() -> void
     {
+        if (!::PostThreadMessage(::GetThreadId(m_AudioThread.native_handle()), WM_QUIT, 0, 0))
+        {
+            ::OutputDebugStringW(std::format(L"PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data());
+        }
     }
 
     auto Engine::Run(const std::stop_token stopToken) -> void
@@ -112,6 +117,11 @@ namespace N503::Audio
 
         auto CleanupResources = wil::scope_exit([&]
         {
+            if (m_AudioProcessor)
+            {
+                m_AudioProcessor->WaitForAllStop();
+            }
+
             m_AudioProcessor.reset();
             m_DeviceContext.reset();
 
@@ -155,7 +165,7 @@ namespace N503::Audio
             {
                 if (!OSMessageDispatch())
                 {
-                    m_AudioProcessor->StopAll();
+                    m_AudioProcessor->WaitForAllStop();
                     return;
                 }
             }
@@ -163,7 +173,6 @@ namespace N503::Audio
             isAnyActive = m_AudioProcessor->Process();
             m_DiagnosticsReporter.Submit(m_DiagnosticsSink);
 
-            //std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }

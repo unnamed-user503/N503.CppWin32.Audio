@@ -8,6 +8,7 @@
 #include <N503/Audio/Format.hpp>
 
 // 3. WIL (Windows Implementation Library)
+#include <wil/resource.h>
 
 // 4. Third-party Libraries
 
@@ -44,6 +45,11 @@ namespace N503::Audio::Device
         /// @brief 音声の出力を一時停止します。
         /// @return 成功した場合は true
         auto Stop() -> bool;
+
+        /// @brief 音声の出力を一時停止します。(同期版)
+        /// @note この関数はバッファをXAudio2が消費した事を保証します
+        /// @return 成功した場合は true
+        auto StopAndWait() -> bool;
 
         /// @brief 未再生のオーディオバッファをすべて破棄（フラッシュ）します。
         /// @return 成功した場合は true
@@ -110,11 +116,11 @@ namespace N503::Audio::Device
         /// @brief このボイスのオーディオフォーマット
         N503::Audio::Format m_Format{};
 
-        /// @brief 出力ボリューム
-        float m_Volume{ 1.0f };
+        /// @brief 停止イベントを表す手動リセットイベントオブジェクト。初期状態は非シグナル状態です。
+        wil::unique_event m_StoppedEvent{ ::CreateEventW(nullptr, TRUE, FALSE, nullptr) };
 
-        /// @brief 現在再生中かどうかのフラグ
-        std::atomic<bool> m_IsPlaying{ false };
+        /// @brief 保留中のバッファの数を追跡するアトミックなカウンター。スレッドセーフな操作のために 0 で初期化されます。
+        std::atomic<std::uint64_t> m_PendingBuffers{ 0 };
     };
 
 } // namespace N503::Audio::Device

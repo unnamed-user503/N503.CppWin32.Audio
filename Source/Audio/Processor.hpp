@@ -61,7 +61,9 @@ namespace N503::Audio
 
         auto Resume(Audio::ProcessHandle handle) -> void;
 
-        auto StopAll() -> void;
+        auto Stop() -> void;
+
+        auto WaitForAllStop() -> void;
 
     private:
         std::array<Node::VoicePath, MaxVoicePaths> m_VoicePaths{};

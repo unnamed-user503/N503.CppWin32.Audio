@@ -25,6 +25,8 @@
 // 6. C++ Standard Libraries
 #include <cstdint>
 #include <format>
+#include <chrono>
+#include <thread>
 
 namespace N503::Audio::Device
 {
@@ -42,6 +44,7 @@ namespace N503::Audio::Device
     {
         if (m_SourceVoice)
         {
+            StopAndWait();
             m_SourceVoice->DestroyVoice();
             m_SourceVoice = nullptr;
         }
@@ -54,8 +57,8 @@ namespace N503::Audio::Device
         {
             return false;
         }
+
         THROW_IF_FAILED(m_SourceVoice->Start(0));
-        m_IsPlaying = true;
         return true;
     }
 
@@ -66,8 +69,26 @@ namespace N503::Audio::Device
         {
             return false;
         }
+
         THROW_IF_FAILED(m_SourceVoice->Stop(0));
-        m_IsPlaying = false;
+        return true;
+    }
+
+    bool SourceVoice::StopAndWait()
+    {
+        if (!m_SourceVoice)
+        {
+            return false;
+        }
+
+        THROW_IF_FAILED(m_SourceVoice->Stop(0));
+        THROW_IF_FAILED(m_SourceVoice->FlushSourceBuffers());
+
+        while (m_PendingBuffers.load(std::memory_order_acquire) > 0)
+        {
+            ::WaitForSingleObject(m_StoppedEvent.get(), INFINITE);
+        }
+
         return true;
     }
 
@@ -78,6 +99,7 @@ namespace N503::Audio::Device
         {
             return false;
         }
+
         THROW_IF_FAILED(m_SourceVoice->FlushSourceBuffers());
         return true;
     }
@@ -90,34 +112,15 @@ namespace N503::Audio::Device
             return false;
         }
 
-        // フォーマットの BlockAlign に基づいて、全フレーム分のバイト数を計算
-        const std::uint64_t bytesFromFrames = static_cast<std::uint64_t>(buffer.Count) * m_Format.BlockAlign;
-
-        // 計算したバイト数とバッファ自体の Size が不一致な場合は警告をログに出す
-        if (buffer.Size != bytesFromFrames)
-        {
-#ifdef _DEBUG
-            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Warning, std::format("[SourceVoice::Submit] 注意: decoder が報告する Size({}) と FrameCount*BlockAlign({}) が不一致。FrameCount ベースを採用します", buffer.Size, bytesFromFrames).data() });
-#endif
-        }
-
-        std::uint64_t audioBytes64 = bytesFromFrames;
-
-        // XAudio2 の API 制限(UINT32)を超えないかチェック
-        if (audioBytes64 > UINT32_MAX)
-        {
-#ifdef _DEBUG
-            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Warning, std::format("[SourceVoice::Submit] 注意: AudioBytes が UINT32_MAX を超過 frames={} blockAlign={} bytes64={}", buffer.Count, m_Format.BlockAlign, audioBytes64).data() });
-#endif
-            audioBytes64 = UINT32_MAX;
-        }
-
-        const UINT32 audioBytes = static_cast<UINT32>(audioBytes64);
+        // 保留中のバッファのカウンタを1つ増やす
+        m_PendingBuffers.fetch_add(1, std::memory_order_relaxed);
+        // 停止イベントをリセット
+        m_StoppedEvent.ResetEvent();
 
         // XAUDIO2_BUFFER 構造体のセットアップ
         XAUDIO2_BUFFER xBuffer = {};
         xBuffer.Flags = 0;
-        xBuffer.AudioBytes = audioBytes;
+        xBuffer.AudioBytes = static_cast<UINT32>(buffer.Count * m_Format.BlockAlign);
         xBuffer.pAudioData = reinterpret_cast<const BYTE*>(buffer.Bytes);
         xBuffer.pContext = pBufferContext; // コールバックで使用されるコンテキスト
 
@@ -134,6 +137,7 @@ namespace N503::Audio::Device
         // XAudio2 ボイスにデータを投入
         if (FAILED(m_SourceVoice->SubmitSourceBuffer(&xBuffer)))
         {
+            m_PendingBuffers.fetch_sub(1, std::memory_order_relaxed);
             return false;
         }
 

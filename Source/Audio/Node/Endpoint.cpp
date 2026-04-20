@@ -17,7 +17,6 @@
 // 4. Third-party Libraries
 
 // 5. Windows Headers
-#include <Windows.h>
 #include <chrono>
 
 // 6. C++ Standard Libraries
@@ -63,21 +62,6 @@ namespace N503::Audio::Node
             return true;
         }
 
-        //if (context.Descriptor.Status == Audio::Status::Paused)
-        //{
-        //    //m_SourceVoice->Stop();
-        //    return false; // 再生処理を継続する
-        //}
-
-        //if (context.Descriptor.Status == Audio::Status::Stopping)
-        //{
-        //    if (m_SourceVoice->GetBuffersQueued() == 0)
-        //    {
-        //        return true;
-        //    }
-
-        //    return false; // 再生処理を継続する
-        //}
         if (context.Descriptor.Status == Audio::Status::Stopping)
         {
             // フェード時間が 0 (即時切断) の場合
@@ -109,7 +93,7 @@ namespace N503::Audio::Node
             m_SourceVoice->Start();
         }
 
-        // 3. 通常再生中のデータ提出チェック
+        // 通常再生中のデータ提出チェック
         // 送信すべきデータがない場合でも、Stopping でない限りは 現状を維持する
         if (!context.Buffers.Submit || context.Buffers.Submit->Status != Node::Entry::Status::Pending)
         {
@@ -119,7 +103,7 @@ namespace N503::Audio::Node
         // ボリューム同期 (Effect ノードの結果を反映)
         m_SourceVoice->SetVolume(context.Descriptor.Volume);
 
-        // 5. 統計・位置情報の更新
+        // 統計・位置情報の更新
         context.Statistics.TotalSubmittedFrame += context.Buffers.Submit->Frames->Count;
         context.Statistics.TotalSubmittedCount++;
         context.Position.Current += context.Buffers.Submit->Frames->Count;

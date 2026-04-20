@@ -56,11 +56,11 @@ namespace N503::Audio::Device
         auto Return(SourceVoice* voice) -> void;
 
     private:
-        /// @brief 親コンテキストへのポインタ
-        Context* m_Context{ nullptr };
-
         /// @brief SourceVoice インスタンスのメモリ実体を管理するプール
         N503::Memory::Storage::Pool<SourceVoice> m_Storage{ MaxAvailableSourceVoices };
+
+        /// @brief 親コンテキストへのポインタ
+        Context* m_Context{ nullptr };
 
         /// @brief 現在貸し出し可能な（フリーな）SourceVoice のポインタリスト
         std::vector<SourceVoice*> m_Availables;

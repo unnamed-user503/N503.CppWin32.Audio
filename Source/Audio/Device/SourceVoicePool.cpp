@@ -7,6 +7,7 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
+#include <memory>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -34,7 +35,7 @@ namespace N503::Audio::Device
         // これにより SourceVoice 内の XAudio2::DestroyVoice が確実に実行される
         for (auto* voice : m_Indexes)
         {
-            voice->~SourceVoice();
+            std::destroy_at(voice);
         }
         // メモリ領域自体の解放は m_Storage (N503::Memory::Pool) の破棄時に一括で行われる
     }

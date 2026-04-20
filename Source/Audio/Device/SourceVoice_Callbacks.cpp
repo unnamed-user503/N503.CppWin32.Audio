@@ -43,6 +43,13 @@ namespace N503::Audio::Device
             signal->Event.store(Device::Signal::Event::BufferEnd, std::memory_order_relaxed);
             signal->Notify.store(true, std::memory_order_release);
         }
+
+        // 保留中バッファのカウンタを1つ減らす
+        // 最後のバッファになったら終了イベントの旗を立てる
+        if (m_PendingBuffers.fetch_sub(1, std::memory_order_acquire) == 1)
+        {
+            ::SetEvent(m_StoppedEvent.get());
+        }
     }
 
     /// @brief ループ領域の終端に達した際のコールバック
