@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <N503/Audio/Assets.hpp>
 

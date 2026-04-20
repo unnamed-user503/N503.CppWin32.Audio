@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // 1. Project Headers
 #include "Metadata.hpp"
@@ -24,6 +24,7 @@
 
 namespace N503::Audio::Codec
 {
+
     class SourceReader
     {
     public:

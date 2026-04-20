@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // 1. Project Headers
 #include "SourceVoice.hpp"

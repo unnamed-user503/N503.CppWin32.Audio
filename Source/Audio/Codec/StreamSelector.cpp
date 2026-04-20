@@ -1,4 +1,4 @@
-﻿#include "Pch.hpp"
+#include "Pch.hpp"
 #include "StreamSelector.hpp"
 
 // 1. Project Headers

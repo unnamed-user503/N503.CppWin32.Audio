@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // 1. Project Headers
 #include "../Frames/Buffer.hpp"
@@ -22,6 +22,7 @@
 
 namespace N503::Audio::Codec
 {
+
     class MediaFoundationDecoder final : public Decoder
     {
     public:

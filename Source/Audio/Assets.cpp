@@ -1,4 +1,4 @@
-﻿#include "Pch.hpp"
+#include "Pch.hpp"
 #include "Assets_Entity.hpp"
 
 #include <N503/Audio/Assets.hpp>
