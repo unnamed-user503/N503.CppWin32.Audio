@@ -157,6 +157,7 @@ namespace N503::Audio::Device
         {
             return false;
         }
+
         m_SourceVoice->SetVolume(volume);
         return true;
     }
@@ -168,6 +169,7 @@ namespace N503::Audio::Device
         {
             return false;
         }
+
         float volume{ 0.0f };
         m_SourceVoice->GetVolume(&volume);
         return volume;

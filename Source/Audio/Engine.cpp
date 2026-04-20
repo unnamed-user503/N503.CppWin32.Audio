@@ -117,11 +117,6 @@ namespace N503::Audio
 
         auto CleanupResources = wil::scope_exit([&]
         {
-            if (m_AudioProcessor)
-            {
-                m_AudioProcessor->WaitForAllStop();
-            }
-
             m_AudioProcessor.reset();
             m_DeviceContext.reset();
 
@@ -174,6 +169,14 @@ namespace N503::Audio
             m_DiagnosticsReporter.Submit(m_DiagnosticsSink);
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
+
+    auto Engine::WaitForThreadStop() -> void
+    {
+        if (m_AudioThread.joinable())
+        {
+            m_AudioThread.join();
         }
     }
 

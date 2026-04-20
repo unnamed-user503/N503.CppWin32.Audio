@@ -57,6 +57,10 @@ namespace N503::Audio
         /// @return
         auto Stop() -> void;
 
+        /// @brief 
+        /// @return 
+        auto WaitForThreadStop() -> void;
+
         /// @brief
         /// @return
         auto GetCommandQueue() const noexcept -> Command::Queue&
