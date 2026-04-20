@@ -37,7 +37,7 @@ namespace N503::Audio::Codec
 
     namespace
     {
-        auto TranscodeUtf8ToWide(const std::string_view& utf8) -> std::wstring
+        auto TranscodeUtf8ToWide(const std::string_view utf8) -> std::wstring
         {
             if (utf8.empty())
             {
