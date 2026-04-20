@@ -19,6 +19,8 @@ namespace N503::Audio::Command::Packets
     struct PauseCommand final
     {
         Audio::ProcessHandle Handle;
+
+        auto operator()() const -> void;
     };
 
 } // namespace N503::Audio::Command::Packets

@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 // 1. Project Headers
-#include "Executor.hpp"
 #include "Queue.hpp"
 
 // 2. Project Dependencies
@@ -50,7 +49,7 @@ namespace N503::Audio::Command
         /// @param queue
         /// @param executor
         /// @return
-        auto Dispatch(Queue& queue, Executor& executor) -> void;
+        auto Dispatch(Command::Queue& queue) -> void;
     };
 
 } // namespace N503::Audio::Command

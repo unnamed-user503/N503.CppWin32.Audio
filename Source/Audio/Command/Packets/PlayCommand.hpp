@@ -23,6 +23,8 @@ namespace N503::Audio::Command::Packets
         Audio::AssetHandle Handle;
 
         Audio::Type Type;
+
+        auto operator()() const -> void;
     };
 
 } // namespace N503::Audio::Command::Packets

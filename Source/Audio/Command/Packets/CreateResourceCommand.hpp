@@ -28,6 +28,8 @@ namespace N503::Audio::Command::Packets
         Audio::Type Type;
 
         std::string_view Path;
+
+        auto operator()() const -> void;
     };
 
 } // namespace N503::Audio::Command::Packets

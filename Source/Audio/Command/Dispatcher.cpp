@@ -2,7 +2,6 @@
 #include "Dispatcher.hpp"
 
 // 1. Project Headers
-#include "Executor.hpp"
 #include "Queue.hpp"
 
 // 2. Project Dependencies
@@ -21,7 +20,7 @@ namespace N503::Audio::Command
 
     /// @brief
     /// @return
-    auto Dispatcher::Dispatch(Queue& queue, Executor& executor) -> void
+    auto Dispatcher::Dispatch(Command::Queue& queue) -> void
     {
         auto envelopes = queue.PopAll();
 
@@ -29,9 +28,9 @@ namespace N503::Audio::Command
         {
             auto command = envelopes.front();
 
-            auto delegate = [this, &executor](auto&& concrete)
+            auto delegate = [](auto&& concreteCommand)
             {
-                executor(concrete);
+                concreteCommand();
             };
 
             std::visit(delegate, command.Packet);

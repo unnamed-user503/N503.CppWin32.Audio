@@ -3,7 +3,6 @@
 
 // 1. Project Headers
 #include "Command/Dispatcher.hpp"
-#include "Command/Executor.hpp"
 #include "Command/Queue.hpp"
 #include "Device/Context.hpp"
 #include "Processor.hpp"
@@ -140,7 +139,6 @@ namespace N503::Audio
         };
 
         Command::Dispatcher commandDispatcher;
-        Command::Executor commandExecutor;
 
         bool isAnyActive = false;
 
@@ -151,7 +149,7 @@ namespace N503::Audio
 
             if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + wakeupHandles.size()))
             {
-                commandDispatcher.Dispatch(*m_CommandQueue, commandExecutor);
+                commandDispatcher.Dispatch(*m_CommandQueue);
             }
             else if (result == WAIT_OBJECT_0 + wakeupHandles.size())
             {
