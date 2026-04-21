@@ -26,7 +26,8 @@
 namespace N503::Audio::Node
 {
 
-    Queue::Queue(const std::size_t bytesPerFrame) : m_Storage{ bytesPerFrame, MaxBuffersQueue }, m_BytesPerFrame{ bytesPerFrame }
+    Queue::Queue(const std::size_t bytesPerFrame)
+        : m_Storage{bytesPerFrame, MaxBuffersQueue}, m_BytesPerFrame{bytesPerFrame}
     {
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -54,14 +55,14 @@ namespace N503::Audio::Node
         {
             if (m_Buffers[i].Bytes == nullptr)
             {
-                auto* address = m_Storage.AllocateBytes(m_BytesPerFrame, static_cast<std::size_t>(16));
+                auto *address = m_Storage.AllocateBytes(m_BytesPerFrame, static_cast<std::size_t>(16));
 
                 if (!address)
                 {
                     break;
                 }
 
-                m_Buffers[i].Bytes = static_cast<std::byte*>(address);
+                m_Buffers[i].Bytes = static_cast<std::byte *>(address);
                 m_Buffers[i].Size = m_BytesPerFrame;
                 m_Buffers[i].Count = 0;
                 m_Buffers[i].IsEndOfStream = false;
@@ -88,7 +89,7 @@ namespace N503::Audio::Node
         }
     }
 
-    auto Queue::Update(Context& context) -> bool
+    auto Queue::Update(Context &context) -> bool
     {
         if (context.Descriptor.Status == Audio::Status::Paused)
         {
@@ -137,7 +138,8 @@ namespace N503::Audio::Node
             if (m_Entries[index].Status == Node::Entry::Status::Empty)
             {
                 context.Buffers.Cache = &m_Entries[index];
-                if (context.Buffers.Cache->Status == Node::Entry::Status::Empty || context.Buffers.Cache->Status == Node::Entry::Status::Completed)
+                if (context.Buffers.Cache->Status == Node::Entry::Status::Empty ||
+                    context.Buffers.Cache->Status == Node::Entry::Status::Completed)
                 {
                     context.Buffers.Cache->Status = Node::Entry::Status::Ready;
                     context.Buffers.Cache->Signal->Notify.store(false, std::memory_order_relaxed);
@@ -153,7 +155,7 @@ namespace N503::Audio::Node
         return true; // 再生処理を継続する
     }
 
-    auto Queue::Sweep(Context& context) -> bool
+    auto Queue::Sweep(Context &context) -> bool
     {
         bool isEndOfStreamReached = false;
 
@@ -188,7 +190,8 @@ namespace N503::Audio::Node
 
                         // 重要：短いバッファでは BufferStart 通知より先に（あるいは同時に）
                         // Endが届くことがあるため、Submitted からの直接遷移を許可する
-                        if (m_Entries[i].Status == Node::Entry::Status::Submitted || m_Entries[i].Status == Node::Entry::Status::Playing)
+                        if (m_Entries[i].Status == Node::Entry::Status::Submitted ||
+                            m_Entries[i].Status == Node::Entry::Status::Playing)
                         {
                             m_Entries[i].Status = Node::Entry::Status::Completed;
                         }
@@ -205,8 +208,16 @@ namespace N503::Audio::Node
             {
                 const bool wasEndOfStream = m_Entries[i].Frames->IsEndOfStream;
 #ifdef _DEBUG
-                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(
-                    std::format("[Audio] Queue: <Completed> Index={} Bytes={} Size={} Used={} EndOfStream={}", i, static_cast<const void*>(m_Entries[i].Frames->Bytes), m_Entries[i].Frames->Size, m_Entries[i].Frames->Count * m_BytesPerFrame, (wasEndOfStream ? 1 : 0)).data());
+                const auto log = std::format(
+                    "[Audio] Queue: <Completed> Index={} Bytes={} Size={} Used={} EndOfStream={}",
+                    i,
+                    static_cast<const void *>(m_Entries[i].Frames->Bytes),
+                    m_Entries[i].Frames->Size,
+                    m_Entries[i].Frames->Count * m_BytesPerFrame,
+                    (wasEndOfStream ? 1 : 0)
+                );
+
+                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(log.data());
 #endif
                 m_Entries[i].Frames->Count = 0;
                 m_Entries[i].Frames->Duration = std::chrono::duration<double>(0.0);

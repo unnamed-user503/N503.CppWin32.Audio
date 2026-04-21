@@ -50,12 +50,12 @@ namespace N503::Audio::Node
         /// @brief
         /// @param context
         /// @return
-        auto Update(Context& context) -> bool;
+        auto Update(Context &context) -> bool;
 
         /// @brief
         /// @param context
         /// @return
-        auto Sweep(Context& context) -> bool;
+        auto Sweep(Context &context) -> bool;
 
     private:
         /// @brief
@@ -71,7 +71,7 @@ namespace N503::Audio::Node
         std::array<Device::Signal, MaxBuffersQueue> m_Signals{};
 
         /// @brief
-        std::size_t m_BytesPerFrame{ 0 };
+        std::size_t m_BytesPerFrame{0};
     };
 
 } // namespace N503::Audio::Node

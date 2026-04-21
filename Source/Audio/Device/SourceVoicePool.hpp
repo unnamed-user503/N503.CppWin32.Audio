@@ -40,7 +40,7 @@ namespace N503::Audio::Device
     public:
         /// @brief コンストラクタ
         /// @param context 親となるオーディオコンテキスト
-        explicit SourceVoicePool(Context* context);
+        explicit SourceVoicePool(Context *context);
 
         /// @brief デストラクタ
         /// @details 管理している全ての SourceVoice インスタンスを破棄します。
@@ -49,24 +49,24 @@ namespace N503::Audio::Device
         /// @brief 指定されたフォーマットに合致する SourceVoice を取得します
         /// @param format 要求するオーディオフォーマット
         /// @return 利用可能な SourceVoice ポインタ。取得できない場合は nullptr。
-        auto Borrow(const Format& format) -> SourceVoice*;
+        auto Borrow(const Format &format) -> SourceVoice *;
 
         /// @brief 使用済みの SourceVoice をプールに返却します
         /// @param voice 返却するインスタンス
-        auto Return(SourceVoice* voice) -> void;
+        auto Return(SourceVoice *voice) -> void;
 
     private:
         /// @brief SourceVoice インスタンスのメモリ実体を管理するプール
-        N503::Memory::Storage::Pool<SourceVoice> m_Storage{ MaxAvailableSourceVoices };
+        N503::Memory::Storage::Pool<SourceVoice> m_Storage{MaxAvailableSourceVoices};
 
         /// @brief 親コンテキストへのポインタ
-        Context* m_Context{ nullptr };
+        Context *m_Context{nullptr};
 
         /// @brief 現在貸し出し可能な（フリーな）SourceVoice のポインタリスト
-        std::vector<SourceVoice*> m_Availables;
+        std::vector<SourceVoice *> m_Availables;
 
         /// @brief 生成された全 SourceVoice の生存を追跡するためのインデックスリスト
-        std::vector<SourceVoice*> m_Indexes;
+        std::vector<SourceVoice *> m_Indexes;
     };
 
 } // namespace N503::Audio::Device

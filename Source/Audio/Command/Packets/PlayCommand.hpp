@@ -18,7 +18,7 @@ namespace N503::Audio::Command::Packets
 
     struct PlayCommand final
     {
-        Audio::ProcessHandle* Result;
+        Audio::ProcessHandle *Result;
 
         Audio::AssetHandle Handle;
 

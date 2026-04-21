@@ -15,11 +15,11 @@
 // 5. Windows Headers
 
 // 6. C++ Standard Libraries
+#include <Windows.h>
 #include <atomic>
 #include <memory>
 #include <stop_token>
 #include <thread>
-#include <Windows.h>
 
 namespace N503::Audio::Command
 {
@@ -45,7 +45,7 @@ namespace N503::Audio
     public:
         /// @brief
         /// @return
-        static auto Instance() -> Engine&;
+        static auto Instance() -> Engine &;
 
     public:
         /// @brief
@@ -59,48 +59,48 @@ namespace N503::Audio
         /// @return
         auto Stop() -> void;
 
-        /// @brief 
-        /// @return 
+        /// @brief
+        /// @return
         auto WaitForThreadStop() -> void;
 
         /// @brief
         /// @return
-        auto GetCommandQueue() const noexcept -> Command::Queue&
+        auto GetCommandQueue() const noexcept -> Command::Queue &
         {
             return *m_CommandQueue;
         }
 
         /// @brief
         /// @return
-        auto GetResourceContainer() const noexcept -> Resource::Container&
+        auto GetResourceContainer() const noexcept -> Resource::Container &
         {
             return *m_ResourceContainer;
         }
 
         /// @brief
         /// @return
-        auto GetDeviceContext() const noexcept -> Device::Context&
+        auto GetDeviceContext() const noexcept -> Device::Context &
         {
             return *m_DeviceContext;
         }
 
         /// @brief
         /// @return
-        auto GetAudioProcessor() noexcept -> Audio::Processor&
+        auto GetAudioProcessor() noexcept -> Audio::Processor &
         {
             return *m_AudioProcessor;
         }
 
         /// @brief
         /// @return
-        auto GetDiagnosticsSink() noexcept -> Diagnostics::Sink&
+        auto GetDiagnosticsSink() noexcept -> Diagnostics::Sink &
         {
             return m_DiagnosticsSink;
         }
 
         /// @brief
         /// @return
-        auto GetDiagnosticsReporter() noexcept -> Diagnostics::Reporter&
+        auto GetDiagnosticsReporter() noexcept -> Diagnostics::Reporter &
         {
             return m_DiagnosticsReporter;
         }
@@ -115,7 +115,7 @@ namespace N503::Audio
 
     private:
         /// @brief
-        std::atomic<bool> m_IsThreadRunning{ false };
+        std::atomic<bool> m_IsThreadRunning{false};
 
         /// @brief
         std::unique_ptr<Command::Queue> m_CommandQueue;
@@ -132,11 +132,13 @@ namespace N503::Audio
         /// @brief
         Diagnostics::Sink m_DiagnosticsSink;
 
-        /// @brief 
+        /// @brief
         Diagnostics::Reporter m_DiagnosticsReporter;
 
-        /// @brief 
-        wil::unique_event m_ThreadStateEvent{ ::CreateEventW(nullptr, TRUE, FALSE, L"Local\\N503.CppWin32.Audio.Event.EngineStarted") };
+        /// @brief
+        wil::unique_event m_ThreadStateEvent{
+            ::CreateEventW(nullptr, TRUE, FALSE, L"Local\\N503.CppWin32.Audio.Event.EngineStarted")
+        };
 
         /// @brief
         std::jthread m_AudioThread;

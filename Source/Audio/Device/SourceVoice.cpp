@@ -23,20 +23,28 @@
 #include <xaudio2.h>
 
 // 6. C++ Standard Libraries
+#include <chrono>
 #include <cstdint>
 #include <format>
-#include <chrono>
 #include <thread>
 
 namespace N503::Audio::Device
 {
 
     /// @brief フォーマットを元に XAudio2SourceVoice を生成
-    SourceVoice::SourceVoice(Context* context, const Audio::Format& format) : m_Format(format)
+    SourceVoice::SourceVoice(Context *context, const Audio::Format &format) : m_Format(format)
     {
         auto pcmFormat = m_Format.ToRawFormat();
         // XAudio2 側にソースボイスを作成依頼。自身(this)をコールバックハンドラとして渡す。
-        THROW_IF_FAILED(context->GetXAudio2()->CreateSourceVoice(&m_SourceVoice, reinterpret_cast<WAVEFORMATEX*>(&pcmFormat), 0, XAUDIO2_DEFAULT_FREQ_RATIO, this, nullptr, nullptr));
+        THROW_IF_FAILED(context->GetXAudio2()->CreateSourceVoice(
+            &m_SourceVoice,
+            reinterpret_cast<WAVEFORMATEX *>(&pcmFormat),
+            0,
+            XAUDIO2_DEFAULT_FREQ_RATIO,
+            this,
+            nullptr,
+            nullptr
+        ));
     }
 
     /// @brief 明示的なリソース破棄
@@ -105,7 +113,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief XAudio2 へのバッファ送信処理
-    auto SourceVoice::Submit(const Frames::Buffer& buffer, void* pBufferContext) -> bool
+    auto SourceVoice::Submit(const Frames::Buffer &buffer, void *pBufferContext) -> bool
     {
         if (!m_SourceVoice)
         {
@@ -121,7 +129,7 @@ namespace N503::Audio::Device
         XAUDIO2_BUFFER xBuffer = {};
         xBuffer.Flags = 0;
         xBuffer.AudioBytes = static_cast<UINT32>(buffer.Count * m_Format.BlockAlign);
-        xBuffer.pAudioData = reinterpret_cast<const BYTE*>(buffer.Bytes);
+        xBuffer.pAudioData = reinterpret_cast<const BYTE *>(buffer.Bytes);
         xBuffer.pContext = pBufferContext; // コールバックで使用されるコンテキスト
 
         // ストリームの終端である場合、終了フラグを立てる
@@ -132,7 +140,17 @@ namespace N503::Audio::Device
 
         // 送信直前のログ記録
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, std::format("[SourceVoice::Submit] SubmitSourceBuffer AudioBytes={} pAudioData={} pCtx={} eos={}", xBuffer.AudioBytes, static_cast<const void*>(xBuffer.pAudioData), xBuffer.pContext, buffer.IsEndOfStream ? 1 : 0).data() });
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(
+            {Diagnostics::Severity::Verbose,
+             std::format(
+                 "[SourceVoice::Submit] SubmitSourceBuffer AudioBytes={} pAudioData={} pCtx={} eos={}",
+                 xBuffer.AudioBytes,
+                 static_cast<const void *>(xBuffer.pAudioData),
+                 xBuffer.pContext,
+                 buffer.IsEndOfStream ? 1 : 0
+             )
+                 .data()}
+        );
 #endif
         // XAudio2 ボイスにデータを投入
         if (FAILED(m_SourceVoice->SubmitSourceBuffer(&xBuffer)))
@@ -145,7 +163,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief フォーマット取得
-    auto SourceVoice::GetFormat() const noexcept -> const Audio::Format&
+    auto SourceVoice::GetFormat() const noexcept -> const Audio::Format &
     {
         return m_Format;
     }
@@ -170,7 +188,7 @@ namespace N503::Audio::Device
             return false;
         }
 
-        float volume{ 0.0f };
+        float volume{0.0f};
         m_SourceVoice->GetVolume(&volume);
         return volume;
     }

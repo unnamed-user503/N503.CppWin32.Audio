@@ -23,4 +23,4 @@ namespace N503::Audio::Command::Packets
         Audio::Engine::Instance().GetAudioProcessor().Pause(Handle);
     }
 
-}
+} // namespace N503::Audio::Command::Packets

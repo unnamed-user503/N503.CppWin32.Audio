@@ -24,7 +24,7 @@ namespace N503::Audio::Command
         Packets::Packet Packet;
 
         /// @brief
-        std::binary_semaphore* Signal = nullptr;
+        std::binary_semaphore *Signal = nullptr;
     };
 
 } // namespace N503::Audio::Command

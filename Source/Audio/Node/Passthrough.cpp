@@ -37,7 +37,7 @@ namespace N503::Audio::Node
         m_Buffer.Duration = std::chrono::duration<double>(0.0);
     }
 
-    auto Passthrough::Update(Context& context) -> bool
+    auto Passthrough::Update(Context &context) -> bool
     {
         if (context.Descriptor.Status == Audio::Status::Paused)
         {
@@ -84,7 +84,7 @@ namespace N503::Audio::Node
         return true;
     }
 
-    auto Passthrough::Sweep(Context& context) -> bool
+    auto Passthrough::Sweep(Context &context) -> bool
     {
         if (m_Entry.Signal->Notify.load(std::memory_order_acquire))
         {

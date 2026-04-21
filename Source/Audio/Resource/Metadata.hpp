@@ -23,7 +23,7 @@ namespace N503::Audio::Resource
     {
         Audio::Format Format; ///< オーディオフォーマット
 
-        Audio::Type Type{ Audio::Type::None }; ///< Static / Stream
+        Audio::Type Type{Audio::Type::None}; ///< Static / Stream
 
         std::string Path; ///< アセットの実ファイルパス
     };

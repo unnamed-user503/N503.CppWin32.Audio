@@ -22,11 +22,11 @@ namespace N503::Audio::Codec
     class Metadata
     {
     public:
-        explicit Metadata(const wil::com_ptr<IMFSourceReader>& reader);
+        explicit Metadata(const wil::com_ptr<IMFSourceReader> &reader);
 
         auto Update() -> void;
 
-        auto GetFormat() const -> const Audio::Format&;
+        auto GetFormat() const -> const Audio::Format &;
 
         auto GetTotalSamples() const -> std::uint32_t;
 

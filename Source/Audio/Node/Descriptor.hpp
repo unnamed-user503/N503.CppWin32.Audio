@@ -22,22 +22,22 @@ namespace N503::Audio::Node
     struct Descriptor final
     {
         /// @brief
-        Audio::AssetHandle Handle{ Audio::Handle::ResourceID::InvalidValue };
+        Audio::AssetHandle Handle{Audio::Handle::ResourceID::InvalidValue};
 
         /// @brief
         std::string_view Path{};
 
         /// @brief
-        Audio::Type Type{ Audio::Type::None };
+        Audio::Type Type{Audio::Type::None};
 
         /// @brief
-        Audio::Status Status{ Audio::Status::Stopped };
+        Audio::Status Status{Audio::Status::Stopped};
 
         /// @brief
-        float Volume{ 0.0f };
+        float Volume{0.0f};
 
         /// @brief
-        bool Repeat{ false };
+        bool Repeat{false};
     };
 
 } // namespace N503::Audio::Node

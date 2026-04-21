@@ -28,28 +28,28 @@ namespace N503::Audio::Command
 
         /// @brief
         /// @param
-        Dispatcher(const Dispatcher&) = delete;
+        Dispatcher(const Dispatcher &) = delete;
 
         /// @brief
         /// @param
         /// @return
-        auto operator=(const Dispatcher&) -> Dispatcher& = delete;
+        auto operator=(const Dispatcher &) -> Dispatcher & = delete;
 
         /// @brief
         /// @param
-        Dispatcher(Dispatcher&&) = delete;
+        Dispatcher(Dispatcher &&) = delete;
 
         /// @brief
         /// @param
         /// @return
-        auto operator=(Dispatcher&&) -> Dispatcher& = delete;
+        auto operator=(Dispatcher &&) -> Dispatcher & = delete;
 
     public:
         /// @brief
         /// @param queue
         /// @param executor
         /// @return
-        auto Dispatch(Command::Queue& queue) -> void;
+        auto Dispatch(Command::Queue &queue) -> void;
     };
 
 } // namespace N503::Audio::Command

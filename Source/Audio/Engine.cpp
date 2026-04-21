@@ -22,6 +22,7 @@
 #include <mfapi.h>
 
 // 6. C++ Standard Libraries
+#include <N503/Diagnostics/Severity.hpp>
 #include <chrono>
 #include <format>
 #include <memory>
@@ -29,14 +30,13 @@
 #include <stop_token>
 #include <thread>
 #include <utility>
-#include <N503/Diagnostics/Severity.hpp>
 
 namespace N503::Audio
 {
 
     /// @brief
     /// @return
-    auto Engine::Instance() -> Engine&
+    auto Engine::Instance() -> Engine &
     {
         static Engine audioEngine{};
         return audioEngine;
@@ -66,34 +66,33 @@ namespace N503::Audio
         }
 
         // スレッド開始同期用シグナル
-        std::binary_semaphore signal{ 0 };
+        std::binary_semaphore signal{0};
 
-        m_AudioThread = std::jthread([this, &signal](std::stop_token stopToken)
-        {
-            // スレッドに名前を付ける
-            ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Audio");
-
-            // スレッドのメッセージキューを強制する
-            MSG message{};
-            ::PeekMessage(&message, NULL, WM_USER, WM_USER, PM_NOREMOVE);
-
-            // スレッドが開始されたのでロックを解放する
-            signal.release();
-
-            // エンジンスレッドが起動したので旗を立てる
-            m_ThreadStateEvent.SetEvent();
-
-            // COMの初期化
-            auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
-            ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
-            auto mfshutdown = wil::scope_exit([]
+        m_AudioThread = std::jthread(
+            [this, &signal](std::stop_token stopToken)
             {
-                ::MFShutdown();
-            });
+                // スレッドに名前を付ける
+                ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Audio");
 
-            // オーディオスレッドの開始
-            this->Run(std::move(stopToken));
-        });
+                // スレッドのメッセージキューを強制する
+                MSG message{};
+                ::PeekMessage(&message, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+
+                // スレッドが開始されたのでロックを解放する
+                signal.release();
+
+                // エンジンスレッドが起動したので旗を立てる
+                m_ThreadStateEvent.SetEvent();
+
+                // COMの初期化
+                auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
+                ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
+                auto mfshutdown = wil::scope_exit([] { ::MFShutdown(); });
+
+                // オーディオスレッドの開始
+                this->Run(std::move(stopToken));
+            }
+        );
 
         // スレッドが開始されるのを待つ
         signal.acquire();
@@ -106,7 +105,13 @@ namespace N503::Audio
     {
         if (!::PostThreadMessage(::GetThreadId(m_AudioThread.native_handle()), WM_QUIT, 0, 0))
         {
-            m_DiagnosticsSink.AddEntry({ Diagnostics::Severity::Error, std::format("PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data() });
+            m_DiagnosticsSink.AddEntry(
+                {Diagnostics::Severity::Error,
+                 std::format(
+                     "PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()
+                 )
+                     .data()}
+            );
         }
     }
 
@@ -115,13 +120,15 @@ namespace N503::Audio
         m_DeviceContext = std::make_unique<Device::Context>();
         m_AudioProcessor = std::make_unique<Audio::Processor>();
 
-        auto CleanupResources = wil::scope_exit([&]
-        {
-            m_AudioProcessor.reset();
-            m_DeviceContext.reset();
+        auto CleanupResources = wil::scope_exit(
+            [&]
+            {
+                m_AudioProcessor.reset();
+                m_DeviceContext.reset();
 
-            m_IsThreadRunning.store(false, std::memory_order_release);
-        });
+                m_IsThreadRunning.store(false, std::memory_order_release);
+            }
+        );
 
         auto OSMessageDispatch = []() -> bool
         {
@@ -138,10 +145,7 @@ namespace N503::Audio
             return true;
         };
 
-        auto wakeupHandles =
-        {
-            m_CommandQueue->GetWakeupEventHandle()
-        };
+        auto wakeupHandles = {m_CommandQueue->GetWakeupEventHandle()};
 
         Command::Dispatcher commandDispatcher;
 
@@ -150,7 +154,13 @@ namespace N503::Audio
         while (!stopToken.stop_requested())
         {
             auto timeout = isAnyActive ? 0 : INFINITE;
-            auto result = ::MsgWaitForMultipleObjectsEx(static_cast<DWORD>(wakeupHandles.size()), wakeupHandles.begin(), timeout, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+            auto result = ::MsgWaitForMultipleObjectsEx(
+                static_cast<DWORD>(wakeupHandles.size()),
+                wakeupHandles.begin(),
+                timeout,
+                QS_ALLINPUT,
+                MWMO_INPUTAVAILABLE
+            );
 
             if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + wakeupHandles.size()))
             {

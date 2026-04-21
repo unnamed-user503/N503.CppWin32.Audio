@@ -57,7 +57,7 @@ namespace N503::Audio
             return;
         }
 
-        auto packet = Command::Packets::DestroyResourceCommand{ .Handle = m_Entity->AssetHandle };
+        auto packet = Command::Packets::DestroyResourceCommand{.Handle = m_Entity->AssetHandle};
 
         Engine::Instance().GetCommandQueue().Push(std::move(packet));
     }
@@ -69,7 +69,9 @@ namespace N503::Audio
             return;
         }
 
-        auto packet = Command::Packets::PlayCommand{ .Result = &m_Entity->ProcessHandle, .Handle = m_Entity->AssetHandle, .Type = Audio::Type::Stream };
+        auto packet = Command::Packets::PlayCommand{
+            .Result = &m_Entity->ProcessHandle, .Handle = m_Entity->AssetHandle, .Type = Audio::Type::Stream
+        };
 
         Engine::Instance().GetCommandQueue().Push(std::move(packet));
     }
@@ -81,7 +83,7 @@ namespace N503::Audio
             return;
         }
 
-        auto packet = Command::Packets::StopCommand{ .Handle = m_Entity->ProcessHandle };
+        auto packet = Command::Packets::StopCommand{.Handle = m_Entity->ProcessHandle};
 
         Engine::Instance().GetCommandQueue().Push(std::move(packet));
     }
@@ -93,7 +95,7 @@ namespace N503::Audio
             return;
         }
 
-        auto packet = Command::Packets::PauseCommand{ .Handle = m_Entity->ProcessHandle };
+        auto packet = Command::Packets::PauseCommand{.Handle = m_Entity->ProcessHandle};
 
         Engine::Instance().GetCommandQueue().Push(std::move(packet));
     }
@@ -105,7 +107,7 @@ namespace N503::Audio
             return;
         }
 
-        auto packet = Command::Packets::ResumeCommand{ .Handle = m_Entity->ProcessHandle };
+        auto packet = Command::Packets::ResumeCommand{.Handle = m_Entity->ProcessHandle};
 
         Engine::Instance().GetCommandQueue().Push(std::move(packet));
     }

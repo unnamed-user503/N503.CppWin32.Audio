@@ -20,7 +20,8 @@
 namespace N503::Audio::Codec
 {
 
-    BufferedFrames::BufferedFrames(std::byte* baseAddress, std::size_t totalSize) : m_BaseAddress(baseAddress), m_BytesSize(totalSize)
+    BufferedFrames::BufferedFrames(std::byte *baseAddress, std::size_t totalSize)
+        : m_BaseAddress(baseAddress), m_BytesSize(totalSize)
     {
         if (!baseAddress || totalSize == 0)
         {
@@ -38,7 +39,7 @@ namespace N503::Audio::Codec
         return std::span<std::byte>(m_BaseAddress + offset, length);
     }
 
-    auto BufferedFrames::GetBaseAddress() const -> std::byte*
+    auto BufferedFrames::GetBaseAddress() const -> std::byte *
     {
         return m_BaseAddress;
     }

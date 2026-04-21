@@ -36,7 +36,7 @@ namespace N503::Audio::Codec
 
         auto Seek(std::uint32_t frames) -> void override;
 
-        auto GetFormat() const -> const Audio::Format& override;
+        auto GetFormat() const -> const Audio::Format & override;
 
         auto GetTotalSamples() const -> std::uint32_t override;
 

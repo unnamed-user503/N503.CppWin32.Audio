@@ -24,11 +24,11 @@
 namespace N503::Audio::Node
 {
 
-    Endpoint::Endpoint(Device::SourceVoice* sourceVoice) : m_SourceVoice{ sourceVoice }
+    Endpoint::Endpoint(Device::SourceVoice *sourceVoice) : m_SourceVoice{sourceVoice}
     {
     }
 
-    auto Endpoint::OnPlay(const Audio::Format& format) -> void
+    auto Endpoint::OnPlay(const Audio::Format &format) -> void
     {
 #ifdef _DEBUG
         Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Endpoint::OnPlay] AcquireSourceVoice");
@@ -55,7 +55,7 @@ namespace N503::Audio::Node
         }
     }
 
-    auto Endpoint::Update(Context& context) -> bool
+    auto Endpoint::Update(Context &context) -> bool
     {
         if (!m_SourceVoice)
         {
@@ -67,8 +67,8 @@ namespace N503::Audio::Node
             // フェード時間が 0 (即時切断) の場合
             if (context.Effect.Fade.Threshold == std::chrono::microseconds(0))
             {
-                m_SourceVoice->Stop();   // 鳴らすのを止める
-                m_SourceVoice->Flush();  // キューにあるバッファを全部捨てる
+                m_SourceVoice->Stop();  // 鳴らすのを止める
+                m_SourceVoice->Flush(); // キューにあるバッファを全部捨てる
             }
             else
             {
@@ -109,10 +109,10 @@ namespace N503::Audio::Node
         context.Position.Current += context.Buffers.Submit->Frames->Count;
 
         // XAudio2へのSubmit時に使用するコンテキスト(同期フラグ)を用意
-        void* pContext = nullptr;
+        void *pContext = nullptr;
         if (context.Buffers.Submit->Signal)
         {
-            pContext = static_cast<void*>(context.Buffers.Submit->Signal);
+            pContext = static_cast<void *>(context.Buffers.Submit->Signal);
         }
 
         // SubmitSourceBuffer を実行

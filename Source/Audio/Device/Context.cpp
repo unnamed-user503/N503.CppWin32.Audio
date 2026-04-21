@@ -56,13 +56,13 @@ namespace N503::Audio::Device
     }
 
     /// @brief プールからボイスを借用
-    auto Context::AcquireSourceVoice(const Format& format) -> SourceVoice*
+    auto Context::AcquireSourceVoice(const Format &format) -> SourceVoice *
     {
         return m_SourceVoicePool->Borrow(format);
     }
 
     /// @brief プールへボイスを返却
-    auto Context::ReleaseSourceVoice(SourceVoice* voice) -> void
+    auto Context::ReleaseSourceVoice(SourceVoice *voice) -> void
     {
         m_SourceVoicePool->Return(voice);
     }

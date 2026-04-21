@@ -21,7 +21,7 @@ namespace N503::Audio::Device
 {
 
     /// @brief プールの初期化
-    SourceVoicePool::SourceVoicePool(Context* context) : m_Context(context)
+    SourceVoicePool::SourceVoicePool(Context *context) : m_Context(context)
     {
         // 管理リストのメモリを事前に予約し、再アロケーションを抑制する
         m_Availables.reserve(MaxAvailableSourceVoices);
@@ -33,7 +33,7 @@ namespace N503::Audio::Device
     {
         // 索引(m_Indexes)を辿って、全てのボイスのデストラクタを明示的に呼び出す
         // これにより SourceVoice 内の XAudio2::DestroyVoice が確実に実行される
-        for (auto* voice : m_Indexes)
+        for (auto *voice : m_Indexes)
         {
             std::destroy_at(voice);
         }
@@ -41,14 +41,14 @@ namespace N503::Audio::Device
     }
 
     /// @brief ボイスの借用処理
-    auto SourceVoicePool::Borrow(const Format& format) -> SourceVoice*
+    auto SourceVoicePool::Borrow(const Format &format) -> SourceVoice *
     {
         // 1. Availables（貸出可能リスト）から、要求されたフォーマットと一致するものを探す
         for (std::size_t i = 0; i < m_Availables.size(); ++i)
         {
             if (m_Availables[i]->GetFormat() == format)
             {
-                SourceVoice* voice = m_Availables[i];
+                SourceVoice *voice = m_Availables[i];
 
                 // --- Swap-and-Pop テクニック ---
                 // リストの途中の要素を削除すると後続のシフトで O(N) かかるため、
@@ -70,7 +70,7 @@ namespace N503::Audio::Device
         if (m_Indexes.size() < MaxAvailableSourceVoices)
         {
             // Storage (Pool) からメモリを切り出し、インスタンスを構築
-            if (SourceVoice* voice = m_Storage.Create(m_Context, format))
+            if (SourceVoice *voice = m_Storage.Create(m_Context, format))
             {
                 m_Indexes.push_back(voice);
                 voice->Start();
@@ -83,7 +83,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief ボイスの返却処理
-    auto SourceVoicePool::Return(SourceVoice* voice) -> void
+    auto SourceVoicePool::Return(SourceVoice *voice) -> void
     {
         if (voice)
         {

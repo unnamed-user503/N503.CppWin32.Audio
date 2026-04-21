@@ -21,7 +21,7 @@ namespace N503::Audio::Command::Packets
     /// @brief
     struct CreateResourceCommand final
     {
-        Audio::AssetHandle* Result;
+        Audio::AssetHandle *Result;
 
         Audio::Format Format;
 

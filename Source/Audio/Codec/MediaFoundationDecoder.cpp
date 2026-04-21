@@ -26,13 +26,15 @@
 namespace N503::Audio::Codec
 {
 
-    MediaFoundationDecoder::MediaFoundationDecoder(std::string_view url) : m_SourceReader(std::make_unique<SourceReader>(url)), m_BufferAllocator(std::make_unique<BufferAllocator>(1024))
+    MediaFoundationDecoder::MediaFoundationDecoder(std::string_view url)
+        : m_SourceReader(std::make_unique<SourceReader>(url)),
+          m_BufferAllocator(std::make_unique<BufferAllocator>(1024))
     {
     }
 
     auto MediaFoundationDecoder::Decode(std::uint32_t framesRequested) -> Frames::Buffer
     {
-        const auto& format = GetFormat();
+        const auto &format = GetFormat();
 
         const std::size_t bytesPerFrame = format.Channels * (format.BitsPerSample / 8);
         const std::size_t totalBytesNeeded = framesRequested * bytesPerFrame;
@@ -44,7 +46,7 @@ namespace N503::Audio::Codec
         Frames::Buffer result;
         result.Count = static_cast<std::uint32_t>(bytesRead / bytesPerFrame);
         result.Duration = std::chrono::duration<double>(result.Count / format.SamplePerSecond);
-        result.Bytes = reinterpret_cast<std::byte*>(bufferedFrames.GetBaseAddress());
+        result.Bytes = reinterpret_cast<std::byte *>(bufferedFrames.GetBaseAddress());
         result.Size = bytesRead;
 
         return result;
@@ -52,7 +54,7 @@ namespace N503::Audio::Codec
 
     auto MediaFoundationDecoder::Decode(std::uint32_t framesRequested, Allocator allocator) -> Frames::Buffer
     {
-        const auto& format = GetFormat();
+        const auto &format = GetFormat();
 
         const std::size_t bytesPerFrame = format.Channels * (format.BitsPerSample / 8);
         const std::size_t totalBytesNeeded = framesRequested * bytesPerFrame;
@@ -68,7 +70,9 @@ namespace N503::Audio::Codec
 
         std::uint32_t decodedFrames = static_cast<std::uint32_t>(writtenBytes / format.BlockAlign);
 
-        return { .Bytes = target.data(), .Size = writtenBytes, .Count = decodedFrames, .IsEndOfStream = (decodedFrames == 0) };
+        return {
+            .Bytes = target.data(), .Size = writtenBytes, .Count = decodedFrames, .IsEndOfStream = (decodedFrames == 0)
+        };
     }
 
     void MediaFoundationDecoder::Seek(std::uint32_t frames)
@@ -76,7 +80,7 @@ namespace N503::Audio::Codec
         m_SourceReader->Seek(frames);
     }
 
-    auto MediaFoundationDecoder::GetFormat() const -> const Audio::Format&
+    auto MediaFoundationDecoder::GetFormat() const -> const Audio::Format &
     {
         return m_SourceReader->GetMetadata().GetFormat();
     }

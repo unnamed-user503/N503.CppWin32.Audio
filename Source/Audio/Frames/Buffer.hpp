@@ -20,15 +20,15 @@ namespace N503::Audio::Frames
 
     struct Buffer final
     {
-        std::byte* Bytes{ nullptr }; ///< 波形データのアドレス値
+        std::byte *Bytes{nullptr}; ///< 波形データのアドレス値
 
-        std::size_t Size{ 0 }; ///< 波形データのバイト数
+        std::size_t Size{0}; ///< 波形データのバイト数
 
-        std::uint64_t Count{ 0 }; ///< フレーム数
+        std::uint64_t Count{0}; ///< フレーム数
 
-        std::chrono::duration<double> Duration{ 0.0 }; ///< 再生時間(ms)
+        std::chrono::duration<double> Duration{0.0}; ///< 再生時間(ms)
 
-        bool IsEndOfStream{ false }; ///< 最後のフレームバッファ
+        bool IsEndOfStream{false}; ///< 最後のフレームバッファ
     };
 
 } // namespace N503::Audio::Frames

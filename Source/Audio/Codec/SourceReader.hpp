@@ -34,7 +34,7 @@ namespace N503::Audio::Codec
 
         auto Seek(std::uint32_t frameIndex) -> void;
 
-        auto GetMetadata() const -> const Metadata&
+        auto GetMetadata() const -> const Metadata &
         {
             return *m_Metadata;
         }

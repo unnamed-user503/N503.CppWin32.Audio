@@ -31,11 +31,11 @@ namespace N503::Audio::Device
 
         /// @brief 新しい通知が発生したかどうかを示すフラグ
         /// @note atomic 操作により、異なるスレッド間でも安全にフラグの読み書きが可能です。
-        std::atomic<bool> Notify{ false };
+        std::atomic<bool> Notify{false};
 
         /// @brief 発生したイベントの具体的な種類
         /// @note コールバック側で書き込まれ、監視側で読み取られます。
-        std::atomic<Event> Event{ Event::None };
+        std::atomic<Event> Event{Event::None};
     };
 
 } // namespace N503::Audio::Device

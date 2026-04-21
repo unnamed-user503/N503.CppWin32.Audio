@@ -32,7 +32,7 @@ namespace N503::Audio::Codec
             throw std::bad_alloc();
         }
 
-        return { static_cast<std::byte*>(allocatedBuffer), blockSize };
+        return {static_cast<std::byte *>(allocatedBuffer), blockSize};
     }
 
     auto BufferAllocator::Deallocate(const BufferedFrames) -> void

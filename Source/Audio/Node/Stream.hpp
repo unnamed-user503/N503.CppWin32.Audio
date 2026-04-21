@@ -24,7 +24,7 @@ namespace N503::Audio::Node
     public:
         /// @brief
         /// @param descriptor
-        explicit Stream(const Node::Descriptor* descriptor = nullptr);
+        explicit Stream(const Node::Descriptor *descriptor = nullptr);
 
         /// @brief
         ~Stream() = default;
@@ -32,7 +32,7 @@ namespace N503::Audio::Node
         /// @brief
         /// @param descriptor
         /// @return
-        auto OnPlay(const Node::Descriptor& descriptor) -> void;
+        auto OnPlay(const Node::Descriptor &descriptor) -> void;
 
         /// @brief
         /// @return
@@ -41,7 +41,7 @@ namespace N503::Audio::Node
         /// @brief
         /// @param context
         /// @return
-        auto Update(Context& context) -> bool;
+        auto Update(Context &context) -> bool;
 
     private:
         /// @brief

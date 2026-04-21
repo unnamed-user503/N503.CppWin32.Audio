@@ -25,7 +25,9 @@ namespace N503::Audio::Command::Packets
         if (!Result)
         {
 #ifdef _DEBUG
-            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Error, "[Audio] CreateResourceCommand: command.Result is empty." });
+            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(
+                {Diagnostics::Severity::Error, "[Audio] CreateResourceCommand: command.Result is empty."}
+            );
 #endif
             return;
         }
@@ -43,4 +45,4 @@ namespace N503::Audio::Command::Packets
         }
     }
 
-}
+} // namespace N503::Audio::Command::Packets

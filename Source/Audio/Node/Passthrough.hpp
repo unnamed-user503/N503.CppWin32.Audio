@@ -30,11 +30,11 @@ namespace N503::Audio::Node
         /// @brief
         /// @param context
         /// @return
-        auto Update(Context& context) -> bool;
+        auto Update(Context &context) -> bool;
 
         /// @brief
         /// @return
-        auto Sweep(Context& context) -> bool;
+        auto Sweep(Context &context) -> bool;
 
     private:
         /// @brief

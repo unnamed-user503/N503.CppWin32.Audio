@@ -34,7 +34,8 @@ namespace N503::Audio::Node
         /// @param context
         // 各ノードのコンストラクタに必要な引数を、それぞれの基底クラスへ転送
         // TArgs... は各ノードの初期化用オブジェクトなどを想定
-        template <typename... TArgs> explicit Path(TArgs&&... args) : TNodes(std::forward<TArgs>(args))... // 各基底クラスを初期化
+        template <typename... TArgs>
+        explicit Path(TArgs &&...args) : TNodes(std::forward<TArgs>(args))... // 各基底クラスを初期化
         {
             m_Context = std::make_unique<Node::Context>();
         }
@@ -73,7 +74,7 @@ namespace N503::Audio::Node
         /// @param handle
         /// @param descriptor
         /// @return
-        auto Connect(const Node::Descriptor& descriptor, const Audio::Format& format) -> bool
+        auto Connect(const Node::Descriptor &descriptor, const Audio::Format &format) -> bool
         {
             if (m_Context->Descriptor.Status != Audio::Status::Stopped)
             {
@@ -128,7 +129,8 @@ namespace N503::Audio::Node
                 m_Context->Effect.Fade.Direction = std::chrono::microseconds(0);
                 return true;
             }
-            else if (m_Context->Descriptor.Status != Audio::Status::Playing || m_Context->Descriptor.Status == Audio::Status::Stopping)
+            else if (m_Context->Descriptor.Status != Audio::Status::Playing ||
+                     m_Context->Descriptor.Status == Audio::Status::Stopping)
             {
                 return false;
             }
@@ -154,7 +156,8 @@ namespace N503::Audio::Node
         /// @return
         auto Stop() -> bool
         {
-            if (m_Context->Descriptor.Status != Audio::Status::Stopping || m_Context->Descriptor.Status == Audio::Status::Stopped)
+            if (m_Context->Descriptor.Status != Audio::Status::Stopping ||
+                m_Context->Descriptor.Status == Audio::Status::Stopped)
             {
                 return false;
             }
@@ -243,12 +246,12 @@ namespace N503::Audio::Node
         /// @tparam Index
         /// @param context
         /// @return
-        template <std::size_t Index> auto Update(Context& context) -> bool
+        template <std::size_t Index> auto Update(Context &context) -> bool
         {
             using TNode = std::tuple_element_t<Index, std::tuple<TNodes...>>;
 
             // 先に現在のノードを動かす
-            bool currentFinished = static_cast<TNode*>(this)->Update(context);
+            bool currentFinished = static_cast<TNode *>(this)->Update(context);
 #ifdef _DEBUG
             //::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
 #endif
@@ -278,6 +281,6 @@ namespace N503::Audio::Node
     };
 
     /// @brief
-    template <typename... TArgs> Path(std::unique_ptr<Context>, TArgs&&...) -> Path<std::decay_t<TArgs>...>;
+    template <typename... TArgs> Path(std::unique_ptr<Context>, TArgs &&...) -> Path<std::decay_t<TArgs>...>;
 
 } // namespace N503::Audio::Node

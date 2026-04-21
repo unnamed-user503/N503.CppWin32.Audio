@@ -30,13 +30,13 @@ namespace N503::Audio::Resource
 
         ~Container();
 
-        Container(const Container&) = delete;
+        Container(const Container &) = delete;
 
-        Container& operator=(const Container&) = delete;
+        Container &operator=(const Container &) = delete;
 
         auto Store(Audio::Type type, std::string_view path) -> Audio::AssetHandle;
 
-        auto GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset*;
+        auto GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset *;
 
         auto Remove(Audio::AssetHandle handle) -> void;
 
@@ -45,7 +45,7 @@ namespace N503::Audio::Resource
     private:
         N503::Memory::Storage::Arena m_Storage;
 
-        std::array<Resource::Asset*, MaxAssets + 1> m_AssetSlots{};
+        std::array<Resource::Asset *, MaxAssets + 1> m_AssetSlots{};
 
         std::vector<Audio::AssetHandle> m_AvailableHandles;
     };

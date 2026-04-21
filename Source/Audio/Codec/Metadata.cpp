@@ -28,7 +28,7 @@
 namespace N503::Audio::Codec
 {
 
-    Metadata::Metadata(const wil::com_ptr<IMFSourceReader>& reader) : m_SourceReader(reader)
+    Metadata::Metadata(const wil::com_ptr<IMFSourceReader> &reader) : m_SourceReader(reader)
     {
         Update();
     }
@@ -38,7 +38,7 @@ namespace N503::Audio::Codec
         wil::com_ptr<IMFMediaType> mfMediaType;
         THROW_IF_FAILED(m_SourceReader->GetCurrentMediaType(MF_SOURCE_READER_FIRST_AUDIO_STREAM, mfMediaType.put()));
 
-        GUID subtype = { 0 };
+        GUID subtype = {0};
         UINT32 channels = 0;
         UINT32 sampleRate = 0;
         UINT32 bitsPerSample = 0;
@@ -61,9 +61,11 @@ namespace N503::Audio::Codec
 
         if (channels == 0 || sampleRate == 0 || bitsPerSample == 0)
         {
-            WAVEFORMATEX* pWaveFormat{};
+            WAVEFORMATEX *pWaveFormat{};
             std::uint32_t waveFormatSize{};
-            THROW_IF_FAILED(::MFCreateWaveFormatExFromMFMediaType(mfMediaType.get(), &pWaveFormat, &waveFormatSize, MFWaveFormatExConvertFlag_Normal));
+            THROW_IF_FAILED(::MFCreateWaveFormatExFromMFMediaType(
+                mfMediaType.get(), &pWaveFormat, &waveFormatSize, MFWaveFormatExConvertFlag_Normal
+            ));
 
             m_Format.Tag = pWaveFormat->wFormatTag;
             m_Format.BlockAlign = pWaveFormat->nBlockAlign;
@@ -108,7 +110,7 @@ namespace N503::Audio::Codec
         }
     }
 
-    auto Metadata::GetFormat() const -> const Audio::Format&
+    auto Metadata::GetFormat() const -> const Audio::Format &
     {
         return m_Format;
     }
