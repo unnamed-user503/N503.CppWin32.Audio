@@ -132,7 +132,7 @@ namespace N503::Audio::Device
 
         // 送信直前のログ記録
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Info, std::format("[SourceVoice::Submit] SubmitSourceBuffer AudioBytes={} pAudioData={} pCtx={} eos={}", xBuffer.AudioBytes, static_cast<const void*>(xBuffer.pAudioData), xBuffer.pContext, buffer.IsEndOfStream ? 1 : 0).data() });
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, std::format("[SourceVoice::Submit] SubmitSourceBuffer AudioBytes={} pAudioData={} pCtx={} eos={}", xBuffer.AudioBytes, static_cast<const void*>(xBuffer.pAudioData), xBuffer.pContext, buffer.IsEndOfStream ? 1 : 0).data() });
 #endif
         // XAudio2 ボイスにデータを投入
         if (FAILED(m_SourceVoice->SubmitSourceBuffer(&xBuffer)))

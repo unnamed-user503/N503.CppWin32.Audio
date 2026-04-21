@@ -19,6 +19,7 @@
 #include <memory>
 #include <stop_token>
 #include <thread>
+#include <Windows.h>
 
 namespace N503::Audio::Command
 {
@@ -128,14 +129,14 @@ namespace N503::Audio
         /// @brief
         std::unique_ptr<Audio::Processor> m_AudioProcessor;
 
-        /// @brief 
-        wil::unique_event m_ThreadStartedEvent;
-
         /// @brief
         Diagnostics::Sink m_DiagnosticsSink;
 
         /// @brief 
         Diagnostics::Reporter m_DiagnosticsReporter;
+
+        /// @brief 
+        wil::unique_event m_ThreadStateEvent{ ::CreateEventW(nullptr, TRUE, FALSE, L"Local\\N503.CppWin32.Audio.Event.EngineStarted") };
 
         /// @brief
         std::jthread m_AudioThread;

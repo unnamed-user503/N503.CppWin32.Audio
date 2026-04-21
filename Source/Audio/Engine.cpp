@@ -71,19 +71,25 @@ namespace N503::Audio
         m_AudioThread = std::jthread([this, &signal](std::stop_token stopToken)
         {
             // スレッドに名前を付ける
-            ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Thread.Worker.Audio");
+            ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Audio");
 
             // スレッドのメッセージキューを強制する
-            MSG msg;
-            ::PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+            MSG message{};
+            ::PeekMessage(&message, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 
             // スレッドが開始されたのでロックを解放する
             signal.release();
 
+            // エンジンスレッドが起動したので旗を立てる
+            m_ThreadStateEvent.SetEvent();
+
             // COMの初期化
             auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
             ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
-            auto mfshutdown = wil::scope_exit([]{ ::MFShutdown(); });
+            auto mfshutdown = wil::scope_exit([]
+            {
+                ::MFShutdown();
+            });
 
             // オーディオスレッドの開始
             this->Run(std::move(stopToken));
