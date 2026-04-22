@@ -2,7 +2,9 @@
 #include "Processor.hpp"
 
 // 1. Project Headers
+#include "Device/SourceVoice.hpp"
 #include "Engine.hpp"
+#include "Node/Descriptor.hpp"
 #include "Node/Effect.hpp"
 #include "Node/Queue.hpp"
 #include "Resource/Asset.hpp"
@@ -106,6 +108,32 @@ namespace N503::Audio
             return {};
         }
 
+        // Stream再生のみ重複再生を許可しない
+        for (std::size_t i = 0; i < MaxStreamVoicePaths; ++i)
+        {
+            bool found = std::visit(
+                [&](auto& node) -> bool
+                {
+                    using T = std::decay_t<decltype(node)>;
+                    if constexpr (std::is_same_v<T, std::monostate>)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return (node.GetAssetHandle().ResourceID == asset->Handle.ResourceID);
+                    }
+                },
+                m_VoicePaths[MaxStaticVoicePaths + i]
+            );
+
+            if (found)
+            {
+                return {};
+            }
+        }
+
+        // チケットキューの選択
         auto& ticketQueue = (asset->Metadata.Type == Audio::Type::Static) ? m_StaticTicketQueue : m_StreamTicketQueue;
 
         if (ticketQueue.empty())
@@ -113,6 +141,7 @@ namespace N503::Audio
             return {};
         }
 
+        // チケットを取得できた場合のみ再生処理を行う
         const auto ticket = ticketQueue.front();
         const auto index  = static_cast<std::uint64_t>(ticket);
 
@@ -126,9 +155,15 @@ namespace N503::Audio
                 }
                 else
                 {
-                    return node.Connect(
-                        { .Handle = asset->Handle, .Path = asset->Metadata.Path, .Type = asset->Metadata.Type, .Volume = 1.0f }, asset->Metadata.Format
-                    );
+                    Node::Descriptor descriptor{
+                        .Handle = asset->Handle,
+                        .Path   = asset->Metadata.Path,
+                        .Type   = asset->Metadata.Type,
+                        .Volume = 1.0f,
+                        .Repeat = asset->Metadata.Type == Audio::Type::Stream ? true : false,
+                    };
+
+                    return node.Connect(descriptor, asset->Metadata.Format);
                 }
             },
             m_VoicePaths[index]

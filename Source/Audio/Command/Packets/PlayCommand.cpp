@@ -6,6 +6,7 @@
 #include "../../Processor.hpp"
 
 // 2. Project Dependencies
+#include <N503/Audio/Types.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -22,7 +23,10 @@ namespace N503::Audio::Command::Packets
     {
         if (auto asset = Audio::Engine::Instance().GetResourceContainer().GetAsset(Handle))
         {
-            *Result = Audio::Engine::Instance().GetAudioProcessor().Play(asset);
+            if (auto handle = Audio::Engine::Instance().GetAudioProcessor().Play(asset))
+            {
+                *Result = handle;
+            }
         }
     }
 

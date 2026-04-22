@@ -53,6 +53,7 @@ namespace N503::Audio::Node
                 Stop();
 
                 // Processor がこのインスタンスを回収できるよう Status を更新
+                m_Context->Descriptor = {};
                 m_Context->Descriptor.Status = Audio::Status::Stopped;
 #ifdef _DEBUG
                 ::OutputDebugStringA("[Audio] Node::Path: All nodes finished. Process terminal.\n");
@@ -138,16 +139,15 @@ namespace N503::Audio::Node
             return true;
         }
 
+        /// @note 即時(Immediate)停止される場合に呼ばれる
         auto Stop() -> bool
         {
-            if (m_Context->Descriptor.Status != Audio::Status::Stopping || m_Context->Descriptor.Status == Audio::Status::Stopped)
+            if (m_Context->Descriptor.Status == Audio::Status::Stopped)
             {
                 return false;
             }
-            else
-            {
-                m_Context->Descriptor.Status = Audio::Status::Stopping;
-            }
+
+            m_Context->Descriptor.Status = Audio::Status::Stopped;
 
             // clang-format off
             ([&]<typename T>()
@@ -239,9 +239,20 @@ namespace N503::Audio::Node
         }
 
     public:
-        auto GetStatus() -> Audio::Status
+        auto GetStatus() const -> Audio::Status
         {
             return m_Context->Descriptor.Status;
+        }
+
+        auto GetAssetHandle() const -> const Audio::AssetHandle
+        {
+            // Stopping中ででも停止したかのように振舞うとフェードアウト中に次の曲が再生できる
+            if (GetStatus() == Audio::Status::Stopping || GetStatus() == Audio::Status::Stopped)
+            {
+                return {};
+            }
+
+            return m_Context->Descriptor.Handle;
         }
 
     private:

@@ -21,22 +21,16 @@ namespace N503::Audio::Node
     /// @brief
     struct Descriptor final
     {
-        /// @brief
         Audio::AssetHandle Handle{ Audio::Handle::ResourceID::InvalidValue };
 
-        /// @brief
         std::string_view Path{};
 
-        /// @brief
         Audio::Type Type{ Audio::Type::None };
 
-        /// @brief
         Audio::Status Status{ Audio::Status::Stopped };
 
-        /// @brief
         float Volume{ 0.0f };
 
-        /// @brief
         bool Repeat{ false };
     };
 
