@@ -176,6 +176,9 @@ namespace N503::Audio
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 
+#ifdef _DEBUG
+        diagnosticsReporter.Submit(m_DiagnosticsSink);
+#endif
         diagnosticsReporter.Stop();
         diagnosticsReporter.Wait();
     }

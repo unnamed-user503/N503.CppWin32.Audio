@@ -27,6 +27,7 @@ namespace N503::Audio::Node
 
     auto Effect::Update(Context& context) -> bool
     {
+        // 一時停止中は「まだ仕事の途中」なので false
         if (context.Descriptor.Status == Audio::Status::Paused)
         {
             return false;
@@ -34,52 +35,56 @@ namespace N503::Audio::Node
 
         auto& fade = context.Effect.Fade;
 
-        // 【最優先】全体の停止号令(Stopping)を確認
-        // QueueがEOSを検知してStoppingになったら、フェード中であっても
-        // 「音量が0（またはフェード設定なし）」なら即座に終了を報告する。
+        // 外部から停止要求（Stopping）が来ている場合の処理
         if (context.Descriptor.Status == Audio::Status::Stopping)
         {
-            // フェードアウト中（Direction > 0）かつ、まだ音量が残っている（Elapsed < Threshold）場合以外は終了
-            const bool isBusyFadingOut = (fade.Threshold.count() > 0 && fade.Direction.count() > 0 && fade.Elapsed < fade.Threshold);
+            // フェードアウト設定があるか確認
+            const bool hasFadeOut = (fade.Threshold.count() > 0 && fade.Direction.count() > 0);
+            const bool isFadeOutComplete = (fade.Elapsed >= fade.Threshold);
 
-            if (!isBusyFadingOut)
+            // フェードアウト中ならまだ仕事中、終わっているか設定がなければ「仕事完了」
+            if (!hasFadeOut || isFadeOutComplete)
             {
-                return true;
+                return true; 
             }
         }
 
-        // フェード設定がない通常の再生継続
+        // フェード設定がない場合
         if (fade.Threshold.count() <= 0)
         {
-            // 使用するべきエフェクトがない=仕事が無い状態なのでNode::Effectは何時でも再生を終了してもよい状態
-            return true;
+            // Stoppingでないなら通常再生中なので、仕事は終わっていない
+            return false; 
         }
 
-        // フェード進行処理
-        fade.Elapsed   += fade.Direction;
-        float progress  = std::clamp(static_cast<float>(std::abs(fade.Elapsed.count())) / fade.Threshold.count(), 0.0f, 1.0f);
+        // フェード進捗の更新
+        fade.Elapsed += fade.Direction;
+        float progress = std::clamp(
+            static_cast<float>(std::abs(fade.Elapsed.count())) / fade.Threshold.count(), 
+            0.0f,
+            1.0f
+        );
 
-        const bool isFadeOut      = fade.Direction.count() >= 0;
+        const bool isFadeOut = (fade.Direction.count() >= 0);
         context.Descriptor.Volume = isFadeOut ? (1.0f - progress) : progress;
 
-        // 完了判定（手動フェードアウト用）
+        // フェード完了判定
         if (progress >= 1.0f)
         {
             if (isFadeOut)
             {
-                // ボリュームを絞りきったら、自ら「停止処理(Stopping)」へ移行を促す
-                if (context.Descriptor.Status == Audio::Status::Playing)
-                {
-                    context.Descriptor.Status = Audio::Status::Stopping;
-                }
-
+                // フェードアウトして無音になったら仕事完了
+                context.Descriptor.Status = Audio::Status::Stopping;
                 return true;
             }
-
-            // フェードイン完了後は、そのまま再生を続ける
-            return false;
+            else
+            {
+                // フェードイン完了時は「通常再生」に移行するだけなので、仕事は続く
+                // (何度も計算しないよう、ここで設定を無効化するなどの処理が望ましい)
+                return false;
+            }
         }
 
-        return false;
+        return false; // まだフェード中なので仕事継続
     }
+
 } // namespace N503::Audio::Node

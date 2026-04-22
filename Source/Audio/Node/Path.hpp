@@ -21,6 +21,8 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
+#include <format>
+#include <iostream>
 
 namespace N503::Audio::Node
 {
@@ -40,7 +42,7 @@ namespace N503::Audio::Node
             // 内部でエラーが発生しているので強制終了
             if (m_Context->Descriptor.Status == Audio::Status::Error)
             {
-                Stop();
+                ImmediateStop();
                 return true;
             }
 
@@ -69,8 +71,7 @@ namespace N503::Audio::Node
                 }
 
                 // このパスを停止させる
-                Stop();
-
+                ImmediateStop();
                 // Processor がこのインスタンスを回収できるよう Status を更新
                 m_Context->Descriptor = {};
                 m_Context->Descriptor.Status = Audio::Status::Stopped;
@@ -83,7 +84,7 @@ namespace N503::Audio::Node
             return false; // 誰か一人でも false (継続) を返している間は再生を維持
         }
 
-        auto Connect(const Node::Descriptor& descriptor, const Audio::Format& format) -> bool
+        auto Play(const Node::Descriptor& descriptor, const Audio::Format& format) -> bool
         {
             if (m_Context->Descriptor.Status != Audio::Status::Stopped)
             {
@@ -128,16 +129,17 @@ namespace N503::Audio::Node
             return true;
         }
 
-        auto Disconnect() -> bool
+        auto Stop() -> bool
         {
+            // 停止要求時にリピートフラグを下ろしておく事でスムーズに停止へ遷移できる
             m_Context->Descriptor.Repeat = false;
 
             if (m_Context->Descriptor.Status == Audio::Status::Paused)
             {
                 m_Context->Descriptor.Status     = Audio::Status::Stopping;
-                m_Context->Effect.Fade.Threshold = std::chrono::microseconds(0);
+                m_Context->Effect.Fade.Threshold = std::chrono::microseconds(320);
                 m_Context->Effect.Fade.Elapsed   = std::chrono::microseconds(0);
-                m_Context->Effect.Fade.Direction = std::chrono::microseconds(0);
+                m_Context->Effect.Fade.Direction = std::chrono::microseconds(-16);
                 return true;
             }
             else if (m_Context->Descriptor.Status != Audio::Status::Playing || m_Context->Descriptor.Status == Audio::Status::Stopping)
@@ -152,25 +154,29 @@ namespace N503::Audio::Node
             // Audio::TypeがStaticの場合フェード処理は必用ないので直接Stopを行う
             if (m_Context->Descriptor.Type == Audio::Type::Static)
             {
-                return Stop();
+                return ImmediateStop();
             }
 
-            m_Context->Effect.Fade.Threshold = std::chrono::microseconds(320);
+            m_Context->Effect.Fade.Threshold = std::chrono::microseconds(640);
             m_Context->Effect.Fade.Elapsed   = std::chrono::microseconds(0);
             m_Context->Effect.Fade.Direction = std::chrono::microseconds(16);
 
             return true;
         }
 
-        /// @note 即時(Immediate)停止される場合に呼ばれる
-        auto Stop() -> bool
+        auto ImmediateStop() -> bool
         {
+            // 停止要求時にリピートフラグを下ろしておく事でスムーズに停止へ遷移できる
+            m_Context->Descriptor.Repeat = false;
+
             if (m_Context->Descriptor.Status == Audio::Status::Stopped)
             {
                 return false;
             }
-
-            m_Context->Descriptor.Status = Audio::Status::Stopped;
+            else
+            {
+                m_Context->Descriptor.Status = Audio::Status::Stopped;
+            }
 
             // clang-format off
             ([&]<typename T>()
@@ -248,6 +254,7 @@ namespace N503::Audio::Node
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
 #ifdef _DEBUG
             //::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
+            std::cout << std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x");
 #endif
             if constexpr (Index > 0)
             {
@@ -257,6 +264,7 @@ namespace N503::Audio::Node
             }
 #ifdef _DEBUG
             //::OutputDebugStringA("\n");
+            std::cout << std::endl;
 #endif
             return currentFinished;
         }
@@ -281,7 +289,7 @@ namespace N503::Audio::Node
     private:
         std::unique_ptr<Context> m_Context;
 
-        Audio::Format m_Format;
+        Audio::Format m_Format{};
     };
 
     template <typename... TArgs> Path(std::unique_ptr<Context>, TArgs&&...) -> Path<std::decay_t<TArgs>...>;

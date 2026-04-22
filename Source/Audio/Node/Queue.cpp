@@ -207,11 +207,11 @@ namespace N503::Audio::Node
                 const bool wasEndOfStream = m_Entries[i].Frames->IsEndOfStream;
 #ifdef _DEBUG
                 const auto log = std::format(
-                    "[Audio] Queue: <Completed> Index={} Bytes={} Size={} Used={} EndOfStream={}",
+                    "[Audio] Queue: <Completed> Index={} Bytes={} Size={} Frames={} EndOfStream={}",
                     i,
                     static_cast<const void*>(m_Entries[i].Frames->Bytes),
                     m_Entries[i].Frames->Size,
-                    m_Entries[i].Frames->Count * m_BytesPerFrame,
+                    m_Entries[i].Frames->Count,
                     (wasEndOfStream ? 1 : 0)
                 );
 

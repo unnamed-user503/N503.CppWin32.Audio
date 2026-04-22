@@ -95,8 +95,8 @@ namespace N503::Audio
         std::erase_if(m_Issued, [](const auto& pair) { return pair.second.empty(); });
 
 #ifdef _DEBUG
-        const auto log = std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size());
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, log.data() });
+        //const auto log = std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size());
+        //Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, log.data() });
 #endif
         return !m_Issued.empty();
     }
@@ -145,7 +145,7 @@ namespace N503::Audio
         const auto ticket = ticketQueue.front();
         const auto index  = static_cast<std::uint64_t>(ticket);
 
-        bool connected = std::visit(
+        bool played = std::visit(
             [&](auto& node) -> bool
             {
                 using T = std::decay_t<decltype(node)>;
@@ -163,13 +163,13 @@ namespace N503::Audio
                         .Repeat = asset->Metadata.Type == Audio::Type::Stream ? true : false,
                     };
 
-                    return node.Connect(descriptor, asset->Metadata.Format);
+                    return node.Play(descriptor, asset->Metadata.Format);
                 }
             },
             m_VoicePaths[index]
         );
 
-        if (!connected)
+        if (!played)
         {
             return {};
         }
@@ -207,10 +207,33 @@ namespace N503::Audio
                 using T = std::decay_t<decltype(node)>;
                 if constexpr (!std::is_same_v<T, std::monostate>)
                 {
-                    node.Disconnect();
+                    node.Stop();
                 }
             },
             m_VoicePaths[index]
+        );
+    }
+
+    auto Processor::Stop() -> void
+    {
+        auto availableTickets = m_Issued | std::views::values | std::views::join;
+
+        std::ranges::for_each(
+            availableTickets,
+            [this](Audio::Handle::Ticket ticket)
+            {
+                std::visit(
+                    [](auto& node)
+                    {
+                        using T = std::decay_t<decltype(node)>;
+                        if constexpr (!std::is_same_v<T, std::monostate>)
+                        {
+                            node.Stop();
+                        }
+                    },
+                    m_VoicePaths[static_cast<std::uint64_t>(ticket)]
+                );
+            }
         );
     }
 
@@ -265,29 +288,6 @@ namespace N503::Audio
                 }
             },
             m_VoicePaths[index]
-        );
-    }
-
-    auto Processor::Stop() -> void
-    {
-        auto availableTickets = m_Issued | std::views::values | std::views::join;
-
-        std::ranges::for_each(
-            availableTickets,
-            [this](Audio::Handle::Ticket ticket)
-            {
-                std::visit(
-                    [](auto& node)
-                    {
-                        using T = std::decay_t<decltype(node)>;
-                        if constexpr (!std::is_same_v<T, std::monostate>)
-                        {
-                            node.Disconnect();
-                        }
-                    },
-                    m_VoicePaths[static_cast<std::uint64_t>(ticket)]
-                );
-            }
         );
     }
 

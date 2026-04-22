@@ -31,7 +31,6 @@
 namespace N503::Audio::Device
 {
 
-    /// @brief フォーマットを元に XAudio2SourceVoice を生成
     SourceVoice::SourceVoice(Context* context, const Audio::Format& format) : m_Format(format)
     {
         auto pcmFormat = m_Format.ToRawFormat();
@@ -40,7 +39,6 @@ namespace N503::Audio::Device
         THROW_IF_FAILED(context->GetXAudio2()->CreateSourceVoice(&m_SourceVoice, rawFormat, 0, XAUDIO2_DEFAULT_FREQ_RATIO, this, nullptr, nullptr));
     }
 
-    /// @brief 明示的なリソース破棄
     SourceVoice::~SourceVoice() noexcept
     {
         if (m_SourceVoice)
@@ -51,7 +49,6 @@ namespace N503::Audio::Device
         }
     }
 
-    /// @brief 再生開始処理
     auto SourceVoice::Start() -> bool
     {
         if (!m_SourceVoice)
@@ -63,7 +60,6 @@ namespace N503::Audio::Device
         return true;
     }
 
-    /// @brief 再生停止処理
     auto SourceVoice::Stop() -> bool
     {
         if (!m_SourceVoice)
@@ -93,7 +89,6 @@ namespace N503::Audio::Device
         return true;
     }
 
-    /// @brief キューにあるバッファのフラッシュ
     auto SourceVoice::Flush() -> bool
     {
         if (!m_SourceVoice)
@@ -105,7 +100,6 @@ namespace N503::Audio::Device
         return true;
     }
 
-    /// @brief XAudio2 へのバッファ送信処理
     auto SourceVoice::Submit(const Frames::Buffer& buffer, void* pBufferContext) -> bool
     {
         if (!m_SourceVoice)
@@ -153,13 +147,11 @@ namespace N503::Audio::Device
         return true;
     }
 
-    /// @brief フォーマット取得
     auto SourceVoice::GetFormat() const noexcept -> const Audio::Format&
     {
         return m_Format;
     }
 
-    /// @brief 現在のボリュームを設定します
     auto SourceVoice::SetVolume(float volume) -> bool
     {
         if (!m_SourceVoice)
@@ -171,7 +163,6 @@ namespace N503::Audio::Device
         return true;
     }
 
-    /// @brief 現在のボリュームを取得します
     auto SourceVoice::GetVolume() const noexcept -> float
     {
         if (!m_SourceVoice)
@@ -184,7 +175,6 @@ namespace N503::Audio::Device
         return volume;
     }
 
-    /// @brief キューに存在するバッファ数を取得します。
     auto SourceVoice::GetBuffersQueued() const noexcept -> std::uint32_t
     {
         XAUDIO2_VOICE_STATE state{};
