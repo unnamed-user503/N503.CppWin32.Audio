@@ -30,6 +30,8 @@ namespace N503::Audio::Node
 
         auto OnStop() -> void;
 
+        auto OnRepeat() -> void;
+
         auto Update(Context& context) -> bool;
 
     private:

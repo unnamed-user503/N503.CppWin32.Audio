@@ -54,6 +54,14 @@ namespace N503::Audio::Node
         m_Decoder.reset();
     }
 
+    auto Stream::OnRepeat() -> void
+    {
+        if (m_Decoder)
+        {
+            m_Decoder->Seek(0);
+        }
+    }
+
     auto Stream::Update(Context& context) -> bool
     {
         if (context.Descriptor.Status == Audio::Status::Stopping)

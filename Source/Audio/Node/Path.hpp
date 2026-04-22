@@ -50,6 +50,25 @@ namespace N503::Audio::Node
             // 全てのノードが終了を許可(trueを返した)時始めて停止できる
             if (isFinished)
             {
+                if (m_Context->Descriptor.Repeat)
+                {
+                    m_Context->Descriptor.Status = Audio::Status::Playing;
+
+                    // clang-format off
+                    ([&]<typename T>()
+                    {
+                        auto& node = static_cast<T&>(*this);
+                        if constexpr (requires { node.OnRepeat(); })
+                        {
+                            node.OnRepeat();
+                        }
+                    }.template operator()<TNodes>(), ...);
+                    // clang-format on
+
+                    return false;
+                }
+
+                // このパスを停止させる
                 Stop();
 
                 // Processor がこのインスタンスを回収できるよう Status を更新
@@ -83,6 +102,8 @@ namespace N503::Audio::Node
             m_Context->Time     = {};
             m_Context->Position = {};
 
+            m_Format = format;
+
             // clang-format off
             ([&]<typename T>()
             {
@@ -109,6 +130,8 @@ namespace N503::Audio::Node
 
         auto Disconnect() -> bool
         {
+            m_Context->Descriptor.Repeat = false;
+
             if (m_Context->Descriptor.Status == Audio::Status::Paused)
             {
                 m_Context->Descriptor.Status     = Audio::Status::Stopping;
@@ -257,6 +280,8 @@ namespace N503::Audio::Node
 
     private:
         std::unique_ptr<Context> m_Context;
+
+        Audio::Format m_Format;
     };
 
     template <typename... TArgs> Path(std::unique_ptr<Context>, TArgs&&...) -> Path<std::decay_t<TArgs>...>;
