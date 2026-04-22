@@ -18,25 +18,17 @@
 namespace N503::Audio::Node
 {
 
-    /// @brief
     class Static
     {
     public:
-        /// @brief
-        /// @param descriptor
-        explicit Static(const Node::Descriptor *descriptor = nullptr);
+        explicit Static(const Node::Descriptor* descriptor = nullptr);
 
-        /// @brief
         ~Static() = default;
 
-        /// @brief
-        /// @param context
-        /// @return
-        auto Update(Context &context) -> bool;
+        auto Update(Context& context) -> bool;
 
     private:
-        /// @brief
-        const Resource::Asset *m_Asset{nullptr};
+        const Resource::Asset* m_Asset{ nullptr };
     };
 
 } // namespace N503::Audio::Node

@@ -28,7 +28,7 @@
 namespace N503::Audio::Codec
 {
 
-    Metadata::Metadata(const wil::com_ptr<IMFSourceReader> &reader) : m_SourceReader(reader)
+    Metadata::Metadata(const wil::com_ptr<IMFSourceReader>& reader) : m_SourceReader(reader)
     {
         Update();
     }
@@ -38,12 +38,12 @@ namespace N503::Audio::Codec
         wil::com_ptr<IMFMediaType> mfMediaType;
         THROW_IF_FAILED(m_SourceReader->GetCurrentMediaType(MF_SOURCE_READER_FIRST_AUDIO_STREAM, mfMediaType.put()));
 
-        GUID subtype = {0};
-        UINT32 channels = 0;
-        UINT32 sampleRate = 0;
-        UINT32 bitsPerSample = 0;
+        GUID subtype          = { 0 };
+        UINT32 channels       = 0;
+        UINT32 sampleRate     = 0;
+        UINT32 bitsPerSample  = 0;
         UINT32 avgBytesPerSec = 0;
-        UINT32 blockAlign = 0;
+        UINT32 blockAlign     = 0;
 
         THROW_IF_FAILED(mfMediaType->GetUINT32(MF_MT_AUDIO_NUM_CHANNELS, &channels));
         THROW_IF_FAILED(mfMediaType->GetUINT32(MF_MT_AUDIO_SAMPLES_PER_SECOND, &sampleRate));
@@ -61,18 +61,16 @@ namespace N503::Audio::Codec
 
         if (channels == 0 || sampleRate == 0 || bitsPerSample == 0)
         {
-            WAVEFORMATEX *pWaveFormat{};
+            WAVEFORMATEX* pWaveFormat{};
             std::uint32_t waveFormatSize{};
-            THROW_IF_FAILED(::MFCreateWaveFormatExFromMFMediaType(
-                mfMediaType.get(), &pWaveFormat, &waveFormatSize, MFWaveFormatExConvertFlag_Normal
-            ));
+            THROW_IF_FAILED(::MFCreateWaveFormatExFromMFMediaType(mfMediaType.get(), &pWaveFormat, &waveFormatSize, MFWaveFormatExConvertFlag_Normal));
 
-            m_Format.Tag = pWaveFormat->wFormatTag;
-            m_Format.BlockAlign = pWaveFormat->nBlockAlign;
-            m_Format.Channels = pWaveFormat->nChannels;
+            m_Format.Tag             = pWaveFormat->wFormatTag;
+            m_Format.BlockAlign      = pWaveFormat->nBlockAlign;
+            m_Format.Channels        = pWaveFormat->nChannels;
             m_Format.SamplePerSecond = pWaveFormat->nSamplesPerSec;
-            m_Format.BitsPerSample = pWaveFormat->wBitsPerSample;
-            m_Format.BytesPerSecond = pWaveFormat->nAvgBytesPerSec;
+            m_Format.BitsPerSample   = pWaveFormat->wBitsPerSample;
+            m_Format.BytesPerSecond  = pWaveFormat->nAvgBytesPerSec;
 
             ::CoTaskMemFree(pWaveFormat);
             return;
@@ -85,12 +83,12 @@ namespace N503::Audio::Codec
 
         THROW_IF_FAILED(mfMediaType->GetGUID(MF_MT_SUBTYPE, &subtype));
 
-        m_Format.Tag = WAVE_FORMAT_UNKNOWN;
-        m_Format.Channels = static_cast<std::uint16_t>(channels);
+        m_Format.Tag             = WAVE_FORMAT_UNKNOWN;
+        m_Format.Channels        = static_cast<std::uint16_t>(channels);
         m_Format.SamplePerSecond = sampleRate;
-        m_Format.BitsPerSample = static_cast<std::uint16_t>(bitsPerSample);
-        m_Format.BlockAlign = static_cast<std::uint16_t>(blockAlign);
-        m_Format.BytesPerSecond = avgBytesPerSec;
+        m_Format.BitsPerSample   = static_cast<std::uint16_t>(bitsPerSample);
+        m_Format.BlockAlign      = static_cast<std::uint16_t>(blockAlign);
+        m_Format.BytesPerSecond  = avgBytesPerSec;
 
         if (subtype == MFAudioFormat_Float)
         {
@@ -110,7 +108,7 @@ namespace N503::Audio::Codec
         }
     }
 
-    auto Metadata::GetFormat() const -> const Audio::Format &
+    auto Metadata::GetFormat() const -> const Audio::Format&
     {
         return m_Format;
     }

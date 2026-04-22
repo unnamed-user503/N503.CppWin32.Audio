@@ -25,14 +25,14 @@ namespace N503::Audio::Codec
 
     auto BufferAllocator::Allocate(std::size_t blockSize) -> BufferedFrames
     {
-        auto allocatedBuffer = m_Storage.AllocateBytes(blockSize, 16);
+        auto address = m_Storage.AllocateBytes(blockSize, 16);
 
-        if (!allocatedBuffer)
+        if (!address)
         {
             throw std::bad_alloc();
         }
 
-        return {static_cast<std::byte *>(allocatedBuffer), blockSize};
+        return { static_cast<std::byte*>(address), blockSize };
     }
 
     auto BufferAllocator::Deallocate(const BufferedFrames) -> void

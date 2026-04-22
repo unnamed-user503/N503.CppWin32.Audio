@@ -18,11 +18,11 @@ namespace N503::Audio
 
     struct Attributes
     {
-        float Volume{1.0f};
+        float Volume{ 1.0f };
 
-        float Pitch{1.0f};
+        float Pitch{ 1.0f };
 
-        std::int32_t Repeat{0};
+        std::int32_t Repeat{ 0 };
     };
 
 } // namespace N503::Audio

@@ -33,7 +33,7 @@ namespace N503::Audio::Node
         /// @brief
         /// @param context
         /// @return
-        auto Update(Context &context) -> bool;
+        auto Update(Context& context) -> bool;
 
     private:
         /// @brief

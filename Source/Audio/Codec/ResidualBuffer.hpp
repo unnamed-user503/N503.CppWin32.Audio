@@ -35,7 +35,7 @@ namespace N503::Audio::Codec
     private:
         std::vector<std::byte> m_Cache;
 
-        std::size_t m_ReadOffset{0};
+        std::size_t m_ReadOffset{ 0 };
     };
 
 } // namespace N503::Audio::Codec

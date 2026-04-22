@@ -44,33 +44,29 @@ namespace N503::Audio
         std::uint16_t BitsPerSample;
 
         /// @brief 2つのフォーマットが同一であるか比較します
-        auto operator<=>(const Format &) const = default;
+        auto operator<=>(const Format&) const = default;
 
         /// @brief デフォルトのオーディオ設定（44.1kHz / Stereo / Float）を取得します
         static auto Default() noexcept -> Audio::Format
         {
-            return {
-                .SamplePerSecond = 44100,
-                .BytesPerSecond = 44100 * 2 * 4, // 44100 * 8 = 352800
-                .Tag = WAVE_FORMAT_IEEE_FLOAT,
-                .Channels = 2,
-                .BlockAlign = 2 * 4, // 2 * 4 = 8
-                .BitsPerSample = 32
-            };
+            return { .SamplePerSecond = 44100,
+                     .BytesPerSecond  = 44100 * 2 * 4, // 44100 * 8 = 352800
+                     .Tag             = WAVE_FORMAT_IEEE_FLOAT,
+                     .Channels        = 2,
+                     .BlockAlign      = 2 * 4, // 2 * 4 = 8
+                     .BitsPerSample   = 32 };
         }
 
         /// @brief Windows API で使用される WAVEFORMATEX 構造体に変換します
         auto ToRawFormat() const noexcept -> WAVEFORMATEX
         {
-            return {
-                .wFormatTag = Tag,
-                .nChannels = Channels,
-                .nSamplesPerSec = SamplePerSecond,
-                .nAvgBytesPerSec = BytesPerSecond,
-                .nBlockAlign = BlockAlign,
-                .wBitsPerSample = BitsPerSample,
-                .cbSize = 0
-            };
+            return { .wFormatTag      = Tag,
+                     .nChannels       = Channels,
+                     .nSamplesPerSec  = SamplePerSecond,
+                     .nAvgBytesPerSec = BytesPerSecond,
+                     .nBlockAlign     = BlockAlign,
+                     .wBitsPerSample  = BitsPerSample,
+                     .cbSize          = 0 };
         }
     };
 

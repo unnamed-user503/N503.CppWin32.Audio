@@ -20,7 +20,7 @@ namespace N503::Audio::Command
 
     /// @brief
     /// @return
-    auto Dispatcher::Dispatch(Command::Queue &queue) -> void
+    auto Dispatcher::Dispatch(Command::Queue& queue) -> void
     {
         auto envelopes = queue.PopAll();
 
@@ -28,9 +28,7 @@ namespace N503::Audio::Command
         {
             auto command = envelopes.front();
 
-            auto delegate = [](auto &&concreteCommand) { concreteCommand(); };
-
-            std::visit(delegate, command.Packet);
+            std::visit([](auto&& concrete) { concrete(); }, command.Packet);
 
             if (command.Signal)
             {

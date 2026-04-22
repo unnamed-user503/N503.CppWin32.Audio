@@ -20,18 +20,18 @@ namespace N503::Audio::Codec
     class BufferedFrames
     {
     public:
-        BufferedFrames(std::byte *baseAddress, std::size_t bytesSize);
+        BufferedFrames(std::byte* baseAddress, std::size_t bytesSize);
 
         auto GetView(std::size_t offset, std::size_t length) -> std::span<std::byte>;
 
-        auto GetBaseAddress() const -> std::byte *;
+        auto GetBaseAddress() const -> std::byte*;
 
         auto GetBytesSize() const -> std::size_t;
 
         void Write(std::span<const std::byte> data, std::size_t offset = 0);
 
     private:
-        std::byte *m_BaseAddress;
+        std::byte* m_BaseAddress;
 
         std::size_t m_BytesSize;
     };

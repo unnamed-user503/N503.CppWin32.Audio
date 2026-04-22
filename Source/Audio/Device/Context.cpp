@@ -25,44 +25,32 @@ namespace N503::Audio::Device
     /// @brief コンテキストの初期化処理
     Context::Context()
     {
-        // XAudio2 エンジンインスタンスの生成
         THROW_IF_FAILED(::XAudio2Create(m_XAudio2.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
-
-        // マスターリングボイス（デフォルトの出力デバイス）の作成
         THROW_IF_FAILED(m_XAudio2->CreateMasteringVoice(&m_MasteringVoice));
-
-        // デフォルトボリュームの設定
         THROW_IF_FAILED(m_MasteringVoice->SetVolume(1.0f));
 
-        // ボイスプールを自身のコンテキストを渡して生成
         m_SourceVoicePool = std::make_unique<SourceVoicePool>(this);
     }
 
-    /// @brief コンテキストの終了処理
     Context::~Context()
     {
-        // まずプールを破棄し、管理下の全 SourceVoice を解体させる
         m_SourceVoicePool.reset();
 
-        // マスターリングボイスを明示的に破棄
         if (m_MasteringVoice)
         {
             m_MasteringVoice->DestroyVoice();
             m_MasteringVoice = nullptr;
         }
 
-        // XAudio2 エンジンを解放
         m_XAudio2.reset();
     }
 
-    /// @brief プールからボイスを借用
-    auto Context::AcquireSourceVoice(const Format &format) -> SourceVoice *
+    auto Context::AcquireSourceVoice(const Format& format) -> SourceVoice*
     {
         return m_SourceVoicePool->Borrow(format);
     }
 
-    /// @brief プールへボイスを返却
-    auto Context::ReleaseSourceVoice(SourceVoice *voice) -> void
+    auto Context::ReleaseSourceVoice(SourceVoice* voice) -> void
     {
         m_SourceVoicePool->Return(voice);
     }

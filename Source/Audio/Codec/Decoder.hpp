@@ -35,7 +35,7 @@ namespace N503::Audio::Codec
 
         virtual auto Seek(std::uint32_t frames) -> void = 0;
 
-        virtual auto GetFormat() const -> const Audio::Format & = 0;
+        virtual auto GetFormat() const -> const Audio::Format& = 0;
 
         virtual auto GetTotalSamples() const -> std::uint32_t = 0;
 

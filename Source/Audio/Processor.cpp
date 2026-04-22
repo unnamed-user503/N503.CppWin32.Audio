@@ -9,6 +9,7 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
+#include <N503/Diagnostics/Severity.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -35,17 +36,13 @@ namespace N503::Audio
     {
         for (std::uint64_t i = 0; i < MaxStaticVoicePaths; ++i)
         {
-            m_VoicePaths[i].emplace<Node::StaticVoicePath>(
-                nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr
-            );
+            m_VoicePaths[i].emplace<Node::StaticVoicePath>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
             m_StaticTicketQueue.emplace(static_cast<Audio::Handle::Ticket>(i));
         }
 
         for (std::uint64_t i = 0; i < MaxStreamVoicePaths; ++i)
         {
-            m_VoicePaths[MaxStaticVoicePaths + i].emplace<Node::StreamVoicePath>(
-                nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr
-            );
+            m_VoicePaths[MaxStaticVoicePaths + i].emplace<Node::StreamVoicePath>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
             m_StreamTicketQueue.emplace(static_cast<Audio::Handle::Ticket>(MaxStaticVoicePaths + i));
         }
 
@@ -57,16 +54,16 @@ namespace N503::Audio
 
     auto Processor::Process() -> bool
     {
-        for (auto &tickets : m_Issued | std::views::values)
+        for (auto& tickets : m_Issued | std::views::values)
         {
             std::erase_if(
                 tickets,
                 [this](Audio::Handle::Ticket ticket)
                 {
-                    auto &path = m_VoicePaths[static_cast<std::uint64_t>(ticket)];
+                    auto& path = m_VoicePaths[static_cast<std::uint64_t>(ticket)];
 
                     const bool isFinished = std::visit(
-                        [](auto &node) -> bool
+                        [](auto& node) -> bool
                         {
                             using T = std::decay_t<decltype(node)>;
                             if constexpr (std::is_same_v<T, std::monostate>)
@@ -83,8 +80,7 @@ namespace N503::Audio
 
                     if (isFinished)
                     {
-                        auto &queue = (static_cast<std::uint64_t>(ticket) < MaxStaticVoicePaths) ? m_StaticTicketQueue
-                                                                                                 : m_StreamTicketQueue;
+                        auto& queue = (static_cast<std::uint64_t>(ticket) < MaxStaticVoicePaths) ? m_StaticTicketQueue : m_StreamTicketQueue;
                         queue.push(ticket);
                         return true;
                     }
@@ -94,24 +90,23 @@ namespace N503::Audio
             );
         }
 
-        std::erase_if(m_Issued, [](const auto &pair) { return pair.second.empty(); });
+        std::erase_if(m_Issued, [](const auto& pair) { return pair.second.empty(); });
 
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(
-            std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size())
-        );
+        const auto log = std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size());
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, log.data() });
 #endif
         return !m_Issued.empty();
     }
 
-    auto Processor::Play(const Resource::Asset *asset) -> Audio::ProcessHandle
+    auto Processor::Play(const Resource::Asset* asset) -> Audio::ProcessHandle
     {
         if (!asset)
         {
             return {};
         }
 
-        auto &ticketQueue = (asset->Metadata.Type == Audio::Type::Static) ? m_StaticTicketQueue : m_StreamTicketQueue;
+        auto& ticketQueue = (asset->Metadata.Type == Audio::Type::Static) ? m_StaticTicketQueue : m_StreamTicketQueue;
 
         if (ticketQueue.empty())
         {
@@ -119,10 +114,10 @@ namespace N503::Audio
         }
 
         const auto ticket = ticketQueue.front();
-        const auto index = static_cast<std::uint64_t>(ticket);
+        const auto index  = static_cast<std::uint64_t>(ticket);
 
         bool connected = std::visit(
-            [&](auto &node) -> bool
+            [&](auto& node) -> bool
             {
                 using T = std::decay_t<decltype(node)>;
                 if constexpr (std::is_same_v<T, std::monostate>)
@@ -132,11 +127,7 @@ namespace N503::Audio
                 else
                 {
                     return node.Connect(
-                        {.Handle = asset->Handle,
-                         .Path = asset->Metadata.Path,
-                         .Type = asset->Metadata.Type,
-                         .Volume = 1.0f},
-                        asset->Metadata.Format
+                        { .Handle = asset->Handle, .Path = asset->Metadata.Path, .Type = asset->Metadata.Type, .Volume = 1.0f }, asset->Metadata.Format
                     );
                 }
             },
@@ -152,17 +143,13 @@ namespace N503::Audio
             ticketQueue.pop(); // commit
         }
 
-        auto &tag = m_Tags[asset->Metadata.Format];
+        auto& tag = m_Tags[asset->Metadata.Format];
         ++tag;
         m_Issued[tag].push_back(ticket);
 
         ++m_Generations[index];
 
-        return {
-            static_cast<Audio::Handle::Tag>(tag),
-            static_cast<Audio::Handle::Ticket>(ticket),
-            m_Generations[static_cast<std::size_t>(ticket)]
-        };
+        return { static_cast<Audio::Handle::Tag>(tag), static_cast<Audio::Handle::Ticket>(ticket), m_Generations[static_cast<std::size_t>(ticket)] };
     }
 
     auto Processor::Stop(Audio::ProcessHandle handle) -> void
@@ -180,7 +167,7 @@ namespace N503::Audio
         }
 
         std::visit(
-            [](auto &node)
+            [](auto& node)
             {
                 using T = std::decay_t<decltype(node)>;
                 if constexpr (!std::is_same_v<T, std::monostate>)
@@ -207,7 +194,7 @@ namespace N503::Audio
         }
 
         std::visit(
-            [](auto &node)
+            [](auto& node)
             {
                 using T = std::decay_t<decltype(node)>;
                 if constexpr (!std::is_same_v<T, std::monostate>)
@@ -234,7 +221,7 @@ namespace N503::Audio
         }
 
         std::visit(
-            [](auto &node)
+            [](auto& node)
             {
                 using T = std::decay_t<decltype(node)>;
                 if constexpr (!std::is_same_v<T, std::monostate>)
@@ -255,7 +242,7 @@ namespace N503::Audio
             [this](Audio::Handle::Ticket ticket)
             {
                 std::visit(
-                    [](auto &node)
+                    [](auto& node)
                     {
                         using T = std::decay_t<decltype(node)>;
                         if constexpr (!std::is_same_v<T, std::monostate>)

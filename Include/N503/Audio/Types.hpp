@@ -49,11 +49,11 @@ namespace N503::Audio
 
     struct ProcessHandle final
     {
-        Handle::Tag Tag{Handle::Tag::InvalidValue};
+        Handle::Tag Tag{ Handle::Tag::InvalidValue };
 
-        Handle::Ticket Ticket{Handle::Ticket::InvalidValue};
+        Handle::Ticket Ticket{ Handle::Ticket::InvalidValue };
 
-        Handle::Generation Generation{Handle::Generation::InitialValue};
+        Handle::Generation Generation{ Handle::Generation::InitialValue };
 
         [[nodiscard]]
         explicit operator bool() const noexcept
@@ -70,7 +70,7 @@ namespace N503::Audio
 
     struct AssetHandle final
     {
-        Handle::ResourceID ResourceID{Handle::ResourceID::InvalidValue};
+        Handle::ResourceID ResourceID{ Handle::ResourceID::InvalidValue };
 
         [[nodiscard]]
         explicit operator bool() const noexcept
@@ -85,16 +85,16 @@ namespace N503::Audio
         }
     };
 
-    inline auto operator++(Audio::Handle::Tag &tag) noexcept -> Audio::Handle::Tag &
+    inline auto operator++(Audio::Handle::Tag& tag) noexcept -> Audio::Handle::Tag&
     {
         using T = std::underlying_type_t<Audio::Handle::Tag>;
-        tag = static_cast<Audio::Handle::Tag>(static_cast<T>(tag) + 1);
+        tag     = static_cast<Audio::Handle::Tag>(static_cast<T>(tag) + 1);
         return tag;
     }
 
-    inline auto operator++(Audio::Handle::Generation &generation) noexcept -> Audio::Handle::Generation &
+    inline auto operator++(Audio::Handle::Generation& generation) noexcept -> Audio::Handle::Generation&
     {
-        using T = std::underlying_type_t<Audio::Handle::Generation>;
+        using T    = std::underlying_type_t<Audio::Handle::Generation>;
         generation = static_cast<Audio::Handle::Generation>(static_cast<T>(generation) + 1);
         return generation;
     }

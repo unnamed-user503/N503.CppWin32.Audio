@@ -11,6 +11,7 @@
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
 #include <N503/Audio/Status.hpp>
+#include <N503/Diagnostics/Severity.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -24,14 +25,14 @@
 namespace N503::Audio::Node
 {
 
-    Endpoint::Endpoint(Device::SourceVoice *sourceVoice) : m_SourceVoice{sourceVoice}
+    Endpoint::Endpoint(Device::SourceVoice* sourceVoice) : m_SourceVoice{ sourceVoice }
     {
     }
 
-    auto Endpoint::OnPlay(const Audio::Format &format) -> void
+    auto Endpoint::OnPlay(const Audio::Format& format) -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Endpoint::OnPlay] AcquireSourceVoice");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Endpoint: OnPlay called." });
 #endif
         if (!m_SourceVoice)
         {
@@ -43,7 +44,7 @@ namespace N503::Audio::Node
     auto Endpoint::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Endpoint::OnStop] ReleaseSourceVoice");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Endpoint: OnStop called." });
 #endif
         if (m_SourceVoice)
         {
@@ -55,7 +56,7 @@ namespace N503::Audio::Node
         }
     }
 
-    auto Endpoint::Update(Context &context) -> bool
+    auto Endpoint::Update(Context& context) -> bool
     {
         if (!m_SourceVoice)
         {
@@ -109,10 +110,10 @@ namespace N503::Audio::Node
         context.Position.Current += context.Buffers.Submit->Frames->Count;
 
         // XAudio2へのSubmit時に使用するコンテキスト(同期フラグ)を用意
-        void *pContext = nullptr;
+        void* pContext = nullptr;
         if (context.Buffers.Submit->Signal)
         {
-            pContext = static_cast<void *>(context.Buffers.Submit->Signal);
+            pContext = static_cast<void*>(context.Buffers.Submit->Signal);
         }
 
         // SubmitSourceBuffer を実行

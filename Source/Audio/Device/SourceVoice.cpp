@@ -32,19 +32,12 @@ namespace N503::Audio::Device
 {
 
     /// @brief フォーマットを元に XAudio2SourceVoice を生成
-    SourceVoice::SourceVoice(Context *context, const Audio::Format &format) : m_Format(format)
+    SourceVoice::SourceVoice(Context* context, const Audio::Format& format) : m_Format(format)
     {
         auto pcmFormat = m_Format.ToRawFormat();
-        // XAudio2 側にソースボイスを作成依頼。自身(this)をコールバックハンドラとして渡す。
-        THROW_IF_FAILED(context->GetXAudio2()->CreateSourceVoice(
-            &m_SourceVoice,
-            reinterpret_cast<WAVEFORMATEX *>(&pcmFormat),
-            0,
-            XAUDIO2_DEFAULT_FREQ_RATIO,
-            this,
-            nullptr,
-            nullptr
-        ));
+        auto rawFormat = reinterpret_cast<WAVEFORMATEX*>(&pcmFormat);
+
+        THROW_IF_FAILED(context->GetXAudio2()->CreateSourceVoice(&m_SourceVoice, rawFormat, 0, XAUDIO2_DEFAULT_FREQ_RATIO, this, nullptr, nullptr));
     }
 
     /// @brief 明示的なリソース破棄
@@ -59,7 +52,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief 再生開始処理
-    bool SourceVoice::Start()
+    auto SourceVoice::Start() -> bool
     {
         if (!m_SourceVoice)
         {
@@ -71,7 +64,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief 再生停止処理
-    bool SourceVoice::Stop()
+    auto SourceVoice::Stop() -> bool
     {
         if (!m_SourceVoice)
         {
@@ -82,7 +75,7 @@ namespace N503::Audio::Device
         return true;
     }
 
-    bool SourceVoice::StopAndWait()
+    auto SourceVoice::StopAndWait() -> bool
     {
         if (!m_SourceVoice)
         {
@@ -101,7 +94,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief キューにあるバッファのフラッシュ
-    bool SourceVoice::Flush()
+    auto SourceVoice::Flush() -> bool
     {
         if (!m_SourceVoice)
         {
@@ -113,7 +106,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief XAudio2 へのバッファ送信処理
-    auto SourceVoice::Submit(const Frames::Buffer &buffer, void *pBufferContext) -> bool
+    auto SourceVoice::Submit(const Frames::Buffer& buffer, void* pBufferContext) -> bool
     {
         if (!m_SourceVoice)
         {
@@ -126,34 +119,32 @@ namespace N503::Audio::Device
         m_StoppedEvent.ResetEvent();
 
         // XAUDIO2_BUFFER 構造体のセットアップ
-        XAUDIO2_BUFFER xBuffer = {};
-        xBuffer.Flags = 0;
-        xBuffer.AudioBytes = static_cast<UINT32>(buffer.Count * m_Format.BlockAlign);
-        xBuffer.pAudioData = reinterpret_cast<const BYTE *>(buffer.Bytes);
-        xBuffer.pContext = pBufferContext; // コールバックで使用されるコンテキスト
+        XAUDIO2_BUFFER sourceBuffer = {};
+        sourceBuffer.Flags          = 0;
+        sourceBuffer.AudioBytes     = static_cast<UINT32>(buffer.Count * m_Format.BlockAlign);
+        sourceBuffer.pAudioData     = reinterpret_cast<const BYTE*>(buffer.Bytes);
+        sourceBuffer.pContext       = pBufferContext; // コールバックで使用されるコンテキスト
 
         // ストリームの終端である場合、終了フラグを立てる
         if (buffer.IsEndOfStream)
         {
-            xBuffer.Flags |= XAUDIO2_END_OF_STREAM;
+            sourceBuffer.Flags |= XAUDIO2_END_OF_STREAM;
         }
 
         // 送信直前のログ記録
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(
-            {Diagnostics::Severity::Verbose,
-             std::format(
-                 "[SourceVoice::Submit] SubmitSourceBuffer AudioBytes={} pAudioData={} pCtx={} eos={}",
-                 xBuffer.AudioBytes,
-                 static_cast<const void *>(xBuffer.pAudioData),
-                 xBuffer.pContext,
-                 buffer.IsEndOfStream ? 1 : 0
-             )
-                 .data()}
+        const auto log = std::format(
+            "[SourceVoice] SubmitSourceBuffer AudioBytes={} pAudioData={} pContext={} EndOfStream={}",
+            sourceBuffer.AudioBytes,
+            static_cast<const void*>(sourceBuffer.pAudioData),
+            sourceBuffer.pContext,
+            buffer.IsEndOfStream ? "o" : "x"
         );
+
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, log.data(), 0 });
 #endif
         // XAudio2 ボイスにデータを投入
-        if (FAILED(m_SourceVoice->SubmitSourceBuffer(&xBuffer)))
+        if (FAILED(m_SourceVoice->SubmitSourceBuffer(&sourceBuffer)))
         {
             m_PendingBuffers.fetch_sub(1, std::memory_order_relaxed);
             return false;
@@ -163,7 +154,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief フォーマット取得
-    auto SourceVoice::GetFormat() const noexcept -> const Audio::Format &
+    auto SourceVoice::GetFormat() const noexcept -> const Audio::Format&
     {
         return m_Format;
     }
@@ -188,7 +179,7 @@ namespace N503::Audio::Device
             return false;
         }
 
-        float volume{0.0f};
+        float volume{ 0.0f };
         m_SourceVoice->GetVolume(&volume);
         return volume;
     }

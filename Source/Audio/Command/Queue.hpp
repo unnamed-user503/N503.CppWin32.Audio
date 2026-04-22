@@ -34,7 +34,7 @@ namespace N503::Audio::Command
 
         struct Slot
         {
-            alignas(void *) std::byte data[sizeof(Element) + 32];
+            alignas(void*) std::byte data[sizeof(Element) + 32];
         };
 
         using Storage = N503::Memory::Storage::Pool<Slot>;
@@ -48,14 +48,14 @@ namespace N503::Audio::Command
     public:
         Queue() = default;
 
-        Queue(const Queue &) = delete;
+        Queue(const Queue&) = delete;
 
-        auto operator=(const Queue &) -> Queue & = delete;
+        auto operator=(const Queue&) -> Queue& = delete;
 
     public:
-        auto Push(Packets::Packet &&) -> void;
+        auto Push(Packets::Packet&&) -> void;
 
-        auto PushSync(Packets::Packet &&) -> void;
+        auto PushSync(Packets::Packet&&) -> void;
 
         [[nodiscard]]
         auto PopAll() -> Container;
@@ -67,13 +67,13 @@ namespace N503::Audio::Command
         auto GetWakeupEventHandle() const -> HANDLE;
 
     public:
-        Storage m_Storage{MaxCommandsQueue}; ///< Allocator / Container より先に宣言する必要がある事に注意
+        Storage m_Storage{ MaxCommandsQueue }; ///< Allocator / Container より先に宣言する必要がある事に注意
 
-        Allocator m_Allocator{&m_Storage};
+        Allocator m_Allocator{ &m_Storage };
 
-        Container m_Container{m_Allocator};
+        Container m_Container{ m_Allocator };
 
-        wil::unique_event_nothrow m_WakeupEvent{::CreateEventA(nullptr, FALSE, FALSE, nullptr)};
+        wil::unique_event_nothrow m_WakeupEvent{ ::CreateEventA(nullptr, FALSE, FALSE, nullptr) };
 
         std::mutex m_Mutex;
     };

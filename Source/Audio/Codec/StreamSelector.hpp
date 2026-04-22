@@ -20,7 +20,7 @@ namespace N503::Audio::Codec
     class StreamSelector
     {
     public:
-        explicit StreamSelector(const wil::com_ptr<IMFSourceReader> &reader);
+        explicit StreamSelector(const wil::com_ptr<IMFSourceReader>& reader);
 
         auto SelectFirst() -> void;
 

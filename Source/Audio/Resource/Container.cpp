@@ -43,7 +43,7 @@ namespace N503::Audio::Resource
     {
         if (path.empty())
         {
-            return {Audio::Handle::ResourceID::InvalidValue};
+            return { Audio::Handle::ResourceID::InvalidValue };
         }
 
         Audio::AssetHandle handle = m_AvailableHandles.back();
@@ -51,30 +51,29 @@ namespace N503::Audio::Resource
 
         Codec::MediaFoundationDecoder decoder(path);
 
-        auto *assetAddress = m_Storage.AllocateBytes(sizeof(Resource::Asset), alignof(Resource::Asset));
-        auto *asset = std::construct_at(reinterpret_cast<Resource::Asset *>(assetAddress));
+        auto* address = m_Storage.AllocateBytes(sizeof(Resource::Asset), alignof(Resource::Asset));
+        auto* asset   = std::construct_at(reinterpret_cast<Resource::Asset*>(address));
 
-        asset->Handle = handle;
-        asset->Frames.Count = decoder.GetTotalFrames();
-        asset->Frames.Duration = std::chrono::duration<double>{decoder.GetTotalDurations()};
-
+        asset->Handle          = handle;
+        asset->Frames.Count    = decoder.GetTotalFrames();
+        asset->Frames.Duration = std::chrono::duration<double>{ decoder.GetTotalDurations() };
         asset->Metadata.Format = decoder.GetFormat();
-        asset->Metadata.Path = std::string(path);
-        asset->Metadata.Type = type;
+        asset->Metadata.Path   = std::string(path);
+        asset->Metadata.Type   = type;
 
         if (asset->Metadata.Type == Audio::Type::Static)
         {
             const std::size_t totalBytes = asset->Frames.Count * asset->Metadata.Format.BlockAlign;
-            auto *persistent = m_Storage.AllocateBytes(totalBytes, 16);
+            auto* persistent             = m_Storage.AllocateBytes(totalBytes, 16);
 
             decoder.Decode(
                 static_cast<std::uint32_t>(asset->Frames.Count),
-                [&](std::size_t size) { return std::span<std::byte>(static_cast<std::byte *>(persistent), size); }
+                [&](std::size_t size) { return std::span<std::byte>(static_cast<std::byte*>(persistent), size); }
             );
 
-            asset->Frames.Bytes = static_cast<std::byte *>(persistent);
-            asset->Frames.Size = totalBytes;
-            asset->Frames.Count = static_cast<std::uint32_t>(asset->Frames.Count);
+            asset->Frames.Bytes         = static_cast<std::byte*>(persistent);
+            asset->Frames.Size          = totalBytes;
+            asset->Frames.Count         = static_cast<std::uint32_t>(asset->Frames.Count);
             asset->Frames.IsEndOfStream = true;
         }
 
@@ -83,9 +82,10 @@ namespace N503::Audio::Resource
         return handle;
     }
 
-    auto Container::GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset *
+    auto Container::GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset*
     {
         auto index = static_cast<std::size_t>(handle.ResourceID);
+
         if (index == 0 || index > MaxAssets)
         {
             return nullptr;
@@ -97,6 +97,7 @@ namespace N503::Audio::Resource
     auto Container::Remove(Audio::AssetHandle handle) -> void
     {
         auto index = static_cast<std::size_t>(handle.ResourceID);
+
         if (index == 0 || index > MaxAssets)
         {
             return;
@@ -119,11 +120,12 @@ namespace N503::Audio::Resource
 
         auto resourceIds = std::views::iota(0ULL, static_cast<unsigned long long>(MaxAssets));
 
-        auto handleView = resourceIds |
-                          std::views::transform(
-                              [](auto i)
-                              { return Audio::AssetHandle{.ResourceID = static_cast<Audio::Handle::ResourceID>(i)}; }
-                          );
+        // clang-format off
+        auto handleView = resourceIds | std::views::transform([](auto i)
+        {
+            return Audio::AssetHandle{ .ResourceID = static_cast<Audio::Handle::ResourceID>(i) };
+        });
+        // clang-format on
 
         std::ranges::copy(handleView, std::back_inserter(m_AvailableHandles));
     }

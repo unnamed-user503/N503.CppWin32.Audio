@@ -22,29 +22,17 @@ namespace N503::Audio::Node
     class Stream
     {
     public:
-        /// @brief
-        /// @param descriptor
-        explicit Stream(const Node::Descriptor *descriptor = nullptr);
+        explicit Stream(const Node::Descriptor* descriptor = nullptr);
 
-        /// @brief
         ~Stream() = default;
 
-        /// @brief
-        /// @param descriptor
-        /// @return
-        auto OnPlay(const Node::Descriptor &descriptor) -> void;
+        auto OnPlay(const Node::Descriptor& descriptor) -> void;
 
-        /// @brief
-        /// @return
         auto OnStop() -> void;
 
-        /// @brief
-        /// @param context
-        /// @return
-        auto Update(Context &context) -> bool;
+        auto Update(Context& context) -> bool;
 
     private:
-        /// @brief
         std::unique_ptr<Codec::Decoder> m_Decoder;
     };
 

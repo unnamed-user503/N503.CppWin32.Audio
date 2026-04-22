@@ -24,13 +24,13 @@ namespace N503::Audio
 
         ~Assets();
 
-        Assets(const Assets &) = delete;
+        Assets(const Assets&) = delete;
 
-        auto operator=(const Assets &) -> Assets & = delete;
+        auto operator=(const Assets&) -> Assets& = delete;
 
-        Assets(Assets &&) = default;
+        Assets(Assets&&) = default;
 
-        auto operator=(Assets &&) -> Assets & = default;
+        auto operator=(Assets&&) -> Assets& = default;
 
     public:
         /// @brief 実装の詳細を隠蔽するための不透明な構造体。
@@ -41,7 +41,7 @@ namespace N503::Audio
         /// @note このメソッドはライブラリ内部（DLL境界の内側）でのみ使用されます。
         /// @return Entity を管理する unique_ptr への参照。
         [[nodiscard]]
-        auto GetEntity() -> std::unique_ptr<Entity> &
+        auto GetEntity() -> std::unique_ptr<Entity>&
         {
             return m_Entity;
         }

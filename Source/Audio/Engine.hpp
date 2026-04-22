@@ -4,7 +4,6 @@
 #include "Resource/Container.hpp"
 
 // 2. Project Dependencies
-#include <N503/Diagnostics/Reporter.hpp>
 #include <N503/Diagnostics/Sink.hpp>
 
 // 3. WIL (Windows Implementation Library)
@@ -39,108 +38,65 @@ namespace N503::Audio
 namespace N503::Audio
 {
 
-    /// @brief
     class Engine final
     {
     public:
-        /// @brief
-        /// @return
-        static auto Instance() -> Engine &;
+        static auto Instance() -> Engine&;
 
     public:
-        /// @brief
         ~Engine();
 
-        /// @brief
-        /// @return
         auto Start() -> void;
 
-        /// @brief
-        /// @return
         auto Stop() -> void;
 
-        /// @brief
-        /// @return
-        auto WaitForThreadStop() -> void;
+        auto Wait() -> void;
 
-        /// @brief
-        /// @return
-        auto GetCommandQueue() const noexcept -> Command::Queue &
+        auto GetCommandQueue() const noexcept -> Command::Queue&
         {
             return *m_CommandQueue;
         }
 
-        /// @brief
-        /// @return
-        auto GetResourceContainer() const noexcept -> Resource::Container &
+        auto GetResourceContainer() const noexcept -> Resource::Container&
         {
             return *m_ResourceContainer;
         }
 
-        /// @brief
-        /// @return
-        auto GetDeviceContext() const noexcept -> Device::Context &
+        auto GetDeviceContext() const noexcept -> Device::Context&
         {
             return *m_DeviceContext;
         }
 
-        /// @brief
-        /// @return
-        auto GetAudioProcessor() noexcept -> Audio::Processor &
+        auto GetAudioProcessor() noexcept -> Audio::Processor&
         {
             return *m_AudioProcessor;
         }
 
-        /// @brief
-        /// @return
-        auto GetDiagnosticsSink() noexcept -> Diagnostics::Sink &
+        auto GetDiagnosticsSink() noexcept -> Diagnostics::Sink&
         {
             return m_DiagnosticsSink;
         }
 
-        /// @brief
-        /// @return
-        auto GetDiagnosticsReporter() noexcept -> Diagnostics::Reporter &
-        {
-            return m_DiagnosticsReporter;
-        }
-
     private:
-        /// @brief
         Engine();
 
-        /// @brief
-        /// @return
         auto Run(const std::stop_token stopToken) -> void;
 
     private:
-        /// @brief
-        std::atomic<bool> m_IsThreadRunning{false};
+        std::atomic<bool> m_IsRunning{ false };
 
-        /// @brief
+        wil::unique_event m_StartedEvent{ ::CreateEventW(nullptr, TRUE, FALSE, L"Local\\N503.CppWin32.Audio.Event.EngineStarted") };
+
         std::unique_ptr<Command::Queue> m_CommandQueue;
 
-        /// @brief
         std::unique_ptr<Resource::Container> m_ResourceContainer;
 
-        /// @brief
         std::unique_ptr<Device::Context> m_DeviceContext;
 
-        /// @brief
         std::unique_ptr<Audio::Processor> m_AudioProcessor;
 
-        /// @brief
         Diagnostics::Sink m_DiagnosticsSink;
 
-        /// @brief
-        Diagnostics::Reporter m_DiagnosticsReporter;
-
-        /// @brief
-        wil::unique_event m_ThreadStateEvent{
-            ::CreateEventW(nullptr, TRUE, FALSE, L"Local\\N503.CppWin32.Audio.Event.EngineStarted")
-        };
-
-        /// @brief
         std::jthread m_AudioThread;
     };
 

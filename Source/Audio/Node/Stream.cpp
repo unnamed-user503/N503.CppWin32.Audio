@@ -13,6 +13,7 @@
 // 2. Project Dependencies
 #include <N503/Audio/Status.hpp>
 #include <N503/Audio/Types.hpp>
+#include <N503/Diagnostics/Severity.hpp>
 #include <N503/Diagnostics/Sink.hpp>
 
 // 3. WIL (Windows Implementation Library)
@@ -33,23 +34,27 @@
 namespace N503::Audio::Node
 {
 
-    Stream::Stream(const Node::Descriptor *descriptor)
+    Stream::Stream(const Node::Descriptor* descriptor)
     {
     }
 
-    auto Stream::OnPlay(const Node::Descriptor &descriptor) -> void
+    auto Stream::OnPlay(const Node::Descriptor& descriptor) -> void
     {
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Stream::OnPlay] Decoder created new instance.");
+#ifdef _DEBUG
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Stream: OnPlay called." });
+#endif
         m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Path);
     }
 
     auto Stream::OnStop() -> void
     {
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Stream::OnStop] Decoder.reset() called.");
+#ifdef _DEBUG
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Stream: OnStop called." });
+#endif
         m_Decoder.reset();
     }
 
-    auto Stream::Update(Context &context) -> bool
+    auto Stream::Update(Context& context) -> bool
     {
         if (context.Descriptor.Status == Audio::Status::Stopping)
         {
@@ -98,9 +103,7 @@ namespace N503::Audio::Node
             return true; // 再生処理を終了する
         }
 
-        const std::uint32_t requestedFrames = static_cast<std::uint32_t>(
-            context.Buffers.Cache->Frames->Size / format.BlockAlign
-        );
+        const std::uint32_t requestedFrames = static_cast<std::uint32_t>(context.Buffers.Cache->Frames->Size / format.BlockAlign);
 
         if (requestedFrames == 0)
         {
@@ -108,12 +111,10 @@ namespace N503::Audio::Node
         }
 
         auto result = m_Decoder->Decode(
-            requestedFrames,
-            [&](std::size_t size)
-            { return std::span<std::byte>(context.Buffers.Cache->Frames->Bytes, context.Buffers.Cache->Frames->Size); }
+            requestedFrames, [&](std::size_t size) { return std::span<std::byte>(context.Buffers.Cache->Frames->Bytes, context.Buffers.Cache->Frames->Size); }
         );
 
-        context.Buffers.Cache->Frames->Count = result.Count;
+        context.Buffers.Cache->Frames->Count         = result.Count;
         context.Buffers.Cache->Frames->IsEndOfStream = result.IsEndOfStream;
 
         // 再生時間の算出
@@ -133,10 +134,10 @@ namespace N503::Audio::Node
             // 1枚も書けなかったが終端に達した場合は、空のまま終端フラグを立てて遷移
             // XAudio2は0バイトのフレームを無視するのでイベントを受信する事が出来ません。
             // そこでここでは空のフレームを送信する事で対応します。
-            std::fill_n(context.Buffers.Cache->Frames->Bytes, 4, std::byte{0});
-            context.Buffers.Cache->Frames->Count = 1;
+            std::fill_n(context.Buffers.Cache->Frames->Bytes, 4, std::byte{ 0 });
+            context.Buffers.Cache->Frames->Count         = 1;
             context.Buffers.Cache->Frames->IsEndOfStream = true;
-            context.Buffers.Cache->Status = Node::Entry::Status::Present;
+            context.Buffers.Cache->Status                = Node::Entry::Status::Present;
             return true; // 再生処理を終了する
         }
 

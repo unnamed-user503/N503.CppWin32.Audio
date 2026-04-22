@@ -24,12 +24,12 @@ namespace N503::Audio::Node
     public:
         /// @brief
         /// @param sourceVoice
-        explicit Endpoint(Device::SourceVoice *sourceVoice);
+        explicit Endpoint(Device::SourceVoice* sourceVoice);
 
         /// @brief
         /// @param format
         /// @return
-        auto OnPlay(const Audio::Format &format) -> void;
+        auto OnPlay(const Audio::Format& format) -> void;
 
         /// @brief
         /// @return
@@ -38,7 +38,7 @@ namespace N503::Audio::Node
         /// @brief
         /// @param context
         /// @return
-        auto Update(Context &context) -> bool;
+        auto Update(Context& context) -> bool;
 
         /// @brief
         /// @return
@@ -46,7 +46,7 @@ namespace N503::Audio::Node
 
     private:
         /// @brief
-        Device::SourceVoice *m_SourceVoice;
+        Device::SourceVoice* m_SourceVoice;
     };
 
 } // namespace N503::Audio::Node

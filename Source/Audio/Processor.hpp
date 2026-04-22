@@ -53,7 +53,7 @@ namespace N503::Audio
 
         auto Process() -> bool;
 
-        auto Play(const Resource::Asset *asset) -> Audio::ProcessHandle;
+        auto Play(const Resource::Asset* asset) -> Audio::ProcessHandle;
 
         auto Stop(Audio::ProcessHandle handle) -> void;
 

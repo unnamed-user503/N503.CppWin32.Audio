@@ -26,17 +26,17 @@ namespace N503::Audio::Resource
     public:
         static constexpr std::size_t MaxAssets = 1024;
 
-        explicit Container(std::size_t initialArenaSize = 1024 * 1024 * 16); // 16MB等
+        explicit Container(std::size_t initialArenaSize = 1024 * 1024 * 16);
 
         ~Container();
 
-        Container(const Container &) = delete;
+        Container(const Container&) = delete;
 
-        Container &operator=(const Container &) = delete;
+        auto operator=(const Container&) -> Container& = delete;
 
         auto Store(Audio::Type type, std::string_view path) -> Audio::AssetHandle;
 
-        auto GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset *;
+        auto GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset*;
 
         auto Remove(Audio::AssetHandle handle) -> void;
 
@@ -45,7 +45,7 @@ namespace N503::Audio::Resource
     private:
         N503::Memory::Storage::Arena m_Storage;
 
-        std::array<Resource::Asset *, MaxAssets + 1> m_AssetSlots{};
+        std::array<Resource::Asset*, MaxAssets + 1> m_AssetSlots{};
 
         std::vector<Audio::AssetHandle> m_AvailableHandles;
     };

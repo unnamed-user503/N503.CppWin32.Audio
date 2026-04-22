@@ -25,13 +25,13 @@ namespace N503::Audio
 
         ~Source();
 
-        Source(const Source &) = delete;
+        Source(const Source&) = delete;
 
-        auto operator=(const Source &) -> Source & = delete;
+        auto operator=(const Source&) -> Source& = delete;
 
-        Source(Source &&) = default;
+        Source(Source&&) = default;
 
-        auto operator=(Source &&) -> Source & = default;
+        auto operator=(Source&&) -> Source& = default;
 
     public:
         auto Play() -> void;
@@ -51,7 +51,7 @@ namespace N503::Audio
         /// @note このメソッドはライブラリ内部（DLL境界の内側）でのみ使用されます。
         /// @return Entity を管理する unique_ptr への参照。
         [[nodiscard]]
-        auto GetEntity() -> std::unique_ptr<Entity> &
+        auto GetEntity() -> std::unique_ptr<Entity>&
         {
             return m_Entity;
         }

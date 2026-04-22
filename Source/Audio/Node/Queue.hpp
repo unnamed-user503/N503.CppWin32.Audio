@@ -21,57 +21,36 @@
 namespace N503::Audio::Node
 {
 
-    /// @brief
     class Queue
     {
     public:
-        /// @brief
         static constexpr std::size_t MaxBuffersQueue = 4;
 
-        /// @brief
         static constexpr std::size_t MaxBufferSize = 32768;
 
-        /// @brief
         static constexpr std::size_t PrefetchBuffersQueue = 2;
 
     public:
-        /// @brief
-        /// @param bytesPerFrame
         explicit Queue(const std::size_t bytesPerFrame);
 
-        /// @brief
-        /// @return
         auto OnPlay() -> void;
 
-        /// @brief
-        /// @return
         auto OnStop() -> void;
 
-        /// @brief
-        /// @param context
-        /// @return
-        auto Update(Context &context) -> bool;
+        auto Update(Context& context) -> bool;
 
-        /// @brief
-        /// @param context
-        /// @return
-        auto Sweep(Context &context) -> bool;
+        auto Sweep(Context& context) -> bool;
 
     private:
-        /// @brief
         N503::Memory::Storage::Queue m_Storage;
 
-        /// @brief
         std::array<Node::Entry, MaxBuffersQueue> m_Entries{};
 
-        /// @brief
         std::array<Frames::Buffer, MaxBuffersQueue> m_Buffers{};
 
-        /// @brief
         std::array<Device::Signal, MaxBuffersQueue> m_Signals{};
 
-        /// @brief
-        std::size_t m_BytesPerFrame{0};
+        std::size_t m_BytesPerFrame{ 0 };
     };
 
 } // namespace N503::Audio::Node

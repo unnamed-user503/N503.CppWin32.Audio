@@ -24,13 +24,13 @@ namespace N503::Audio
 
         ~Effect();
 
-        Effect(const Effect &) = delete;
+        Effect(const Effect&) = delete;
 
-        auto operator=(const Effect &) -> Effect & = delete;
+        auto operator=(const Effect&) -> Effect& = delete;
 
-        Effect(Effect &&) = default;
+        Effect(Effect&&) = default;
 
-        auto operator=(Effect &&) -> Effect & = default;
+        auto operator=(Effect&&) -> Effect& = default;
 
     public:
         /// @brief 実装の詳細を隠蔽するための不透明な構造体。
@@ -41,7 +41,7 @@ namespace N503::Audio
         /// @note このメソッドはライブラリ内部（DLL境界の内側）でのみ使用されます。
         /// @return Entity を管理する unique_ptr への参照。
         [[nodiscard]]
-        auto GetEntity() -> std::unique_ptr<Entity> &
+        auto GetEntity() -> std::unique_ptr<Entity>&
         {
             return m_Entity;
         }

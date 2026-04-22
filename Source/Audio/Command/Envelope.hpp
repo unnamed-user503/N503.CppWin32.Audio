@@ -17,14 +17,11 @@
 namespace N503::Audio::Command
 {
 
-    /// @brief
     struct Envelope final
     {
-        /// @brief
         Packets::Packet Packet;
 
-        /// @brief
-        std::binary_semaphore *Signal = nullptr;
+        std::binary_semaphore* Signal = nullptr;
     };
 
 } // namespace N503::Audio::Command

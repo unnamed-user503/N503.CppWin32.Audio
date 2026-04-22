@@ -2,10 +2,12 @@
 #include "Queue.hpp"
 
 // 1. Project Headers
+#include "../Engine.hpp"
 #include "Envelope.hpp"
 #include "Packets/Packet.hpp"
 
 // 2. Project Dependencies
+#include <N503/Diagnostics/Severity.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -26,56 +28,49 @@
 namespace N503::Audio::Command
 {
 
-    auto Queue::Push(Packets::Packet &&packet) -> void
+    auto Queue::Push(Packets::Packet&& packet) -> void
     {
 #ifdef _DEBUG
         {
             const std::size_t currentSize = m_Container.size();
-            const std::size_t capacity = MaxCommandsQueue;
+            const std::size_t capacity    = MaxCommandsQueue;
 
             if (currentSize > capacity * 0.8)
             {
-                ::OutputDebugStringA(
-                    std::format("CommandQueue is congesting! Current: {}, TypeIndex: {}\n", currentSize, packet.index())
-                        .data()
-                );
+                auto log = std::format("[Audio] Queue: congesting! Current: {}, TypeIndex: {}\n", currentSize, packet.index());
+                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Warning, log.data(), 0 });
             }
         }
 #endif
         {
-            const std::lock_guard lock{m_Mutex};
+            const std::lock_guard lock{ m_Mutex };
 
-            m_Container.push({.Packet = std::move(packet), .Signal = nullptr});
+            m_Container.push({ .Packet = std::move(packet), .Signal = nullptr });
         }
 
         m_WakeupEvent.SetEvent();
     }
 
-    /// @brief
-    /// @param packet
-    /// @return
-    auto Queue::PushSync(Packets::Packet &&packet) -> void
+    auto Queue::PushSync(Packets::Packet&& packet) -> void
     {
-        std::binary_semaphore signal{0};
+        std::binary_semaphore signal{ 0 };
 
 #ifdef _DEBUG
         {
             const std::size_t currentSize = m_Container.size();
-            const std::size_t capacity = MaxCommandsQueue;
+            const std::size_t capacity    = MaxCommandsQueue;
 
             if (currentSize > capacity * 0.8)
             {
-                ::OutputDebugStringA(
-                    std::format("CommandQueue is congesting! Current: {}, TypeIndex: {}\n", currentSize, packet.index())
-                        .data()
-                );
+                auto log = std::format("[Audio] Queue: congesting! Current: {}, TypeIndex: {}\n", currentSize, packet.index());
+                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Warning, log.data(), 0 });
             }
         }
 #endif
         {
-            const std::lock_guard lock{m_Mutex};
+            const std::lock_guard lock{ m_Mutex };
 
-            m_Container.push({.Packet = std::move(packet), .Signal = &signal});
+            m_Container.push({ .Packet = std::move(packet), .Signal = &signal });
         }
 
         m_WakeupEvent.SetEvent();
@@ -83,30 +78,24 @@ namespace N503::Audio::Command
         signal.acquire();
     }
 
-    /// @brief
-    /// @return
     [[nodiscard]]
     auto Queue::PopAll() -> Container
     {
-        const std::lock_guard lock{m_Mutex};
+        const std::lock_guard lock{ m_Mutex };
 
         auto container = std::move(m_Container);
 
-        m_Container = Container{m_Allocator};
+        m_Container = Container{ m_Allocator };
 
         return container;
     }
 
-    /// @brief
-    /// @return
     [[nodiscard]]
     auto Queue::IsEmpty() -> bool
     {
         return m_Container.empty();
     }
 
-    /// @brief
-    /// @return
     [[nodiscard]]
     auto Queue::GetWakeupEventHandle() const -> HANDLE
     {

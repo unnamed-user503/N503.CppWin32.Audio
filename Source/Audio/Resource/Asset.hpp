@@ -18,14 +18,13 @@
 namespace N503::Audio::Resource
 {
 
-    /// @brief
     struct Asset final
     {
-        Audio::AssetHandle Handle; ///< アセット管理用ID
+        Audio::AssetHandle Handle;
 
-        Frames::Buffer Frames; ///< 波形データ
+        Frames::Buffer Frames;
 
-        Resource::Metadata Metadata; ///< 再生に必要な情報
+        Resource::Metadata Metadata;
     };
 
 } // namespace N503::Audio::Resource

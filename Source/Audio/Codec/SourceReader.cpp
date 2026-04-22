@@ -66,9 +66,7 @@ namespace N503::Audio::Codec
         if (attributes == INVALID_FILE_ATTRIBUTES)
         {
             auto error = ::GetLastError();
-            throw std::runtime_error(
-                std::format("[Audio] StreamReader: Failed to access file (Error: {}): {}", error, path)
-            );
+            throw std::runtime_error(std::format("[Audio] StreamReader: Failed to access file (Error: {}): {}", error, path));
         }
 
         THROW_IF_FAILED(::MFCreateSourceReaderFromURL(wide.data(), nullptr, m_ConcreteReader.put()));
@@ -76,13 +74,13 @@ namespace N503::Audio::Codec
         m_StreamSelector = std::make_unique<StreamSelector>(m_ConcreteReader);
         m_StreamSelector->SelectFirst();
 
-        m_Metadata = std::make_unique<Metadata>(m_ConcreteReader);
+        m_Metadata       = std::make_unique<Metadata>(m_ConcreteReader);
         m_ResidualBuffer = std::make_unique<ResidualBuffer>();
     }
 
     auto SourceReader::ReadBytes(std::span<std::byte> target) -> std::size_t
     {
-        std::size_t totalBytesFilled = 0;
+        std::size_t totalBytesFilled       = 0;
         const std::size_t totalBytesNeeded = target.size();
 
         totalBytesFilled += m_ResidualBuffer->Read(target);
@@ -92,9 +90,7 @@ namespace N503::Audio::Codec
             wil::com_ptr<IMFSample> mfSample;
             DWORD streamFlags = 0;
 
-            THROW_IF_FAILED(m_ConcreteReader->ReadSample(
-                MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, nullptr, &streamFlags, nullptr, mfSample.put()
-            ));
+            THROW_IF_FAILED(m_ConcreteReader->ReadSample(MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, nullptr, &streamFlags, nullptr, mfSample.put()));
 
             if (streamFlags & MF_SOURCE_READERF_ENDOFSTREAM)
             {
@@ -108,7 +104,7 @@ namespace N503::Audio::Codec
             wil::com_ptr<IMFMediaBuffer> mfMediaBuffer;
             THROW_IF_FAILED(mfSample->ConvertToContiguousBuffer(mfMediaBuffer.put()));
 
-            BYTE *pAudioData = nullptr;
+            BYTE* pAudioData = nullptr;
             DWORD audioBytes = 0;
             THROW_IF_FAILED(mfMediaBuffer->Lock(&pAudioData, nullptr, &audioBytes));
 
@@ -116,9 +112,9 @@ namespace N503::Audio::Codec
 
             const std::size_t bytesAvailable = static_cast<std::size_t>(audioBytes);
             const std::size_t spaceRemaining = totalBytesNeeded - totalBytesFilled;
-            const std::size_t bytesToCopy = std::min(bytesAvailable, spaceRemaining);
+            const std::size_t bytesToCopy    = std::min(bytesAvailable, spaceRemaining);
 
-            auto sourceView = std::span{reinterpret_cast<const std::byte *>(pAudioData), bytesAvailable};
+            auto sourceView = std::span{ reinterpret_cast<const std::byte*>(pAudioData), bytesAvailable };
             auto targetView = target.subspan(totalBytesFilled);
 
             std::ranges::copy_n(sourceView.begin(), bytesToCopy, targetView.begin());
@@ -145,9 +141,8 @@ namespace N503::Audio::Codec
 
         // 単位変換：フレーム -> 100ns 単位
         PROPVARIANT variant{};
-        variant.vt = VT_I8;
-        variant.hVal.QuadPart = (static_cast<LONGLONG>(frameIndex) * 10000000LL) /
-                                m_Metadata->GetFormat().SamplePerSecond;
+        variant.vt            = VT_I8;
+        variant.hVal.QuadPart = (static_cast<LONGLONG>(frameIndex) * 10000000LL) / m_Metadata->GetFormat().SamplePerSecond;
 
         // Media Foundation のシークは失敗したら「異常事態」として扱う
         THROW_IF_FAILED(m_ConcreteReader->SetCurrentPosition(GUID_NULL, variant));

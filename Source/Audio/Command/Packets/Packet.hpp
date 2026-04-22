@@ -22,7 +22,6 @@
 namespace N503::Audio::Command::Packets
 {
 
-    using Packet = std::
-        variant<CreateResourceCommand, DestroyResourceCommand, PlayCommand, StopCommand, PauseCommand, ResumeCommand>;
+    using Packet = std::variant<CreateResourceCommand, DestroyResourceCommand, PlayCommand, StopCommand, PauseCommand, ResumeCommand>;
 
 } // namespace N503::Audio::Command::Packets

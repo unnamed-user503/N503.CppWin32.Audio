@@ -10,6 +10,7 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Status.hpp>
+#include <N503/Diagnostics/Severity.hpp>
 #include <N503/Diagnostics/Sink.hpp>
 
 // 3. WIL (Windows Implementation Library)
@@ -26,8 +27,7 @@
 namespace N503::Audio::Node
 {
 
-    Queue::Queue(const std::size_t bytesPerFrame)
-        : m_Storage{bytesPerFrame, MaxBuffersQueue}, m_BytesPerFrame{bytesPerFrame}
+    Queue::Queue(const std::size_t bytesPerFrame) : m_Storage{ bytesPerFrame, MaxBuffersQueue }, m_BytesPerFrame{ bytesPerFrame }
     {
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -38,35 +38,35 @@ namespace N503::Audio::Node
             m_Signals[i].Notify.store(false, std::memory_order_relaxed);
             m_Signals[i].Event.store(Device::Signal::Event::None, std::memory_order_relaxed);
 
-            m_Buffers[i].Bytes = nullptr;
-            m_Buffers[i].Size = 0;
-            m_Buffers[i].Count = 0;
+            m_Buffers[i].Bytes         = nullptr;
+            m_Buffers[i].Size          = 0;
+            m_Buffers[i].Count         = 0;
             m_Buffers[i].IsEndOfStream = false;
-            m_Buffers[i].Duration = std::chrono::duration<double>(0.0);
+            m_Buffers[i].Duration      = std::chrono::duration<double>(0.0);
         }
     }
 
     auto Queue::OnPlay() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Queue::OnPlay]");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnPlay called." });
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
             if (m_Buffers[i].Bytes == nullptr)
             {
-                auto *address = m_Storage.AllocateBytes(m_BytesPerFrame, static_cast<std::size_t>(16));
+                auto* address = m_Storage.AllocateBytes(m_BytesPerFrame, static_cast<std::size_t>(16));
 
                 if (!address)
                 {
                     break;
                 }
 
-                m_Buffers[i].Bytes = static_cast<std::byte *>(address);
-                m_Buffers[i].Size = m_BytesPerFrame;
-                m_Buffers[i].Count = 0;
+                m_Buffers[i].Bytes         = static_cast<std::byte*>(address);
+                m_Buffers[i].Size          = m_BytesPerFrame;
+                m_Buffers[i].Count         = 0;
                 m_Buffers[i].IsEndOfStream = false;
-                m_Buffers[i].Duration = std::chrono::duration<double>(0.0);
+                m_Buffers[i].Duration      = std::chrono::duration<double>(0.0);
             }
 
             m_Entries[i].Frames = &m_Buffers[i];
@@ -77,19 +77,19 @@ namespace N503::Audio::Node
     auto Queue::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry("[Queue::OnStop]");
+        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnStop called." });
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
-            m_Entries[i].Frames->Count = 0;
+            m_Entries[i].Frames->Count         = 0;
             m_Entries[i].Frames->IsEndOfStream = false;
-            m_Entries[i].Frames->Duration = std::chrono::duration<double>(0.0);
+            m_Entries[i].Frames->Duration      = std::chrono::duration<double>(0.0);
             m_Entries[i].Signal->Notify.store(false, std::memory_order_relaxed);
             m_Entries[i].Status = Node::Entry::Status::Empty;
         }
     }
 
-    auto Queue::Update(Context &context) -> bool
+    auto Queue::Update(Context& context) -> bool
     {
         if (context.Descriptor.Status == Audio::Status::Paused)
         {
@@ -115,7 +115,7 @@ namespace N503::Audio::Node
         if (!context.Buffers.Submit && !context.Buffers.Cache)
         {
             context.Buffers.Submit = &m_Entries[0];
-            context.Buffers.Cache = &m_Entries[MaxBuffersQueue - 1];
+            context.Buffers.Cache  = &m_Entries[MaxBuffersQueue - 1];
         }
 
         // 読み取りが終わったバッファ(Status::Present)があればSubmitバッファとして使用する
@@ -124,7 +124,7 @@ namespace N503::Audio::Node
         {
             if (m_Entries[i].Status == Node::Entry::Status::Present)
             {
-                context.Buffers.Submit = &m_Entries[i];
+                context.Buffers.Submit         = &m_Entries[i];
                 context.Buffers.Submit->Status = Node::Entry::Status::Pending;
                 ++marked;
                 break;
@@ -138,15 +138,14 @@ namespace N503::Audio::Node
             if (m_Entries[index].Status == Node::Entry::Status::Empty)
             {
                 context.Buffers.Cache = &m_Entries[index];
-                if (context.Buffers.Cache->Status == Node::Entry::Status::Empty ||
-                    context.Buffers.Cache->Status == Node::Entry::Status::Completed)
+                if (context.Buffers.Cache->Status == Node::Entry::Status::Empty || context.Buffers.Cache->Status == Node::Entry::Status::Completed)
                 {
                     context.Buffers.Cache->Status = Node::Entry::Status::Ready;
                     context.Buffers.Cache->Signal->Notify.store(false, std::memory_order_relaxed);
 
-                    context.Buffers.Cache->Frames->Count = 0;
+                    context.Buffers.Cache->Frames->Count         = 0;
                     context.Buffers.Cache->Frames->IsEndOfStream = false;
-                    context.Buffers.Cache->Frames->Duration = std::chrono::duration<double>(0.0);
+                    context.Buffers.Cache->Frames->Duration      = std::chrono::duration<double>(0.0);
                 }
                 break;
             }
@@ -155,7 +154,7 @@ namespace N503::Audio::Node
         return true; // 再生処理を継続する
     }
 
-    auto Queue::Sweep(Context &context) -> bool
+    auto Queue::Sweep(Context& context) -> bool
     {
         bool isEndOfStreamReached = false;
 
@@ -190,8 +189,7 @@ namespace N503::Audio::Node
 
                         // 重要：短いバッファでは BufferStart 通知より先に（あるいは同時に）
                         // Endが届くことがあるため、Submitted からの直接遷移を許可する
-                        if (m_Entries[i].Status == Node::Entry::Status::Submitted ||
-                            m_Entries[i].Status == Node::Entry::Status::Playing)
+                        if (m_Entries[i].Status == Node::Entry::Status::Submitted || m_Entries[i].Status == Node::Entry::Status::Playing)
                         {
                             m_Entries[i].Status = Node::Entry::Status::Completed;
                         }
@@ -211,17 +209,17 @@ namespace N503::Audio::Node
                 const auto log = std::format(
                     "[Audio] Queue: <Completed> Index={} Bytes={} Size={} Used={} EndOfStream={}",
                     i,
-                    static_cast<const void *>(m_Entries[i].Frames->Bytes),
+                    static_cast<const void*>(m_Entries[i].Frames->Bytes),
                     m_Entries[i].Frames->Size,
                     m_Entries[i].Frames->Count * m_BytesPerFrame,
                     (wasEndOfStream ? 1 : 0)
                 );
 
-                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(log.data());
+                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(Diagnostics::Severity::Verbose, log.data(), 0);
 #endif
-                m_Entries[i].Frames->Count = 0;
+                m_Entries[i].Frames->Count    = 0;
                 m_Entries[i].Frames->Duration = std::chrono::duration<double>(0.0);
-                m_Entries[i].Status = Node::Entry::Status::Empty;
+                m_Entries[i].Status           = Node::Entry::Status::Empty;
 
                 if (wasEndOfStream)
                 {

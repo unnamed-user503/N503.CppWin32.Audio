@@ -18,14 +18,13 @@
 namespace N503::Audio::Resource
 {
 
-    /// @brief
     struct Metadata final
     {
-        Audio::Format Format; ///< オーディオフォーマット
+        Audio::Format Format;
 
-        Audio::Type Type{Audio::Type::None}; ///< Static / Stream
+        Audio::Type Type{ Audio::Type::None };
 
-        std::string Path; ///< アセットの実ファイルパス
+        std::string Path;
     };
 
 } // namespace N503::Audio::Resource
