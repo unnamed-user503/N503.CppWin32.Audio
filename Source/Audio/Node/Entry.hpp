@@ -19,10 +19,8 @@ namespace N503::Audio::Node
 
     struct Entry final
     {
-        /// @brief キューのスロット内のバッファへのポインタ
         Frames::Buffer* Frames{ nullptr };
 
-        /// @brief キューのスロット内のシグナルへのポインタ
         Device::Signal* Signal{ nullptr };
 
         enum class Status

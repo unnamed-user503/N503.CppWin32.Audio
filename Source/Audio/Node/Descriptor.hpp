@@ -18,7 +18,6 @@
 namespace N503::Audio::Node
 {
 
-    /// @brief
     struct Descriptor final
     {
         Audio::AssetHandle Handle{ Audio::Handle::ResourceID::InvalidValue };

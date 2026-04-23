@@ -16,27 +16,19 @@
 namespace N503::Audio::Node
 {
 
-    /// @brief
     class Effect
     {
     public:
-        /// @brief 今後の拡張用
         struct Parameters
         {
         };
 
     public:
-        /// @brief
-        /// @param parameters
         Effect(Parameters parameters);
 
-        /// @brief
-        /// @param context
-        /// @return
         auto Update(Context& context) -> bool;
 
     private:
-        /// @brief
         Parameters m_Parameters;
     };
 
