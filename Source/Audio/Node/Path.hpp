@@ -72,9 +72,6 @@ namespace N503::Audio::Node
 
                 // このパスを停止させる
                 ImmediateStop();
-                // Processor がこのインスタンスを回収できるよう Status を更新
-                m_Context->Descriptor = {};
-                m_Context->Descriptor.Status = Audio::Status::Stopped;
 #ifdef _DEBUG
                 ::OutputDebugStringA("[Audio] Node::Path: All nodes finished. Process terminal.\n");
 #endif
@@ -173,10 +170,6 @@ namespace N503::Audio::Node
             {
                 return false;
             }
-            else
-            {
-                m_Context->Descriptor.Status = Audio::Status::Stopped;
-            }
 
             // clang-format off
             ([&]<typename T>()
@@ -192,6 +185,9 @@ namespace N503::Audio::Node
             }.template operator()<TNodes>(), ...);
             // clang-format on
 
+            // Descriptorをクリアして、Process()が次回即座にtrueを返せるようにする
+            m_Context->Descriptor = {};
+            m_Context->Descriptor.Status = Audio::Status::Stopped;
             return true;
         }
 

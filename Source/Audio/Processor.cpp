@@ -30,6 +30,7 @@
 #include <type_traits>
 #include <variant>
 #include <vector>
+#include <cassert>
 
 namespace N503::Audio
 {
@@ -56,8 +57,10 @@ namespace N503::Audio
 
     auto Processor::Process() -> bool
     {
-        for (auto& tickets : m_Issued | std::views::values)
+        for (auto it = m_Issued.begin(); it != m_Issued.end();)
         {
+            auto& [tag, tickets] = *it;
+
             std::erase_if(
                 tickets,
                 [this](Audio::Handle::Ticket ticket)
@@ -82,17 +85,29 @@ namespace N503::Audio
 
                     if (isFinished)
                     {
-                        auto& queue = (static_cast<std::uint64_t>(ticket) < MaxStaticVoicePaths) ? m_StaticTicketQueue : m_StreamTicketQueue;
+                        const auto index = static_cast<std::uint64_t>(ticket);
+                        ++m_Generations[index]; // 世代更新（前述の通り）
+
+                        auto& queue = (index < MaxStaticVoicePaths) ? m_StaticTicketQueue : m_StreamTicketQueue;
                         queue.push(ticket);
                         return true;
                     }
-
                     return false;
                 }
             );
+
+            // タグに紐づくチケットがなくなったら、管理対象から外す
+            if (tickets.empty())
+            {
+                it = m_Issued.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
 
-        std::erase_if(m_Issued, [](const auto& pair) { return pair.second.empty(); });
+        return !m_Issued.empty();
 
 #ifdef _DEBUG
         //const auto log = std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size());
@@ -178,11 +193,21 @@ namespace N503::Audio
             ticketQueue.pop(); // commit
         }
 
+        // タグ管理
         auto& tag = m_Tags[asset->Metadata.Format];
         ++tag;
-        m_Issued[tag].push_back(ticket);
 
-        ++m_Generations[index];
+#ifdef _DEBUG
+        // もしインクリメントの結果が無効値になったら、もう一度進めて 0 にする（あるいは1にする）
+        if (static_cast<std::uint64_t>(tag) == static_cast<std::uint64_t>(Audio::Handle::Tag::InvalidValue))
+        {
+            assert(false && "Audio::Handle::Tag has overflowed. Consider increasing the underlying type or handling overflow properly.");
+             ++tag; // 0 に戻す(uint64_t なので事実上あり得ないが、安全策として)
+        }
+#endif
+
+        // チケット発行
+        m_Issued[tag].push_back(ticket);
 
         return { static_cast<Audio::Handle::Tag>(tag), static_cast<Audio::Handle::Ticket>(ticket), m_Generations[static_cast<std::size_t>(ticket)] };
     }
