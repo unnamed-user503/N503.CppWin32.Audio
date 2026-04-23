@@ -2,8 +2,6 @@
 #include "Processor.hpp"
 
 // 1. Project Headers
-#include "Device/SourceVoice.hpp"
-#include "Engine.hpp"
 #include "Node/Descriptor.hpp"
 #include "Node/Effect.hpp"
 #include "Node/Queue.hpp"
@@ -11,7 +9,6 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
-#include <N503/Diagnostics/Severity.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -23,7 +20,6 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <format>
 #include <map>
 #include <ranges>
 #include <thread>
@@ -85,9 +81,11 @@ namespace N503::Audio
 
                     if (isFinished)
                     {
+                        // ジェネレーションを進める事で、古いチケットを無効化する
                         const auto index = static_cast<std::uint64_t>(ticket);
-                        ++m_Generations[index]; // 世代更新（前述の通り）
+                        ++m_Generations[index];
 
+                        // チケットをキューに戻す
                         auto& queue = (index < MaxStaticVoicePaths) ? m_StaticTicketQueue : m_StreamTicketQueue;
                         queue.push(ticket);
                         return true;
@@ -96,7 +94,7 @@ namespace N503::Audio
                 }
             );
 
-            // タグに紐づくチケットがなくなったら、管理対象から外す
+            // もしこのタグに関連付けられたチケットが全て処理されていたら、タグエントリごと削除する
             if (tickets.empty())
             {
                 it = m_Issued.erase(it);
