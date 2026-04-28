@@ -39,13 +39,13 @@ namespace N503::Audio::Node
         if (context.Descriptor.Status == Audio::Status::Stopping)
         {
             // フェードアウト設定があるか確認
-            const bool hasFadeOut = (fade.Threshold.count() > 0 && fade.Direction.count() > 0);
+            const bool hasFadeOut        = (fade.Threshold.count() > 0 && fade.Direction.count() > 0);
             const bool isFadeOutComplete = (fade.Elapsed >= fade.Threshold);
 
             // フェードアウト中ならまだ仕事中、終わっているか設定がなければ「仕事完了」
             if (!hasFadeOut || isFadeOutComplete)
             {
-                return true; 
+                return true;
             }
         }
 
@@ -53,18 +53,14 @@ namespace N503::Audio::Node
         if (fade.Threshold.count() <= 0)
         {
             // Stoppingでないなら通常再生中なので、仕事は終わっていない
-            return false; 
+            return false;
         }
 
         // フェード進捗の更新
-        fade.Elapsed += fade.Direction;
-        float progress = std::clamp(
-            static_cast<float>(std::abs(fade.Elapsed.count())) / fade.Threshold.count(), 
-            0.0f,
-            1.0f
-        );
+        fade.Elapsed   += fade.Direction;
+        float progress  = std::clamp(static_cast<float>(std::abs(fade.Elapsed.count())) / fade.Threshold.count(), 0.0f, 1.0f);
 
-        const bool isFadeOut = (fade.Direction.count() >= 0);
+        const bool isFadeOut      = (fade.Direction.count() >= 0);
         context.Descriptor.Volume = isFadeOut ? (1.0f - progress) : progress;
 
         // フェード完了判定

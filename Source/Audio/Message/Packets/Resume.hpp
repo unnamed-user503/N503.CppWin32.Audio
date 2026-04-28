@@ -13,14 +13,20 @@
 
 // 6. C++ Standard Libraries
 
-namespace N503::Audio::Command::Packets
+// Forward Declarations
+namespace N503::Audio::Message
+{
+    struct Context;
+}
+
+namespace N503::Audio::Message::Packets
 {
 
-    struct ResumeCommand final
+    struct Resume final
     {
         Audio::ProcessHandle Handle;
 
-        auto operator()() const -> void;
+        auto operator()(const Context& context) const -> void;
     };
 
 } // namespace N503::Audio::Command::Packets

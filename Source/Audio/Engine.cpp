@@ -2,8 +2,9 @@
 #include "Engine.hpp"
 
 // 1. Project Headers
-#include "Command/Dispatcher.hpp"
-#include "Command/Queue.hpp"
+#include "Message/Dispatcher.hpp"
+#include "Message/Queue.hpp"
+#include "Message/Context.hpp"
 #include "Device/Context.hpp"
 #include "Processor.hpp"
 #include "Resource/Container.hpp"
@@ -35,15 +36,15 @@
 namespace N503::Audio
 {
 
-    auto Engine::Instance() -> Engine&
+    auto Engine::GetInstance() -> Engine&
     {
-        static Engine audioEngine{};
-        return audioEngine;
+        static Engine instance{};
+        return instance;
     }
 
     Engine::Engine()
     {
-        m_CommandQueue      = std::make_unique<Command::Queue>();
+        m_MessageQueue      = std::make_unique<Message::Queue>();
         m_ResourceContainer = std::make_unique<Resource::Container>();
     }
 
@@ -86,6 +87,9 @@ namespace N503::Audio
 
                 // オーディオスレッドの開始
                 this->Run(std::move(stopToken));
+
+                // エンジンスレッドが停止したので旗を下す
+                m_IsRunning.store(false, std::memory_order_release);
             }
         );
 
@@ -140,9 +144,9 @@ namespace N503::Audio
             return true;
         };
 
-        auto wakeupHandles = { m_CommandQueue->GetWakeupEventHandle() };
+        auto wakeupHandles = { m_MessageQueue->GetWakeupEventHandle() };
 
-        Command::Dispatcher commandDispatcher;
+        Message::Dispatcher messageDispatcher;
         Diagnostics::Reporter diagnosticsReporter;
         diagnosticsReporter.AddSink(std::make_shared<Diagnostics::ConsoleSink>());
 
@@ -158,7 +162,8 @@ namespace N503::Audio
 
             if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + count))
             {
-                commandDispatcher.Dispatch(*m_CommandQueue);
+                Message::Context context = {};
+                messageDispatcher.Dispatch(*m_MessageQueue, context);
             }
             else if (result == WAIT_OBJECT_0 + count)
             {

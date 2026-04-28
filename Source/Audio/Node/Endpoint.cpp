@@ -32,11 +32,12 @@ namespace N503::Audio::Node
     auto Endpoint::OnPlay(const Audio::Format& format) -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Endpoint: OnPlay called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Endpoint: OnPlay called." });
 #endif
         if (!m_SourceVoice)
         {
-            m_SourceVoice = Audio::Engine::Instance().GetDeviceContext().AcquireSourceVoice(format);
+            m_SourceVoice = Audio::Engine::GetInstance().GetDeviceContext().AcquireSourceVoice(format);
+            m_SourceVoice->SetVolume(1.0f);
             m_SourceVoice->Start();
         }
     }
@@ -44,14 +45,15 @@ namespace N503::Audio::Node
     auto Endpoint::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Endpoint: OnStop called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Endpoint: OnStop called." });
 #endif
         if (m_SourceVoice)
         {
+            m_SourceVoice->SetVolume(0.0f);
             m_SourceVoice->Stop();
             m_SourceVoice->Flush();
 
-            Audio::Engine::Instance().GetDeviceContext().ReleaseSourceVoice(m_SourceVoice);
+            Audio::Engine::GetInstance().GetDeviceContext().ReleaseSourceVoice(m_SourceVoice);
             m_SourceVoice = nullptr;
         }
     }
@@ -123,6 +125,11 @@ namespace N503::Audio::Node
         context.Buffers.Submit->Status = Node::Entry::Status::Submitted;
 
         return false; // 再生処理を継続する
+    }
+
+    auto Endpoint::Submit(Context& context) -> bool
+    {
+        return false;
     }
 
 } // namespace N503::Audio::Node

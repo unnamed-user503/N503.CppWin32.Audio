@@ -49,7 +49,7 @@ namespace N503::Audio::Node
     auto Queue::OnPlay() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnPlay called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnPlay called." });
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -77,7 +77,7 @@ namespace N503::Audio::Node
     auto Queue::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnStop called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnStop called." });
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -215,7 +215,7 @@ namespace N503::Audio::Node
                     (wasEndOfStream ? 1 : 0)
                 );
 
-                Audio::Engine::Instance().GetDiagnosticsSink().AddEntry(Diagnostics::Severity::Verbose, log.data(), 0);
+                Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry(Diagnostics::Severity::Verbose, log.data(), 0);
 #endif
                 m_Entries[i].Frames->Count    = 0;
                 m_Entries[i].Frames->Duration = std::chrono::duration<double>(0.0);

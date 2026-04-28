@@ -1,9 +1,10 @@
 #include "Pch.hpp"
-#include "PlayCommand.hpp"
+#include "Play.hpp"
 
 // 1. Project Headers
 #include "../../Engine.hpp"
 #include "../../Processor.hpp"
+#include "../Context.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -16,14 +17,14 @@
 
 // 6. C++ Standard Libraries
 
-namespace N503::Audio::Command::Packets
+namespace N503::Audio::Message::Packets
 {
 
-    auto PlayCommand::operator()() const -> void
+    auto Play::operator()(const Context& context) const -> void
     {
-        if (auto asset = Audio::Engine::Instance().GetResourceContainer().GetAsset(Handle))
+        if (auto asset = Audio::Engine::GetInstance().GetResourceContainer().GetAsset(Handle))
         {
-            if (auto handle = Audio::Engine::Instance().GetAudioProcessor().Play(asset))
+            if (auto handle = Audio::Engine::GetInstance().GetAudioProcessor().Play(asset))
             {
                 *Result = handle;
             }

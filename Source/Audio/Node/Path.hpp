@@ -18,11 +18,11 @@
 
 // 6. C++ Standard Libraries
 #include <chrono>
+#include <format>
+#include <iostream>
 #include <memory>
 #include <type_traits>
 #include <utility>
-#include <format>
-#include <iostream>
 
 namespace N503::Audio::Node
 {
@@ -186,7 +186,7 @@ namespace N503::Audio::Node
             // clang-format on
 
             // Descriptorをクリアして、Process()が次回即座にtrueを返せるようにする
-            m_Context->Descriptor = {};
+            m_Context->Descriptor        = {};
             m_Context->Descriptor.Status = Audio::Status::Stopped;
             return true;
         }

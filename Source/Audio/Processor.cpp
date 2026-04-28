@@ -18,6 +18,7 @@
 
 // 6. C++ Standard Libraries
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <map>
@@ -26,7 +27,6 @@
 #include <type_traits>
 #include <variant>
 #include <vector>
-#include <cassert>
 
 namespace N503::Audio
 {
@@ -108,8 +108,8 @@ namespace N503::Audio
         return !m_Issued.empty();
 
 #ifdef _DEBUG
-        //const auto log = std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size());
-        //Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, log.data() });
+        // const auto log = std::format("[Audio] Processor: Audio.Play.Count={}", m_Issued.size());
+        // Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, log.data() });
 #endif
         return !m_Issued.empty();
     }
@@ -200,7 +200,7 @@ namespace N503::Audio
         if (static_cast<std::uint64_t>(tag) == static_cast<std::uint64_t>(Audio::Handle::Tag::InvalidValue))
         {
             assert(false && "Audio::Handle::Tag has overflowed. Consider increasing the underlying type or handling overflow properly.");
-             ++tag; // 0 に戻す(uint64_t なので事実上あり得ないが、安全策として)
+            ++tag; // 0 に戻す(uint64_t なので事実上あり得ないが、安全策として)
         }
 #endif
 

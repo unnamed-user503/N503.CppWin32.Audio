@@ -1,7 +1,6 @@
 #pragma once
 
 // 1. Project Headers
-#include "Queue.hpp"
 
 // 2. Project Dependencies
 
@@ -13,13 +12,11 @@
 
 // 6. C++ Standard Libraries
 
-namespace N503::Audio::Command
+namespace N503::Audio::Message
 {
 
-    class Dispatcher final
+    struct Context
     {
-    public:
-        auto Dispatch(Command::Queue& queue) -> void;
     };
 
-} // namespace N503::Audio::Command
+} // namespace N503::Renderer2D::Message

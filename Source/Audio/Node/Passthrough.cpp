@@ -128,10 +128,6 @@ namespace N503::Audio::Node
         // 再生完了したスロットのクリーンアップ
         if (m_Entry.Status == Node::Entry::Status::Completed)
         {
-            // 【重要】ここで IsEndOfStream を false に戻すと、Source側での書き込み直後に
-            // Sweepが走りフラグを消してしまう事故(アクセス違反)が起きるため、初期化は行わない。
-            // m_Entrys[i].Frames->IsEndOfStream = false;
-
             m_Entry.Frames->Count    = 0;
             m_Entry.Frames->Duration = std::chrono::duration<double>(0.0);
             m_Entry.Status           = Node::Entry::Status::Empty;

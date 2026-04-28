@@ -15,11 +15,17 @@
 // 6. C++ Standard Libraries
 #include <string_view>
 
-namespace N503::Audio::Command::Packets
+// Forward Declarations
+namespace N503::Audio::Message
+{
+    struct Context;
+}
+
+namespace N503::Audio::Message::Packets
 {
 
     /// @brief
-    struct CreateResourceCommand final
+    struct CreateResource final
     {
         Audio::AssetHandle* Result;
 
@@ -29,7 +35,7 @@ namespace N503::Audio::Command::Packets
 
         std::string_view Path;
 
-        auto operator()() const -> void;
+        auto operator()(const Context& context) const -> void;
     };
 
 } // namespace N503::Audio::Command::Packets

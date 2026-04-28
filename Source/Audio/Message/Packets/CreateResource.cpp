@@ -1,8 +1,9 @@
 #include "Pch.hpp"
-#include "CreateResourceCommand.hpp"
+#include "CreateResource.hpp"
 
 // 1. Project Headers
 #include "../../Engine.hpp"
+#include "../Context.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -17,21 +18,21 @@
 // 6. C++ Standard Libraries
 #include <string>
 
-namespace N503::Audio::Command::Packets
+namespace N503::Audio::Message::Packets
 {
 
-    auto CreateResourceCommand::operator()() const -> void
+    auto CreateResource::operator()(const Context& context) const -> void
     {
         if (!Result)
         {
 #ifdef _DEBUG
-            Audio::Engine::Instance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Error, "[Audio] CreateResourceCommand: command.Result is empty." }
-            );
+            const Diagnostics::Entry entry = { Diagnostics::Severity::Error, "[Audio] <CreateResource> : command.Result is empty." };
+            Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry(entry);
 #endif
             return;
         }
 
-        auto handle = Audio::Engine::Instance().GetResourceContainer().Store(Type, std::string(Path));
+        auto handle = Audio::Engine::GetInstance().GetResourceContainer().Store(Type, std::string(Path));
 
         if (!handle)
         {

@@ -20,7 +20,7 @@
 #include <stop_token>
 #include <thread>
 
-namespace N503::Audio::Command
+namespace N503::Audio::Message
 {
     class Queue;
 }
@@ -41,7 +41,7 @@ namespace N503::Audio
     class Engine final
     {
     public:
-        static auto Instance() -> Engine&;
+        static auto GetInstance() -> Engine&;
 
     public:
         ~Engine();
@@ -52,9 +52,9 @@ namespace N503::Audio
 
         auto Wait() -> void;
 
-        auto GetCommandQueue() const noexcept -> Command::Queue&
+        auto GetMessageQueue() const noexcept -> Message::Queue&
         {
-            return *m_CommandQueue;
+            return *m_MessageQueue;
         }
 
         auto GetResourceContainer() const noexcept -> Resource::Container&
@@ -87,7 +87,7 @@ namespace N503::Audio
 
         wil::unique_event m_StartedEvent{ ::CreateEventW(nullptr, TRUE, FALSE, L"Local\\N503.CppWin32.Audio.Event.EngineStarted") };
 
-        std::unique_ptr<Command::Queue> m_CommandQueue;
+        std::unique_ptr<Message::Queue> m_MessageQueue;
 
         std::unique_ptr<Resource::Container> m_ResourceContainer;
 

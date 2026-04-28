@@ -26,6 +26,7 @@ namespace N503::Audio::Node
 
         auto Update(Context& context) -> bool;
 
+    private:
         auto Sweep(Context& context) -> bool;
 
     private:

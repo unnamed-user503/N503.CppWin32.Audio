@@ -29,7 +29,8 @@ namespace N503::Audio::Node
 
         auto Update(Context& context) -> bool;
 
-        auto Submit() -> bool;
+    private:
+        auto Submit(Context& context) -> bool;
 
     private:
         Device::SourceVoice* m_SourceVoice;

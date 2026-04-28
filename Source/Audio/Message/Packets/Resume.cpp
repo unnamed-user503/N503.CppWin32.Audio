@@ -1,9 +1,10 @@
 #include "Pch.hpp"
-#include "StopCommand.hpp"
+#include "Resume.hpp"
 
 // 1. Project Headers
 #include "../../Engine.hpp"
 #include "../../Processor.hpp"
+#include "../Context.hpp"
 
 // 2. Project Dependencies
 
@@ -15,12 +16,12 @@
 
 // 6. C++ Standard Libraries
 
-namespace N503::Audio::Command::Packets
+namespace N503::Audio::Message::Packets
 {
 
-    auto StopCommand::operator()() const -> void
+    auto Resume::operator()(const Context& context) const -> void
     {
-        Audio::Engine::Instance().GetAudioProcessor().Stop(Handle);
+        Audio::Engine::GetInstance().GetAudioProcessor().Resume(Handle);
     }
 
 } // namespace N503::Audio::Command::Packets
