@@ -49,7 +49,7 @@ namespace N503::Audio::Node
     auto Queue::OnPlay() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnPlay called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Queue: OnPlay called.");
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -77,7 +77,7 @@ namespace N503::Audio::Node
     auto Queue::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Queue: OnStop called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Queue: OnStop called.");
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {

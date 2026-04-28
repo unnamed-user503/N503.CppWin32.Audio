@@ -41,7 +41,7 @@ namespace N503::Audio::Node
     auto Stream::OnPlay(const Node::Descriptor& descriptor) -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Stream: OnPlay called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Stream: OnPlay called.");
 #endif
         m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Path);
     }
@@ -49,7 +49,7 @@ namespace N503::Audio::Node
     auto Stream::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, "[Audio] Stream: OnStop called." });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Stream: OnStop called.");
 #endif
         m_Decoder.reset();
     }

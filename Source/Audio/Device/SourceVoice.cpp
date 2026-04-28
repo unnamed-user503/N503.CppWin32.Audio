@@ -135,7 +135,7 @@ namespace N503::Audio::Device
             buffer.IsEndOfStream ? "o" : "x"
         );
 
-        Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry({ Diagnostics::Severity::Verbose, log.data(), 0 });
+        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose(log);
 #endif
         // XAudio2 ボイスにデータを投入
         if (FAILED(m_SourceVoice->SubmitSourceBuffer(&sourceBuffer)))

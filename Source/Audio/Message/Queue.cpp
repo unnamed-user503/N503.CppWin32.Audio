@@ -169,11 +169,7 @@ namespace N503::Audio::Message
 
         if (isCongested)
         {
-            Engine::GetInstance().GetDiagnosticsSink().AddEntry(Diagnostics::Entry{
-                .Severity = Diagnostics::Severity::Warning,
-                .Expected = std::format("EventQueue is congesting: CurrentSize={}, Capacity={}\n", currentSize, capacity).data(),
-                .Position = 0,
-            });
+            Engine::GetInstance().GetDiagnosticsSink().Warning(std::format(L"EventQueue is congesting: CurrentSize={}, Capacity={}\n", currentSize, capacity));
         }
 #endif
         return isCongested;

@@ -104,13 +104,7 @@ namespace N503::Audio
     {
         if (!::PostThreadMessage(::GetThreadId(m_AudioThread.native_handle()), WM_QUIT, 0, 0))
         {
-            const Diagnostics::Entry entry{
-                .Severity = Diagnostics::Severity::Error,
-                .Expected = std::format("PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data(),
-                .Position = 0
-            };
-
-            m_DiagnosticsSink.AddEntry(entry);
+            m_DiagnosticsSink.Error(std::format("PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data());
         }
     }
 
