@@ -11,7 +11,7 @@
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
 #include <N503/Audio/Status.hpp>
-#include <N503/Diagnostics/Severity.hpp>
+#include <N503/Diagnostics/Reporter.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -32,7 +32,7 @@ namespace N503::Audio::Node
     auto Endpoint::OnPlay(const Audio::Format& format) -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Endpoint: OnPlay called.");
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Endpoint: OnPlay called.");
 #endif
         if (!m_SourceVoice)
         {
@@ -45,7 +45,7 @@ namespace N503::Audio::Node
     auto Endpoint::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Endpoint: OnStop called.");
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Endpoint: OnStop called.");
 #endif
         if (m_SourceVoice)
         {

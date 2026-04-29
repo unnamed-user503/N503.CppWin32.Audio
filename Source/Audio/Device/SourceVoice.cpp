@@ -8,8 +8,7 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
-#include <N503/Diagnostics/Severity.hpp>
-#include <N503/Diagnostics/Sink.hpp>
+#include <N503/Diagnostics/Reporter.hpp>
 
 // 3. WIL (Windows Implementation Library)
 #include <wil/result_macros.h>
@@ -135,7 +134,7 @@ namespace N503::Audio::Device
             buffer.IsEndOfStream ? "o" : "x"
         );
 
-        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose(log);
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose(log);
 #endif
         // XAudio2 ボイスにデータを投入
         if (FAILED(m_SourceVoice->SubmitSourceBuffer(&sourceBuffer)))

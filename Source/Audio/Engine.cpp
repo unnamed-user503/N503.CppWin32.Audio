@@ -10,10 +10,7 @@
 #include "Resource/Container.hpp"
 
 // 2. Project Dependencies
-#include <N503/Diagnostics/ConsoleSink.hpp>
-#include <N503/Diagnostics/Entry.hpp>
 #include <N503/Diagnostics/Reporter.hpp>
-#include <N503/Diagnostics/Severity.hpp>
 
 // 3. WIL (Windows Implementation Library)
 #include <wil/resource.h>
@@ -44,8 +41,10 @@ namespace N503::Audio
 
     Engine::Engine()
     {
-        m_MessageQueue      = std::make_unique<Message::Queue>();
-        m_ResourceContainer = std::make_unique<Resource::Container>();
+        m_MessageQueue        = std::make_unique<Message::Queue>();
+        m_ResourceContainer   = std::make_unique<Resource::Container>();
+        m_DiagnosticsReporter = std::make_unique<Diagnostics::Reporter>();
+        m_DiagnosticsReporter->AddSink(std::make_unique<Diagnostics::ConsoleSink>());
     }
 
     Engine::~Engine()
@@ -104,7 +103,7 @@ namespace N503::Audio
     {
         if (!::PostThreadMessage(::GetThreadId(m_AudioThread.native_handle()), WM_QUIT, 0, 0))
         {
-            m_DiagnosticsSink.Error(std::format("PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data());
+            m_DiagnosticsReporter->Error(std::format("PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data());
         }
     }
 
@@ -141,8 +140,6 @@ namespace N503::Audio
         auto wakeupHandles = { m_MessageQueue->GetWakeupEventHandle() };
 
         Message::Dispatcher messageDispatcher;
-        Diagnostics::Reporter diagnosticsReporter;
-        diagnosticsReporter.AddSink(std::make_shared<Diagnostics::ConsoleSink>());
 
         bool isAnyActive = false;
 
@@ -170,16 +167,14 @@ namespace N503::Audio
 
             isAnyActive = m_AudioProcessor->Process();
 #ifdef _DEBUG
-            diagnosticsReporter.Submit(m_DiagnosticsSink);
+            m_DiagnosticsReporter->Report();
 #endif
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 
 #ifdef _DEBUG
-        diagnosticsReporter.Submit(m_DiagnosticsSink);
+        m_DiagnosticsReporter->Report();
 #endif
-        diagnosticsReporter.Stop();
-        diagnosticsReporter.Wait();
     }
 
     auto Engine::Wait() -> void

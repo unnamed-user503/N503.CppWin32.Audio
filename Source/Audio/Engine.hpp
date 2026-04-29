@@ -4,7 +4,7 @@
 #include "Resource/Container.hpp"
 
 // 2. Project Dependencies
-#include <N503/Diagnostics/Sink.hpp>
+#include <N503/Diagnostics/Reporter.hpp>
 
 // 3. WIL (Windows Implementation Library)
 #include <wil/resource.h>
@@ -72,9 +72,9 @@ namespace N503::Audio
             return *m_AudioProcessor;
         }
 
-        auto GetDiagnosticsSink() noexcept -> Diagnostics::Sink&
+        auto GetDiagnosticsReporter() noexcept -> Diagnostics::Reporter&
         {
-            return m_DiagnosticsSink;
+            return *m_DiagnosticsReporter;
         }
 
     private:
@@ -95,7 +95,7 @@ namespace N503::Audio
 
         std::unique_ptr<Audio::Processor> m_AudioProcessor;
 
-        Diagnostics::Sink m_DiagnosticsSink;
+        std::unique_ptr<Diagnostics::Reporter> m_DiagnosticsReporter;
 
         std::jthread m_AudioThread;
     };

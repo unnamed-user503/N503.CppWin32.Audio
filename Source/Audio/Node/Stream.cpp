@@ -13,8 +13,7 @@
 // 2. Project Dependencies
 #include <N503/Audio/Status.hpp>
 #include <N503/Audio/Types.hpp>
-#include <N503/Diagnostics/Severity.hpp>
-#include <N503/Diagnostics/Sink.hpp>
+#include <N503/Diagnostics/Reporter.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -41,7 +40,7 @@ namespace N503::Audio::Node
     auto Stream::OnPlay(const Node::Descriptor& descriptor) -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Stream: OnPlay called.");
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Stream: OnPlay called.");
 #endif
         m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Path);
     }
@@ -49,7 +48,7 @@ namespace N503::Audio::Node
     auto Stream::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Stream: OnStop called.");
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Stream: OnStop called.");
 #endif
         m_Decoder.reset();
     }

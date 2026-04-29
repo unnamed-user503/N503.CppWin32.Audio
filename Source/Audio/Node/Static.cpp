@@ -10,7 +10,7 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Status.hpp>
-#include <N503/Diagnostics/Severity.hpp>
+#include <N503/Diagnostics/Reporter.hpp>
 #include <N503/Diagnostics/Sink.hpp>
 
 // 3. WIL (Windows Implementation Library)
@@ -47,7 +47,7 @@ namespace N503::Audio::Node
             if (!m_Asset)
             {
 #ifdef _DEBUG
-                Audio::Engine::GetInstance().GetDiagnosticsSink().Error("[Audio] Node::Static: invalid audio handle.");
+                Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Node::Static: invalid audio handle.");
 #endif
                 return true; // 再生処理を終了する
             }
@@ -61,7 +61,7 @@ namespace N503::Audio::Node
         if (m_Asset->Frames.Count == 0 || m_Asset->Frames.Size == 0 || !m_Asset->Frames.Bytes)
         {
 #ifdef _DEBUG
-            Audio::Engine::GetInstance().GetDiagnosticsSink().Error("[Audio] Node::Static: invalid audio frames.");
+            Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Node::Static: invalid audio frames.");
 #endif
             return true; // 再生処理を終了する
         }

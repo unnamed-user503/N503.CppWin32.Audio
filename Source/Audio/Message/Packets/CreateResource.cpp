@@ -7,7 +7,7 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
-#include <N503/Diagnostics/Severity.hpp>
+#include <N503/Diagnostics/Reporter.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -26,7 +26,7 @@ namespace N503::Audio::Message::Packets
         if (!Result)
         {
 #ifdef _DEBUG
-            Audio::Engine::GetInstance().GetDiagnosticsSink().Error(L"[Audio] <CreateResource> : command.Result is empty.");
+            Audio::Engine::GetInstance().GetDiagnosticsReporter().Error(L"[Audio] <CreateResource> : command.Result is empty.");
 #endif
             return;
         }

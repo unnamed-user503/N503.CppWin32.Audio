@@ -9,9 +9,7 @@
 #include "Entry.hpp"
 
 // 2. Project Dependencies
-#include <N503/Audio/Status.hpp>
-#include <N503/Diagnostics/Severity.hpp>
-#include <N503/Diagnostics/Sink.hpp>
+#include <N503/Diagnostics/Reporter.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -49,7 +47,7 @@ namespace N503::Audio::Node
     auto Queue::OnPlay() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Queue: OnPlay called.");
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Queue: OnPlay called.");
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -77,7 +75,7 @@ namespace N503::Audio::Node
     auto Queue::OnStop() -> void
     {
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsSink().Verbose("[Audio] Queue: OnStop called.");
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Queue: OnStop called.");
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
@@ -215,7 +213,7 @@ namespace N503::Audio::Node
                     (wasEndOfStream ? 1 : 0)
                 );
 
-                Audio::Engine::GetInstance().GetDiagnosticsSink().AddEntry(Diagnostics::Severity::Verbose, log.data(), 0);
+                Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose(log);
 #endif
                 m_Entries[i].Frames->Count    = 0;
                 m_Entries[i].Frames->Duration = std::chrono::duration<double>(0.0);
