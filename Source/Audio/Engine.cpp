@@ -44,7 +44,7 @@ namespace N503::Audio
         m_MessageQueue        = std::make_unique<Message::Queue>();
         m_ResourceContainer   = std::make_unique<Resource::Container>();
         m_DiagnosticsReporter = std::make_unique<Diagnostics::Reporter>();
-        m_DiagnosticsReporter->AddSink(std::make_unique<Diagnostics::ConsoleSink>());
+        m_DiagnosticsReporter->AddSink(std::make_unique<Diagnostics::DebugStringSink>());
     }
 
     Engine::~Engine()
@@ -69,6 +69,11 @@ namespace N503::Audio
                 // スレッドに名前を付ける
                 ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Audio");
 
+                // COMの初期化
+                auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
+                ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
+                auto mfshutdown = wil::scope_exit([] { ::MFShutdown(); });
+
                 // スレッドのメッセージキューを強制する
                 MSG message{};
                 ::PeekMessage(&message, NULL, WM_USER, WM_USER, PM_NOREMOVE);
@@ -78,11 +83,6 @@ namespace N503::Audio
 
                 // エンジンスレッドが起動したので旗を立てる
                 m_StartedEvent.SetEvent();
-
-                // COMの初期化
-                auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
-                ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
-                auto mfshutdown = wil::scope_exit([] { ::MFShutdown(); });
 
                 // オーディオスレッドの開始
                 this->Run(std::move(stopToken));
