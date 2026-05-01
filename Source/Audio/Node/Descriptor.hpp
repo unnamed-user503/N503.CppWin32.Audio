@@ -1,6 +1,7 @@
 #pragma once
 
 // 1. Project Headers
+#include "../Resource/Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Status.hpp>
@@ -20,7 +21,7 @@ namespace N503::Audio::Node
 
     struct Descriptor final
     {
-        Audio::AssetHandle Handle{ Identity::ResourceID::Invalid };
+        Audio::Resource::Handle Handle{ Identity::ResourceID::Invalid };
 
         std::string_view Path{};
 

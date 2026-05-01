@@ -2,6 +2,7 @@
 
 // 1. Project Headers
 #include "Asset.hpp"
+#include "Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -34,11 +35,11 @@ namespace N503::Audio::Resource
 
         auto operator=(const Container&) -> Container& = delete;
 
-        auto Store(Audio::Type type, std::string_view path) -> Audio::AssetHandle;
+        auto Store(Audio::Type type, std::string_view path) -> Audio::Resource::Handle;
 
-        auto GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset*;
+        auto GetAsset(Audio::Resource::Handle handle) const noexcept -> const Resource::Asset*;
 
-        auto Remove(Audio::AssetHandle handle) -> void;
+        auto Remove(Audio::Resource::Handle handle) -> void;
 
         auto Reset() -> void;
 
@@ -47,7 +48,7 @@ namespace N503::Audio::Resource
 
         std::array<Resource::Asset*, MaxAssets + 1> m_AssetSlots{};
 
-        std::vector<Audio::AssetHandle> m_AvailableHandles;
+        std::vector<Audio::Resource::Handle> m_AvailableHandles;
     };
 
 } // namespace N503::Audio::Resource

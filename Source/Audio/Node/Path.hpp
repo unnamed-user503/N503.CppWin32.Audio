@@ -271,7 +271,7 @@ namespace N503::Audio::Node
             return m_Context->Descriptor.Status;
         }
 
-        auto GetAssetHandle() const -> const Audio::AssetHandle
+        auto GetAssetHandle() const -> const Audio::Resource::Handle
         {
             // Stopping中ででも停止したかのように振舞うとフェードアウト中に次の曲が再生できる
             if (GetStatus() == Audio::Status::Stopping || GetStatus() == Audio::Status::Stopped)

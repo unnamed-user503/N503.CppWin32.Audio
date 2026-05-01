@@ -1,6 +1,7 @@
 #pragma once
 
 // 1. Project Headers
+#include "Resource/Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Source.hpp>
@@ -19,7 +20,7 @@ namespace N503::Audio
 
     struct Source::Entity final
     {
-        Audio::AssetHandle AssetHandle{};
+        Audio::Resource::Handle AssetHandle{};
 
         Audio::ProcessHandle ProcessHandle{};
     };

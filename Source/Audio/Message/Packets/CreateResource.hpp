@@ -1,6 +1,7 @@
 #pragma once
 
 // 1. Project Headers
+#include "../../Resource/Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
@@ -27,7 +28,7 @@ namespace N503::Audio::Message::Packets
     /// @brief
     struct CreateResource final
     {
-        Audio::AssetHandle* Result;
+        Audio::Resource::Handle* Result;
 
         Audio::Format Format;
 

@@ -39,14 +39,14 @@ namespace N503::Audio::Resource
     {
     }
 
-    auto Container::Store(Audio::Type type, std::string_view path) -> Audio::AssetHandle
+    auto Container::Store(Audio::Type type, std::string_view path) -> Audio::Resource::Handle
     {
         if (path.empty())
         {
             return { Identity::ResourceID::Invalid };
         }
 
-        Audio::AssetHandle handle = m_AvailableHandles.back();
+        Audio::Resource::Handle handle = m_AvailableHandles.back();
         m_AvailableHandles.pop_back();
 
         Codec::MediaFoundationDecoder decoder(path);
@@ -80,7 +80,7 @@ namespace N503::Audio::Resource
         return handle;
     }
 
-    auto Container::GetAsset(Audio::AssetHandle handle) const noexcept -> const Resource::Asset*
+    auto Container::GetAsset(Audio::Resource::Handle handle) const noexcept -> const Resource::Asset*
     {
         auto index = static_cast<std::size_t>(handle.ResourceID);
 
@@ -92,7 +92,7 @@ namespace N503::Audio::Resource
         return m_AssetSlots[index];
     }
 
-    auto Container::Remove(Audio::AssetHandle handle) -> void
+    auto Container::Remove(Audio::Resource::Handle handle) -> void
     {
         auto index = static_cast<std::size_t>(handle.ResourceID);
 
@@ -121,7 +121,7 @@ namespace N503::Audio::Resource
         // clang-format off
         auto handleView = resourceIds | std::views::transform([](auto i)
         {
-            return Audio::AssetHandle{ .ResourceID = static_cast<Identity::ResourceID>(i) };
+            return Audio::Resource::Handle{ .ResourceID = static_cast<Identity::ResourceID>(i) };
         });
         // clang-format on
 

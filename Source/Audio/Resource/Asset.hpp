@@ -3,6 +3,7 @@
 // 1. Project Headers
 #include "../Frames/Buffer.hpp"
 #include "../Resource/Metadata.hpp"
+#include "../Resource/Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -20,7 +21,7 @@ namespace N503::Audio::Resource
 
     struct Asset final
     {
-        Audio::AssetHandle Handle;
+        Audio::Resource::Handle Handle;
 
         Frames::Buffer Frames;
 

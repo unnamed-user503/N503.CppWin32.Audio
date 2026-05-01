@@ -4,6 +4,7 @@
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
+#include <N503/Audio/Status.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -66,23 +67,6 @@ namespace N503::Audio
         bool operator!() const noexcept
         {
             return Ticket == Identity::Ticket::Invalid;
-        }
-    };
-
-    struct AssetHandle final
-    {
-        Identity::ResourceID ResourceID{ Identity::ResourceID::Invalid };
-
-        [[nodiscard]]
-        explicit operator bool() const noexcept
-        {
-            return ResourceID != Identity::ResourceID::Invalid;
-        }
-
-        [[nodiscard]]
-        bool operator!() const noexcept
-        {
-            return ResourceID == Identity::ResourceID::Invalid;
         }
     };
 
