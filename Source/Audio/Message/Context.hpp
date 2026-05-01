@@ -12,11 +12,19 @@
 
 // 6. C++ Standard Libraries
 
+// Forward Declarations
+namespace N503::Audio::Resource
+{
+    class Container;
+}
+
+// Declarations
 namespace N503::Audio::Message
 {
 
     struct Context
     {
+        Audio::Resource::Container& ResourceContainer;
     };
 
-} // namespace N503::Renderer2D::Message
+}

@@ -26,12 +26,12 @@ namespace N503::Audio::Message::Packets
         if (!Result)
         {
 #ifdef _DEBUG
-            Audio::Engine::GetInstance().GetDiagnosticsReporter().Error(L"[Audio] <CreateResource> : command.Result is empty.");
+            Audio::Engine::GetInstance().GetDiagnosticsReporter().Error(L"[Audio]<CreateResource::operator()>: Result is empty.");
 #endif
             return;
         }
 
-        auto handle = Audio::Engine::GetInstance().GetResourceContainer().Store(Type, std::string(Path));
+        auto handle = context.ResourceContainer.Store(Type, std::string(Path));
 
         if (!handle)
         {

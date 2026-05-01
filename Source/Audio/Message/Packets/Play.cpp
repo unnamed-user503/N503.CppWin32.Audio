@@ -22,7 +22,7 @@ namespace N503::Audio::Message::Packets
 
     auto Play::operator()(const Context& context) const -> void
     {
-        if (auto asset = Audio::Engine::GetInstance().GetResourceContainer().GetAsset(Handle))
+        if (auto asset = context.ResourceContainer.GetAsset(Handle))
         {
             if (auto handle = Audio::Engine::GetInstance().GetAudioProcessor().Play(asset))
             {

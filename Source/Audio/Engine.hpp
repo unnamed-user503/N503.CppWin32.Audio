@@ -46,11 +46,11 @@ namespace N503::Audio
     public:
         ~Engine();
 
-        auto Start() -> void;
+        auto Start() -> bool;
 
-        auto Stop() -> void;
+        auto Stop() -> bool;
 
-        auto Wait() -> void;
+        auto Wait() -> bool;
 
         auto GetMessageQueue() const noexcept -> Message::Queue&
         {

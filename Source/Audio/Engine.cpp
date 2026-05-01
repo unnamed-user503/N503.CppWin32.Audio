@@ -2,18 +2,20 @@
 #include "Engine.hpp"
 
 // 1. Project Headers
+#include "Device/Context.hpp"
+#include "Message/Context.hpp"
 #include "Message/Dispatcher.hpp"
 #include "Message/Queue.hpp"
-#include "Message/Context.hpp"
-#include "Device/Context.hpp"
 #include "Processor.hpp"
 #include "Resource/Container.hpp"
 
 // 2. Project Dependencies
 #include <N503/Diagnostics/Reporter.hpp>
+#include <N503/Diagnostics/Sink.hpp>
 
 // 3. WIL (Windows Implementation Library)
 #include <wil/resource.h>
+#include <wil/result_macros.h>
 
 // 4. Third-party Libraries
 
@@ -22,8 +24,6 @@
 #include <mfapi.h>
 
 // 6. C++ Standard Libraries
-#include <chrono>
-#include <format>
 #include <memory>
 #include <semaphore>
 #include <stop_token>
@@ -53,11 +53,11 @@ namespace N503::Audio
         Wait();
     }
 
-    auto Engine::Start() -> void
+    auto Engine::Start() -> bool
     {
         if (m_IsRunning.load(std::memory_order_acquire))
         {
-            return;
+            return false;
         }
 
         // スレッド開始同期用シグナル
@@ -68,25 +68,37 @@ namespace N503::Audio
             {
                 // スレッドに名前を付ける
                 ::SetThreadDescription(::GetCurrentThread(), L"N503.CppWin32.Audio");
+                //::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
 
                 // COMの初期化
                 auto coinit = wil::CoInitializeEx(COINIT_MULTITHREADED);
+                // Media Foundation の開始
                 ::MFStartup(MF_VERSION, MFSTARTUP_LITE);
-                auto mfshutdown = wil::scope_exit([] { ::MFShutdown(); });
 
                 // スレッドのメッセージキューを強制する
                 MSG message{};
                 ::PeekMessage(&message, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 
-                // スレッドが開始されたのでロックを解放する
-                signal.release();
-
                 // エンジンスレッドが起動したので旗を立てる
+                m_IsRunning.store(true, std::memory_order_release);
+                // エンジンスレッドが起動したので旗を立てる(外部モジュール用)
                 m_StartedEvent.SetEvent();
 
-                // オーディオスレッドの開始
-                this->Run(std::move(stopToken));
+                // スレッドが開始されたのでメインスレッド側のロックを解放する
+                signal.release();
 
+                // オーディオスレッドの開始
+                try
+                {
+                    Run(std::move(stopToken));
+                }
+                CATCH_LOG();
+
+                // Media Foundation の終了
+                ::MFShutdown();
+
+                // エンジンスレッドが終了したので旗を下ろす(外部モジュール用)
+                m_StartedEvent.ResetEvent();
                 // エンジンスレッドが停止したので旗を下す
                 m_IsRunning.store(false, std::memory_order_release);
             }
@@ -95,24 +107,48 @@ namespace N503::Audio
         // スレッドが開始されるのを待つ
         signal.acquire();
 
-        // スレッドを開始したのでフラグを立てておく
-        m_IsRunning.store(true, std::memory_order_release);
+        return true;
     }
 
-    auto Engine::Stop() -> void
+    auto Engine::Stop() -> bool
     {
-        if (!::PostThreadMessage(::GetThreadId(m_AudioThread.native_handle()), WM_QUIT, 0, 0))
+        if (!m_IsRunning.load(std::memory_order_acquire))
         {
-            m_DiagnosticsReporter->Error(std::format("PostThreadMessage failed: Reason={}, Handle={}\n", ::GetLastError(), m_AudioThread.native_handle()).data());
+            return false;
         }
+
+        m_AudioThread.request_stop();
+
+        const auto threadId = ::GetThreadId(m_AudioThread.native_handle());
+
+        if (threadId != 0)
+        {
+            if (::PostThreadMessageW(threadId, WM_QUIT, 0, 0))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    auto Engine::Wait() -> bool
+    {
+        if (m_AudioThread.joinable())
+        {
+            m_AudioThread.join();
+        }
+
+        return true;
     }
 
     auto Engine::Run(const std::stop_token stopToken) -> void
     {
+        Message::Dispatcher messageDispatcher;
         m_DeviceContext  = std::make_unique<Device::Context>();
         m_AudioProcessor = std::make_unique<Audio::Processor>();
 
-        auto CleanupResources = wil::scope_exit(
+        auto cleanup = wil::scope_exit(
             [&]
             {
                 m_AudioProcessor.reset();
@@ -122,7 +158,7 @@ namespace N503::Audio
             }
         );
 
-        auto OSMessageDispatch = []() -> bool
+        auto ProcessMessage = []() -> bool
         {
             MSG message{};
             while (::PeekMessage(&message, nullptr, 0, 0, PM_REMOVE))
@@ -138,10 +174,7 @@ namespace N503::Audio
         };
 
         auto wakeupHandles = { m_MessageQueue->GetWakeupEventHandle() };
-
-        Message::Dispatcher messageDispatcher;
-
-        bool isAnyActive = false;
+        auto isAnyActive   = false;
 
         while (!stopToken.stop_requested())
         {
@@ -151,37 +184,25 @@ namespace N503::Audio
 
             auto result = ::MsgWaitForMultipleObjectsEx(count, handles, timeout, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
 
-            if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + count))
+            if (result == WAIT_OBJECT_0 + count)
             {
-                Message::Context context = {};
-                messageDispatcher.Dispatch(*m_MessageQueue, context);
-            }
-            else if (result == WAIT_OBJECT_0 + count)
-            {
-                if (!OSMessageDispatch())
+                if (!ProcessMessage())
                 {
                     m_AudioProcessor->WaitForAllStop(); // [重要] XAudio2がリソースを参照中なのにリソースを解放してはいけない
                     return;
                 }
             }
+            else if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + count))
+            {
+                Message::Context context = {
+                    *m_ResourceContainer
+                };
+                messageDispatcher.Dispatch(*m_MessageQueue, context);
+            }
 
             isAnyActive = m_AudioProcessor->Process();
-#ifdef _DEBUG
+
             m_DiagnosticsReporter->Report();
-#endif
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-
-#ifdef _DEBUG
-        m_DiagnosticsReporter->Report();
-#endif
-    }
-
-    auto Engine::Wait() -> void
-    {
-        if (m_AudioThread.joinable())
-        {
-            m_AudioThread.join();
         }
     }
 
