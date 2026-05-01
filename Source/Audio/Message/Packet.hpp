@@ -3,10 +3,10 @@
 // 1. Project Headers
 #include "Packets/CreateResource.hpp"
 #include "Packets/DestroyResource.hpp"
-#include "Packets/Play.hpp"
-#include "Packets/Stop.hpp"
-#include "Packets/Resume.hpp"
 #include "Packets/Pause.hpp"
+#include "Packets/Play.hpp"
+#include "Packets/Resume.hpp"
+#include "Packets/Stop.hpp"
 
 // 2. Project Dependencies
 
@@ -26,4 +26,4 @@ namespace N503::Audio::Message
 
     using Packet = std::variant<CreateResource, DestroyResource, Play, Stop, Resume, Pause>;
 
-} // namespace N503::Renderer2D::Message
+} // namespace N503::Audio::Message

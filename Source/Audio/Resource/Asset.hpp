@@ -2,8 +2,8 @@
 
 // 1. Project Headers
 #include "../Frames/Buffer.hpp"
-#include "../Resource/Metadata.hpp"
 #include "../Resource/Handle.hpp"
+#include "../Resource/Metadata.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>

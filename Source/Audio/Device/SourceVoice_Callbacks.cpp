@@ -38,7 +38,7 @@ namespace N503::Audio::Device
             signal->Notify.store(true, std::memory_order_release);
         }
 
-        if (m_PendingBuffers.fetch_sub(1, std::memory_order_acquire) == 1)
+        if (m_PendingBuffers.fetch_sub(1, std::memory_order_acq_rel) == 1)
         {
             ::SetEvent(m_StoppedEvent.get());
         }

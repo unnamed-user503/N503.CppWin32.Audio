@@ -27,4 +27,4 @@ namespace N503::Audio::Message
         Audio::Resource::Container& ResourceContainer;
     };
 
-}
+} // namespace N503::Audio::Message

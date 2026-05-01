@@ -1,11 +1,9 @@
 #pragma once
 
 // 1. Project Headers
-#include "SourceVoice.hpp"
 
 // 2. Project Dependencies
-#include <N503/Audio/Format.hpp>
-#include <N503/Memory/Storage/Pool.hpp>
+#include <N503/Audio/Types.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -19,9 +17,8 @@
 
 namespace N503::Audio::Device
 {
-
     class MasterVoice;
-
+    class SourceVoice;
 } // namespace N503::Audio::Device
 
 namespace N503::Audio::Device
@@ -42,13 +39,11 @@ namespace N503::Audio::Device
         auto Return(SourceVoice* voice) -> void;
 
     private:
-        N503::Memory::Storage::Pool<SourceVoice> m_Storage{ MaxAvailableSourceVoices };
-
         MasterVoice* m_MasterVoice{ nullptr };
 
-        std::vector<SourceVoice*> m_Availables;
+        std::vector<std::unique_ptr<SourceVoice>> m_Storage;
 
-        std::vector<SourceVoice*> m_Indexes;
+        std::vector<SourceVoice*> m_Availables;
     };
 
 } // namespace N503::Audio::Device

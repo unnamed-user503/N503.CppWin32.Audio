@@ -19,66 +19,53 @@
 
 namespace N503::Audio::Device
 {
-
     /// @brief プールの初期化
     SourceVoiceCache::SourceVoiceCache(MasterVoice* masterVoice) : m_MasterVoice(masterVoice)
     {
-        // 管理リストのメモリを事前に予約し、再アロケーションを抑制する
+        // 構築時に最大数までリザーブし、実行中の再確保をゼロにする
+        m_Storage.reserve(MaxAvailableSourceVoices);
         m_Availables.reserve(MaxAvailableSourceVoices);
-        m_Indexes.reserve(MaxAvailableSourceVoices);
     }
 
     /// @brief 全リソースのクリーンアップ
     SourceVoiceCache::~SourceVoiceCache()
     {
-        // 索引(m_Indexes)を辿って、全てのボイスのデストラクタを明示的に呼び出す
-        // これにより SourceVoice 内の XAudio2::DestroyVoice が確実に実行される
-        for (auto* voice : m_Indexes)
-        {
-            std::destroy_at(voice);
-        }
-        // メモリ領域自体の解放は m_Storage (N503::Memory::Pool) の破棄時に一括で行われる
+        // unique_ptr が各 SourceVoice のデストラクタを自動で呼ぶため、
+        // XAudio2 の DestroyVoice も安全に実行される。
+        // 明示的なループ破棄は不要。
     }
 
     /// @brief ボイスの借用処理
     auto SourceVoiceCache::Borrow(const Format& format) -> SourceVoice*
     {
-        // 1. Availables（貸出可能リスト）から、要求されたフォーマットと一致するものを探す
-        for (std::size_t i = 0; i < m_Availables.size(); ++i)
+        // 1. Availables（貸出可能リスト）からフォーマットが一致するものを探す
+        auto it = std::find_if(m_Availables.begin(), m_Availables.end(), [&format](SourceVoice* voice) { return voice->GetFormat() == format; });
+
+        if (it != m_Availables.end())
         {
-            if (m_Availables[i]->GetFormat() == format)
-            {
-                SourceVoice* voice = m_Availables[i];
+            SourceVoice* voice = *it;
 
-                // --- Swap-and-Pop テクニック ---
-                // リストの途中の要素を削除すると後続のシフトで O(N) かかるため、
-                // 末尾要素と入れ替えてから pop_back することで O(1) で削除を行う。
-                if (i != m_Availables.size() - 1)
-                {
-                    m_Availables[i] = m_Availables.back();
-                }
+            // Swap-and-Pop で O(1) 削除
+            *it = m_Availables.back();
+            m_Availables.pop_back();
 
-                m_Availables.pop_back();
-
-                // 再利用開始時に再生を開始
-                voice->Start();
-                return voice;
-            }
+            voice->Start();
+            return voice;
         }
 
-        // 2. 一致する空きインスタンスがなく、最大数に達していなければ新規作成する
-        if (m_Indexes.size() < MaxAvailableSourceVoices)
+        // 2. 一致する空きがなく、最大数に達していなければ新規作成
+        if (m_Storage.size() < MaxAvailableSourceVoices)
         {
-            // Storage (Pool) からメモリを切り出し、インスタンスを構築
-            if (SourceVoice* voice = m_Storage.Create(m_MasterVoice, format))
-            {
-                m_Indexes.push_back(voice);
-                voice->Start();
-                return voice;
-            }
+            // unique_ptr で実体を生成。m_Storage が所有権を持つ
+            auto voice       = std::make_unique<SourceVoice>(m_MasterVoice, format);
+            SourceVoice* raw = voice.get();
+
+            m_Storage.push_back(std::move(voice));
+
+            raw->Start();
+            return raw;
         }
 
-        // 空きがなく、新規作成もできない場合
         return nullptr;
     }
 
@@ -87,8 +74,9 @@ namespace N503::Audio::Device
     {
         if (voice)
         {
-            // 再生を停止し、貸出可能リストに追加する
             voice->Stop();
+            voice->Flush();
+            // ポインタのみを貸出可能リストに戻す
             m_Availables.push_back(voice);
         }
     }

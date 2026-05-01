@@ -2,6 +2,7 @@
 #include "Source_Entity.hpp"
 
 // 1. Project Headers
+#include "Engine.hpp"
 #include "Message/Packets/CreateResource.hpp"
 #include "Message/Packets/DestroyResource.hpp"
 #include "Message/Packets/Pause.hpp"
@@ -9,7 +10,6 @@
 #include "Message/Packets/Resume.hpp"
 #include "Message/Packets/Stop.hpp"
 #include "Message/Queue.hpp"
-#include "Engine.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>

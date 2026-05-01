@@ -131,7 +131,7 @@ namespace N503::Audio
 
         return false;
     }
-    
+
     auto Engine::Wait() -> bool
     {
         if (m_AudioThread.joinable())
@@ -145,7 +145,7 @@ namespace N503::Audio
     auto Engine::Run(const std::stop_token stopToken) -> void
     {
         Message::Dispatcher messageDispatcher;
-        m_MasterVoice  = std::make_unique<Device::MasterVoice>();
+        m_MasterVoice    = std::make_unique<Device::MasterVoice>();
         m_AudioProcessor = std::make_unique<Audio::Processor>();
 
         auto cleanup = wil::scope_exit(
@@ -194,9 +194,7 @@ namespace N503::Audio
             }
             else if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + count))
             {
-                Message::Context context = {
-                    *m_ResourceContainer
-                };
+                Message::Context context = { *m_ResourceContainer };
                 messageDispatcher.Dispatch(*m_MessageQueue, context);
             }
 

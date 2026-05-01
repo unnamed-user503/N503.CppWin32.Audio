@@ -29,4 +29,4 @@ namespace N503::Audio::Message::Packets
         auto operator()(const Context& context) const -> void;
     };
 
-} // namespace N503::Audio::Command::Packets
+} // namespace N503::Audio::Message::Packets

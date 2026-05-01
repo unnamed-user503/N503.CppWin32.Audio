@@ -101,4 +101,4 @@ namespace N503::Audio::Message
         std::mutex m_Mutex;
     };
 
-} // namespace N503::Renderer2D::Message
+} // namespace N503::Audio::Message

@@ -43,4 +43,4 @@ namespace N503::Audio::Message
         }
     };
 
-} // namespace N503::Renderer2D::Message
+} // namespace N503::Audio::Message

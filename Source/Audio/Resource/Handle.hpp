@@ -35,4 +35,4 @@ namespace N503::Audio::Resource
         }
     };
 
-}
+} // namespace N503::Audio::Resource

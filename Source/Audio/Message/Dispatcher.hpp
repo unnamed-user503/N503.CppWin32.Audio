@@ -16,7 +16,7 @@ namespace N503::Audio::Message
 {
     struct Context;
     class Queue;
-} // namespace N503::Renderer2D::Message
+} // namespace N503::Audio::Message
 
 namespace N503::Audio::Message
 {
@@ -27,4 +27,4 @@ namespace N503::Audio::Message
         auto Dispatch(Queue& queue, Context& context) -> void;
     };
 
-} // namespace N503::Renderer2D::Message
+} // namespace N503::Audio::Message

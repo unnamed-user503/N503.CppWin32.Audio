@@ -166,7 +166,7 @@ namespace N503::Audio::Device
     {
         if (!m_SourceVoice)
         {
-            return false;
+            return 0.0f;
         }
 
         float volume{ 0.0f };

@@ -47,7 +47,7 @@ namespace N503::Audio
         {
             Initial = 0
         };
-    }
+    } // namespace Identity
 
     struct ProcessHandle final
     {

@@ -31,4 +31,4 @@ namespace N503::Audio::Message::Packets
         }
     }
 
-} // namespace N503::Audio::Command::Packets
+} // namespace N503::Audio::Message::Packets

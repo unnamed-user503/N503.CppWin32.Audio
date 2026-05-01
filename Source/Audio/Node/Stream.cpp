@@ -117,9 +117,7 @@ namespace N503::Audio::Node
             return false; // 再生処理を継続する
         }
 
-        auto result = m_Decoder->Decode(
-            requestedFrames, [&](std::size_t size) { return context.Buffers.Cache->Frames->Bytes; }
-        );
+        auto result = m_Decoder->Decode(requestedFrames, [&](std::size_t size) { return context.Buffers.Cache->Frames->Bytes; });
 
         context.Buffers.Cache->Frames->Count         = result.Count;
         context.Buffers.Cache->Frames->IsEndOfStream = result.IsEndOfStream;
