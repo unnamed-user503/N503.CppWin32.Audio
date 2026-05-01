@@ -36,18 +36,18 @@ namespace N503::Audio
         for (std::uint64_t i = 0; i < MaxStaticVoicePaths; ++i)
         {
             m_VoicePaths[i].emplace<Node::StaticVoicePath>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
-            m_StaticTicketQueue.emplace(static_cast<Audio::Handle::Ticket>(i));
+            m_StaticTicketQueue.emplace(static_cast<Identity::Ticket>(i));
         }
 
         for (std::uint64_t i = 0; i < MaxStreamVoicePaths; ++i)
         {
             m_VoicePaths[MaxStaticVoicePaths + i].emplace<Node::StreamVoicePath>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
-            m_StreamTicketQueue.emplace(static_cast<Audio::Handle::Ticket>(MaxStaticVoicePaths + i));
+            m_StreamTicketQueue.emplace(static_cast<Identity::Ticket>(MaxStaticVoicePaths + i));
         }
 
         for (std::uint32_t i = 0; i < MaxVoicePaths; ++i)
         {
-            m_Generations[i] = Audio::Handle::Generation::InitialValue;
+            m_Generations[i] = Identity::Generation::Initial;
         }
     }
 
@@ -59,7 +59,7 @@ namespace N503::Audio
 
             std::erase_if(
                 tickets,
-                [this](Audio::Handle::Ticket ticket)
+                [this](Identity::Ticket ticket)
                 {
                     auto& path = m_VoicePaths[static_cast<std::uint64_t>(ticket)];
 
@@ -197,9 +197,9 @@ namespace N503::Audio
 
 #ifdef _DEBUG
         // もしインクリメントの結果が無効値になったら、もう一度進めて 0 にする（あるいは1にする）
-        if (static_cast<std::uint64_t>(tag) == static_cast<std::uint64_t>(Audio::Handle::Tag::InvalidValue))
+        if (static_cast<std::uint64_t>(tag) == static_cast<std::uint64_t>(Identity::Tag::Invalid))
         {
-            assert(false && "Audio::Handle::Tag has overflowed. Consider increasing the underlying type or handling overflow properly.");
+            assert(false && "Identity::Tag has overflowed. Consider increasing the underlying type or handling overflow properly.");
             ++tag; // 0 に戻す(uint64_t なので事実上あり得ないが、安全策として)
         }
 #endif
@@ -207,7 +207,7 @@ namespace N503::Audio
         // チケット発行
         m_Issued[tag].push_back(ticket);
 
-        return { static_cast<Audio::Handle::Tag>(tag), static_cast<Audio::Handle::Ticket>(ticket), m_Generations[static_cast<std::size_t>(ticket)] };
+        return { static_cast<Identity::Tag>(tag), static_cast<Identity::Ticket>(ticket), m_Generations[static_cast<std::size_t>(ticket)] };
     }
 
     auto Processor::Stop(Audio::ProcessHandle handle) -> void
@@ -243,7 +243,7 @@ namespace N503::Audio
 
         std::ranges::for_each(
             availableTickets,
-            [this](Audio::Handle::Ticket ticket)
+            [this](Identity::Ticket ticket)
             {
                 std::visit(
                     [](auto& node)

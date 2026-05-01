@@ -3,6 +3,7 @@
 // 1. Project Headers
 
 // 2. Project Dependencies
+#include <N503/Audio/Format.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -24,78 +25,78 @@ namespace N503::Audio
         Stream
     };
 
-    namespace Handle
+    namespace Identity
     {
         enum class Ticket : std::uint64_t
         {
-            InvalidValue = std::uint64_t(-1)
+            Invalid = std::uint64_t(-1)
         };
 
         enum class Tag : std::uint64_t
         {
-            InvalidValue = std::uint64_t(-1)
+            Invalid = std::uint64_t(-1)
         };
 
         enum class ResourceID : std::uint64_t
         {
-            InvalidValue = 0
+            Invalid = 0
         };
 
         enum class Generation : std::uint32_t
         {
-            InitialValue = 0
+            Initial = 0
         };
-    } // namespace Handle
+    }
 
     struct ProcessHandle final
     {
-        Handle::Tag Tag{ Handle::Tag::InvalidValue };
+        Identity::Tag Tag{ Identity::Tag::Invalid };
 
-        Handle::Ticket Ticket{ Handle::Ticket::InvalidValue };
+        Identity::Ticket Ticket{ Identity::Ticket::Invalid };
 
-        Handle::Generation Generation{ Handle::Generation::InitialValue };
+        Identity::Generation Generation{ Identity::Generation::Initial };
 
         [[nodiscard]]
         explicit operator bool() const noexcept
         {
-            return Ticket != Handle::Ticket::InvalidValue;
+            return Ticket != Identity::Ticket::Invalid;
         }
 
         [[nodiscard]]
         bool operator!() const noexcept
         {
-            return Ticket == Handle::Ticket::InvalidValue;
+            return Ticket == Identity::Ticket::Invalid;
         }
     };
 
     struct AssetHandle final
     {
-        Handle::ResourceID ResourceID{ Handle::ResourceID::InvalidValue };
+        Identity::ResourceID ResourceID{ Identity::ResourceID::Invalid };
 
         [[nodiscard]]
         explicit operator bool() const noexcept
         {
-            return ResourceID != Handle::ResourceID::InvalidValue;
+            return ResourceID != Identity::ResourceID::Invalid;
         }
 
         [[nodiscard]]
         bool operator!() const noexcept
         {
-            return ResourceID == Handle::ResourceID::InvalidValue;
+            return ResourceID == Identity::ResourceID::Invalid;
         }
     };
 
-    inline auto operator++(Audio::Handle::Tag& tag) noexcept -> Audio::Handle::Tag&
+    inline auto operator++(Identity::Tag& tag) noexcept -> Identity::Tag&
     {
-        using T = std::underlying_type_t<Audio::Handle::Tag>;
-        tag     = static_cast<Audio::Handle::Tag>(static_cast<T>(tag) + 1);
+        using T = std::underlying_type_t<Identity::Tag>;
+        tag     = static_cast<Identity::Tag>(static_cast<T>(tag) + 1);
         return tag;
     }
 
-    inline auto operator++(Audio::Handle::Generation& generation) noexcept -> Audio::Handle::Generation&
+    inline auto operator++(Identity::Generation& generation) noexcept -> Identity::Generation&
     {
-        using T    = std::underlying_type_t<Audio::Handle::Generation>;
-        generation = static_cast<Audio::Handle::Generation>(static_cast<T>(generation) + 1);
+        using T    = std::underlying_type_t<Identity::Generation>;
+        generation = static_cast<Identity::Generation>(static_cast<T>(generation) + 1);
         return generation;
     }
 

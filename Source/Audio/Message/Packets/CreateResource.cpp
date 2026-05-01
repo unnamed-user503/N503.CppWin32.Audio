@@ -35,7 +35,7 @@ namespace N503::Audio::Message::Packets
 
         if (!handle)
         {
-            Result->ResourceID = Audio::Handle::ResourceID::InvalidValue;
+            Result->ResourceID = Identity::ResourceID::Invalid;
             return;
         }
         else

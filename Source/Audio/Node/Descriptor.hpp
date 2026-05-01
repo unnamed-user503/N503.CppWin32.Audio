@@ -20,7 +20,7 @@ namespace N503::Audio::Node
 
     struct Descriptor final
     {
-        Audio::AssetHandle Handle{ Audio::Handle::ResourceID::InvalidValue };
+        Audio::AssetHandle Handle{ Identity::ResourceID::Invalid };
 
         std::string_view Path{};
 

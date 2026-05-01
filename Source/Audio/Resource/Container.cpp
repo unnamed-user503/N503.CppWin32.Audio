@@ -43,7 +43,7 @@ namespace N503::Audio::Resource
     {
         if (path.empty())
         {
-            return { Audio::Handle::ResourceID::InvalidValue };
+            return { Identity::ResourceID::Invalid };
         }
 
         Audio::AssetHandle handle = m_AvailableHandles.back();
@@ -123,7 +123,7 @@ namespace N503::Audio::Resource
         // clang-format off
         auto handleView = resourceIds | std::views::transform([](auto i)
         {
-            return Audio::AssetHandle{ .ResourceID = static_cast<Audio::Handle::ResourceID>(i) };
+            return Audio::AssetHandle{ .ResourceID = static_cast<Identity::ResourceID>(i) };
         });
         // clang-format on
 

@@ -68,15 +68,15 @@ namespace N503::Audio
     private:
         std::array<Node::VoicePath, MaxVoicePaths> m_VoicePaths{};
 
-        std::array<Handle::Generation, MaxVoicePaths> m_Generations{};
+        std::array<Identity::Generation, MaxVoicePaths> m_Generations{};
 
-        std::queue<Audio::Handle::Ticket> m_StaticTicketQueue{};
+        std::queue<Identity::Ticket> m_StaticTicketQueue{};
 
-        std::queue<Audio::Handle::Ticket> m_StreamTicketQueue{};
+        std::queue<Identity::Ticket> m_StreamTicketQueue{};
 
-        std::map<Audio::Format, Audio::Handle::Tag> m_Tags{};
+        std::map<Audio::Format, Identity::Tag> m_Tags{};
 
-        std::map<Audio::Handle::Tag, std::vector<Audio::Handle::Ticket>> m_Issued{};
+        std::map<Identity::Tag, std::vector<Identity::Ticket>> m_Issued{};
     };
 
 } // namespace N503::Audio
