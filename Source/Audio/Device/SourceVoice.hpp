@@ -2,7 +2,7 @@
 
 // 1. Project Headers
 #include "../Frames/Buffer.hpp"
-#include "Context.hpp"
+#include "MasterVoice.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
@@ -26,7 +26,7 @@ namespace N503::Audio::Device
     class SourceVoice : public IXAudio2VoiceCallback
     {
     public:
-        SourceVoice(Context* context, const Audio::Format& format);
+        SourceVoice(MasterVoice* context, const Audio::Format& format);
 
         virtual ~SourceVoice() noexcept;
 

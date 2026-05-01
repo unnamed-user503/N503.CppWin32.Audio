@@ -21,27 +21,27 @@ namespace N503::Audio::Device
 
     class SourceVoice;
 
-    class SourceVoicePool;
+    class SourceVoiceCache;
 
 } // namespace N503::Audio::Device
 
 namespace N503::Audio::Device
 {
 
-    class Context final
+    class MasterVoice final
     {
     public:
-        Context();
+        MasterVoice();
 
-        ~Context();
+        ~MasterVoice();
 
-        Context(const Context&) = delete;
+        MasterVoice(const MasterVoice&) = delete;
 
-        auto operator=(const Context&) -> Context& = delete;
+        auto operator=(const MasterVoice&) -> MasterVoice& = delete;
 
-        Context(Context&&) = delete;
+        MasterVoice(MasterVoice&&) = delete;
 
-        auto operator=(Context&&) -> Context& = delete;
+        auto operator=(MasterVoice&&) -> MasterVoice& = delete;
 
     public:
         auto AcquireSourceVoice(const Format& format) -> SourceVoice*;
@@ -54,9 +54,9 @@ namespace N503::Audio::Device
             return m_XAudio2.get();
         }
 
-        auto GetSourceVoicePool() -> SourceVoicePool&
+        auto GetSourceVoiceCache() -> SourceVoiceCache&
         {
-            return *m_SourceVoicePool;
+            return *m_SourceVoiceCache;
         }
 
     private:
@@ -64,7 +64,7 @@ namespace N503::Audio::Device
 
         IXAudio2MasteringVoice* m_MasteringVoice = nullptr;
 
-        std::unique_ptr<SourceVoicePool> m_SourceVoicePool;
+        std::unique_ptr<SourceVoiceCache> m_SourceVoiceCache;
     };
 
 } // namespace N503::Audio::Device

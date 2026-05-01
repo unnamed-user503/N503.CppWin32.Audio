@@ -27,7 +27,7 @@ namespace N503::Audio::Message
 
 namespace N503::Audio::Device
 {
-    class Context;
+    class MasterVoice;
 }
 
 namespace N503::Audio
@@ -62,9 +62,9 @@ namespace N503::Audio
             return *m_ResourceContainer;
         }
 
-        auto GetDeviceContext() const noexcept -> Device::Context&
+        auto GetMasterVoice() const noexcept -> Device::MasterVoice&
         {
-            return *m_DeviceContext;
+            return *m_MasterVoice;
         }
 
         auto GetAudioProcessor() noexcept -> Audio::Processor&
@@ -91,7 +91,7 @@ namespace N503::Audio
 
         std::unique_ptr<Resource::Container> m_ResourceContainer;
 
-        std::unique_ptr<Device::Context> m_DeviceContext;
+        std::unique_ptr<Device::MasterVoice> m_MasterVoice;
 
         std::unique_ptr<Audio::Processor> m_AudioProcessor;
 

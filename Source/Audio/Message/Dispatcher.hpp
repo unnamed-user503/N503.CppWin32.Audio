@@ -1,7 +1,6 @@
 #pragma once
 
 // 1. Project Headers
-#include "../Device/Context.hpp"
 
 // 2. Project Dependencies
 
@@ -16,7 +15,6 @@
 namespace N503::Audio::Message
 {
     struct Context;
-
     class Queue;
 } // namespace N503::Renderer2D::Message
 

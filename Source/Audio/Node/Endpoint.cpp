@@ -36,7 +36,7 @@ namespace N503::Audio::Node
 #endif
         if (!m_SourceVoice)
         {
-            m_SourceVoice = Audio::Engine::GetInstance().GetDeviceContext().AcquireSourceVoice(format);
+            m_SourceVoice = Audio::Engine::GetInstance().GetMasterVoice().AcquireSourceVoice(format);
             m_SourceVoice->SetVolume(1.0f);
             m_SourceVoice->Start();
         }
@@ -53,7 +53,7 @@ namespace N503::Audio::Node
             m_SourceVoice->Stop();
             m_SourceVoice->Flush();
 
-            Audio::Engine::GetInstance().GetDeviceContext().ReleaseSourceVoice(m_SourceVoice);
+            Audio::Engine::GetInstance().GetMasterVoice().ReleaseSourceVoice(m_SourceVoice);
             m_SourceVoice = nullptr;
         }
     }

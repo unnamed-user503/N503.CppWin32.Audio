@@ -2,7 +2,7 @@
 #include "Engine.hpp"
 
 // 1. Project Headers
-#include "Device/Context.hpp"
+#include "Device/MasterVoice.hpp"
 #include "Message/Context.hpp"
 #include "Message/Dispatcher.hpp"
 #include "Message/Queue.hpp"
@@ -145,14 +145,14 @@ namespace N503::Audio
     auto Engine::Run(const std::stop_token stopToken) -> void
     {
         Message::Dispatcher messageDispatcher;
-        m_DeviceContext  = std::make_unique<Device::Context>();
+        m_MasterVoice  = std::make_unique<Device::MasterVoice>();
         m_AudioProcessor = std::make_unique<Audio::Processor>();
 
         auto cleanup = wil::scope_exit(
             [&]
             {
                 m_AudioProcessor.reset();
-                m_DeviceContext.reset();
+                m_MasterVoice.reset();
 
                 m_IsRunning.store(false, std::memory_order_release);
             }

@@ -1,9 +1,9 @@
 #include "Pch.hpp"
-#include "Context.hpp"
+#include "MasterVoice.hpp"
 
 // 1. Project Headers
 #include "SourceVoice.hpp"
-#include "SourceVoicePool.hpp"
+#include "SourceVoiceCache.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
@@ -22,19 +22,18 @@
 namespace N503::Audio::Device
 {
 
-    /// @brief コンテキストの初期化処理
-    Context::Context()
+    MasterVoice::MasterVoice()
     {
         THROW_IF_FAILED(::XAudio2Create(m_XAudio2.put(), 0, XAUDIO2_DEFAULT_PROCESSOR));
         THROW_IF_FAILED(m_XAudio2->CreateMasteringVoice(&m_MasteringVoice));
         THROW_IF_FAILED(m_MasteringVoice->SetVolume(1.0f));
 
-        m_SourceVoicePool = std::make_unique<SourceVoicePool>(this);
+        m_SourceVoiceCache = std::make_unique<SourceVoiceCache>(this);
     }
 
-    Context::~Context()
+    MasterVoice::~MasterVoice()
     {
-        m_SourceVoicePool.reset();
+        m_SourceVoiceCache.reset();
 
         if (m_MasteringVoice)
         {
@@ -45,14 +44,14 @@ namespace N503::Audio::Device
         m_XAudio2.reset();
     }
 
-    auto Context::AcquireSourceVoice(const Format& format) -> SourceVoice*
+    auto MasterVoice::AcquireSourceVoice(const Format& format) -> SourceVoice*
     {
-        return m_SourceVoicePool->Borrow(format);
+        return m_SourceVoiceCache->Borrow(format);
     }
 
-    auto Context::ReleaseSourceVoice(SourceVoice* voice) -> void
+    auto MasterVoice::ReleaseSourceVoice(SourceVoice* voice) -> void
     {
-        m_SourceVoicePool->Return(voice);
+        m_SourceVoiceCache->Return(voice);
     }
 
 } // namespace N503::Audio::Device

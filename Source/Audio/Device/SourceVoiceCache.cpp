@@ -1,8 +1,8 @@
 #include "Pch.hpp"
-#include "SourceVoicePool.hpp"
+#include "SourceVoiceCache.hpp"
 
 // 1. Project Headers
-#include "Context.hpp"
+#include "MasterVoice.hpp"
 #include "SourceVoice.hpp"
 
 // 2. Project Dependencies
@@ -21,7 +21,7 @@ namespace N503::Audio::Device
 {
 
     /// @brief プールの初期化
-    SourceVoicePool::SourceVoicePool(Context* context) : m_Context(context)
+    SourceVoiceCache::SourceVoiceCache(MasterVoice* masterVoice) : m_MasterVoice(masterVoice)
     {
         // 管理リストのメモリを事前に予約し、再アロケーションを抑制する
         m_Availables.reserve(MaxAvailableSourceVoices);
@@ -29,7 +29,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief 全リソースのクリーンアップ
-    SourceVoicePool::~SourceVoicePool()
+    SourceVoiceCache::~SourceVoiceCache()
     {
         // 索引(m_Indexes)を辿って、全てのボイスのデストラクタを明示的に呼び出す
         // これにより SourceVoice 内の XAudio2::DestroyVoice が確実に実行される
@@ -41,7 +41,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief ボイスの借用処理
-    auto SourceVoicePool::Borrow(const Format& format) -> SourceVoice*
+    auto SourceVoiceCache::Borrow(const Format& format) -> SourceVoice*
     {
         // 1. Availables（貸出可能リスト）から、要求されたフォーマットと一致するものを探す
         for (std::size_t i = 0; i < m_Availables.size(); ++i)
@@ -70,7 +70,7 @@ namespace N503::Audio::Device
         if (m_Indexes.size() < MaxAvailableSourceVoices)
         {
             // Storage (Pool) からメモリを切り出し、インスタンスを構築
-            if (SourceVoice* voice = m_Storage.Create(m_Context, format))
+            if (SourceVoice* voice = m_Storage.Create(m_MasterVoice, format))
             {
                 m_Indexes.push_back(voice);
                 voice->Start();
@@ -83,7 +83,7 @@ namespace N503::Audio::Device
     }
 
     /// @brief ボイスの返却処理
-    auto SourceVoicePool::Return(SourceVoice* voice) -> void
+    auto SourceVoiceCache::Return(SourceVoice* voice) -> void
     {
         if (voice)
         {

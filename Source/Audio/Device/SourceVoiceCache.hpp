@@ -20,22 +20,22 @@
 namespace N503::Audio::Device
 {
 
-    class Context;
+    class MasterVoice;
 
 } // namespace N503::Audio::Device
 
 namespace N503::Audio::Device
 {
 
-    class SourceVoicePool final
+    class SourceVoiceCache final
     {
     public:
         constexpr static std::uint32_t MaxAvailableSourceVoices = 64;
 
     public:
-        explicit SourceVoicePool(Context* context);
+        explicit SourceVoiceCache(MasterVoice* masterVoice);
 
-        ~SourceVoicePool();
+        ~SourceVoiceCache();
 
         auto Borrow(const Format& format) -> SourceVoice*;
 
@@ -44,7 +44,7 @@ namespace N503::Audio::Device
     private:
         N503::Memory::Storage::Pool<SourceVoice> m_Storage{ MaxAvailableSourceVoices };
 
-        Context* m_Context{ nullptr };
+        MasterVoice* m_MasterVoice{ nullptr };
 
         std::vector<SourceVoice*> m_Availables;
 

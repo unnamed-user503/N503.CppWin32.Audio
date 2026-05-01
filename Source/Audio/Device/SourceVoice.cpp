@@ -4,7 +4,7 @@
 // 1. Project Headers
 #include "../Engine.hpp"
 #include "../Frames/Buffer.hpp"
-#include "Context.hpp"
+#include "MasterVoice.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
@@ -30,12 +30,12 @@
 namespace N503::Audio::Device
 {
 
-    SourceVoice::SourceVoice(Context* context, const Audio::Format& format) : m_Format(format)
+    SourceVoice::SourceVoice(MasterVoice* masterVoice, const Audio::Format& format) : m_Format(format)
     {
         auto pcmFormat = m_Format.ToRawFormat();
         auto rawFormat = reinterpret_cast<WAVEFORMATEX*>(&pcmFormat);
 
-        THROW_IF_FAILED(context->GetXAudio2()->CreateSourceVoice(&m_SourceVoice, rawFormat, 0, XAUDIO2_DEFAULT_FREQ_RATIO, this, nullptr, nullptr));
+        THROW_IF_FAILED(masterVoice->GetXAudio2()->CreateSourceVoice(&m_SourceVoice, rawFormat, 0, XAUDIO2_DEFAULT_FREQ_RATIO, this, nullptr, nullptr));
     }
 
     SourceVoice::~SourceVoice() noexcept
