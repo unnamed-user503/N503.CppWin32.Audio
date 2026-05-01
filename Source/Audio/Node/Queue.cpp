@@ -36,11 +36,9 @@ namespace N503::Audio::Node
             m_Signals[i].Notify.store(false, std::memory_order_relaxed);
             m_Signals[i].Event.store(Device::Signal::Event::None, std::memory_order_relaxed);
 
-            m_Buffers[i].Bytes         = nullptr;
-            m_Buffers[i].Size          = 0;
+            m_Buffers[i].Bytes         = {};
             m_Buffers[i].Count         = 0;
             m_Buffers[i].IsEndOfStream = false;
-            m_Buffers[i].Duration      = std::chrono::duration<double>(0.0);
         }
     }
 
@@ -51,7 +49,7 @@ namespace N503::Audio::Node
 #endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
-            if (m_Buffers[i].Bytes == nullptr)
+            if (m_Buffers[i].Bytes.empty())
             {
                 auto* address = m_Storage.AllocateBytes(m_BytesPerFrame, static_cast<std::size_t>(16));
 
@@ -60,11 +58,9 @@ namespace N503::Audio::Node
                     break;
                 }
 
-                m_Buffers[i].Bytes         = static_cast<std::byte*>(address);
-                m_Buffers[i].Size          = m_BytesPerFrame;
+                m_Buffers[i].Bytes         = { static_cast<std::byte*>(address), m_BytesPerFrame };
                 m_Buffers[i].Count         = 0;
                 m_Buffers[i].IsEndOfStream = false;
-                m_Buffers[i].Duration      = std::chrono::duration<double>(0.0);
             }
 
             m_Entries[i].Frames = &m_Buffers[i];
@@ -81,7 +77,6 @@ namespace N503::Audio::Node
         {
             m_Entries[i].Frames->Count         = 0;
             m_Entries[i].Frames->IsEndOfStream = false;
-            m_Entries[i].Frames->Duration      = std::chrono::duration<double>(0.0);
             m_Entries[i].Signal->Notify.store(false, std::memory_order_relaxed);
             m_Entries[i].Status = Node::Entry::Status::Empty;
         }
@@ -143,7 +138,6 @@ namespace N503::Audio::Node
 
                     context.Buffers.Cache->Frames->Count         = 0;
                     context.Buffers.Cache->Frames->IsEndOfStream = false;
-                    context.Buffers.Cache->Frames->Duration      = std::chrono::duration<double>(0.0);
                 }
                 break;
             }
@@ -207,17 +201,16 @@ namespace N503::Audio::Node
                 const auto log = std::format(
                     "[Audio] Queue: <Completed> Index={} Bytes={} Size={} Frames={} EndOfStream={}",
                     i,
-                    static_cast<const void*>(m_Entries[i].Frames->Bytes),
-                    m_Entries[i].Frames->Size,
+                    static_cast<const void*>(m_Entries[i].Frames->Bytes.data()),
+                    m_Entries[i].Frames->Bytes.size(),
                     m_Entries[i].Frames->Count,
                     (wasEndOfStream ? 1 : 0)
                 );
 
                 Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose(log);
 #endif
-                m_Entries[i].Frames->Count    = 0;
-                m_Entries[i].Frames->Duration = std::chrono::duration<double>(0.0);
-                m_Entries[i].Status           = Node::Entry::Status::Empty;
+                m_Entries[i].Frames->Count = 0;
+                m_Entries[i].Status        = Node::Entry::Status::Empty;
 
                 if (wasEndOfStream)
                 {

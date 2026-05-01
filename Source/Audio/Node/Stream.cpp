@@ -110,7 +110,7 @@ namespace N503::Audio::Node
             return true; // 再生処理を終了する
         }
 
-        const std::uint32_t requestedFrames = static_cast<std::uint32_t>(context.Buffers.Cache->Frames->Size / format.BlockAlign);
+        const std::uint32_t requestedFrames = static_cast<std::uint32_t>(context.Buffers.Cache->Frames->Bytes.size() / format.BlockAlign);
 
         if (requestedFrames == 0)
         {
@@ -118,19 +118,11 @@ namespace N503::Audio::Node
         }
 
         auto result = m_Decoder->Decode(
-            requestedFrames, [&](std::size_t size) { return std::span<std::byte>(context.Buffers.Cache->Frames->Bytes, context.Buffers.Cache->Frames->Size); }
+            requestedFrames, [&](std::size_t size) { return context.Buffers.Cache->Frames->Bytes; }
         );
 
         context.Buffers.Cache->Frames->Count         = result.Count;
         context.Buffers.Cache->Frames->IsEndOfStream = result.IsEndOfStream;
-
-        // 再生時間の算出
-        if (format.SamplePerSecond > 0)
-        {
-            context.Buffers.Cache->Frames->Duration = std::chrono::duration<double>(
-                static_cast<double>(result.Count) / static_cast<double>(format.SamplePerSecond)
-            );
-        }
 
         if (0 < result.Count)
         {
@@ -141,7 +133,7 @@ namespace N503::Audio::Node
             // 1枚も書けなかったが終端に達した場合は、空のまま終端フラグを立てて遷移
             // XAudio2は0バイトのフレームを無視するのでイベントを受信する事が出来ません。
             // そこでここでは空のフレームを送信する事で対応します。
-            std::fill_n(context.Buffers.Cache->Frames->Bytes, 4, std::byte{ 0 });
+            std::fill_n(context.Buffers.Cache->Frames->Bytes.data(), 4, std::byte{ 0 });
             context.Buffers.Cache->Frames->Count         = 1;
             context.Buffers.Cache->Frames->IsEndOfStream = true;
             context.Buffers.Cache->Status                = Node::Entry::Status::Present;

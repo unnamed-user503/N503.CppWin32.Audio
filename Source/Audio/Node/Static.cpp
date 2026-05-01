@@ -58,7 +58,7 @@ namespace N503::Audio::Node
             return false; // 再生処理を継続する
         }
 
-        if (m_Asset->Frames.Count == 0 || m_Asset->Frames.Size == 0 || !m_Asset->Frames.Bytes)
+        if (m_Asset->Frames.Bytes.empty())
         {
 #ifdef _DEBUG
             Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Node::Static: invalid audio frames.");

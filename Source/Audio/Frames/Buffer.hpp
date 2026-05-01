@@ -14,19 +14,16 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 
 namespace N503::Audio::Frames
 {
 
     struct Buffer final
     {
-        std::byte* Bytes{ nullptr };
-
-        std::size_t Size{ 0 };
+        std::span<std::byte> Bytes{};
 
         std::uint64_t Count{ 0 };
-
-        std::chrono::duration<double> Duration{ 0.0 };
 
         bool IsEndOfStream{ false };
     };

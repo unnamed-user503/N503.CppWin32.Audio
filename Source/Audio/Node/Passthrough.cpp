@@ -30,11 +30,9 @@ namespace N503::Audio::Node
         m_Signal.Notify.store(false, std::memory_order_relaxed);
         m_Signal.Event.store(Device::Signal::Event::None, std::memory_order_relaxed);
 
-        m_Buffer.Bytes         = nullptr;
-        m_Buffer.Size          = 0;
+        m_Buffer.Bytes         = {};
         m_Buffer.Count         = 0;
         m_Buffer.IsEndOfStream = false;
-        m_Buffer.Duration      = std::chrono::duration<double>(0.0);
     }
 
     auto Passthrough::Update(Context& context) -> bool
@@ -128,9 +126,8 @@ namespace N503::Audio::Node
         // 再生完了したスロットのクリーンアップ
         if (m_Entry.Status == Node::Entry::Status::Completed)
         {
-            m_Entry.Frames->Count    = 0;
-            m_Entry.Frames->Duration = std::chrono::duration<double>(0.0);
-            m_Entry.Status           = Node::Entry::Status::Empty;
+            m_Entry.Frames->Count = 0;
+            m_Entry.Status        = Node::Entry::Status::Empty;
 
             // 終端フラグが立っているバッファを回収したなら、ストリーム全体の終了とみなす
             if (m_Entry.Frames->IsEndOfStream)

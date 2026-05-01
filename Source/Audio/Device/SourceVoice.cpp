@@ -115,7 +115,7 @@ namespace N503::Audio::Device
         XAUDIO2_BUFFER sourceBuffer = {};
         sourceBuffer.Flags          = 0;
         sourceBuffer.AudioBytes     = static_cast<UINT32>(buffer.Count * m_Format.BlockAlign);
-        sourceBuffer.pAudioData     = reinterpret_cast<const BYTE*>(buffer.Bytes);
+        sourceBuffer.pAudioData     = reinterpret_cast<const BYTE*>(buffer.Bytes.data());
         sourceBuffer.pContext       = pBufferContext; // コールバックで使用されるコンテキスト
 
         // ストリームの終端である場合、終了フラグを立てる

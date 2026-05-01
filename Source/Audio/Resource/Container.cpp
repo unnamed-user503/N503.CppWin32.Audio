@@ -56,7 +56,6 @@ namespace N503::Audio::Resource
 
         asset->Handle          = handle;
         asset->Frames.Count    = decoder.GetTotalFrames();
-        asset->Frames.Duration = std::chrono::duration<double>{ decoder.GetTotalDurations() };
         asset->Metadata.Format = decoder.GetFormat();
         asset->Metadata.Path   = std::string(path);
         asset->Metadata.Type   = type;
@@ -71,8 +70,7 @@ namespace N503::Audio::Resource
                 [&](std::size_t size) { return std::span<std::byte>(static_cast<std::byte*>(persistent), size); }
             );
 
-            asset->Frames.Bytes         = static_cast<std::byte*>(persistent);
-            asset->Frames.Size          = totalBytes;
+            asset->Frames.Bytes         = { static_cast<std::byte*>(persistent), totalBytes };
             asset->Frames.Count         = static_cast<std::uint32_t>(asset->Frames.Count);
             asset->Frames.IsEndOfStream = true;
         }
