@@ -118,25 +118,24 @@ namespace N503::Audio::Node
             m_Format = format;
 
             // clang-format off
-            auto result = ([&]<typename T>()
+            auto result = true; /// @note OnPlayを持たないNodeのために true を初期値とする
+            ([&]<typename T>()
             {
                 auto& node = static_cast<T&>(*this);
-                auto result = false;
 
                 if constexpr (requires { node.OnPlay(format); })
                 {
-                    result = node.OnPlay(format);
+                    result &= node.OnPlay(format);
                 }
                 else if constexpr (requires { node.OnPlay(descriptor); })
                 {
-                    result = node.OnPlay(descriptor);
+                    result &= node.OnPlay(descriptor);
                 }
                 else if constexpr (requires { node.OnPlay(); })
                 {
-                    result = node.OnPlay();
+                    result &= node.OnPlay();
                 }
 
-                return result;
             }.template operator()<TNodes>(), ...);
             // clang-format on
 

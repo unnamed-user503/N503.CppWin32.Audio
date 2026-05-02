@@ -55,9 +55,7 @@ namespace N503::Audio::Node
 
                 if (!address)
                 {
-#ifdef _DEBUG
-                    Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Queue: Failed to allocate buffer memory.");
-#endif
+                    Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio]<Node::Queue>: Failed to allocate buffer memory.");
                     return false;
                 }
 
@@ -88,7 +86,7 @@ namespace N503::Audio::Node
             m_Entries[i].Status = Node::Entry::Status::Empty;
         }
 #ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio]<Queue::OnStop>: Initialized entries and signals.");
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio]<Node::Queue>: Initialized entries and signals.");
 #endif
     }
 
@@ -211,7 +209,7 @@ namespace N503::Audio::Node
             if (m_Entries[i].Status == Node::Entry::Status::Completed)
             {
                 const bool wasEndOfStream = m_Entries[i].Frames->IsEndOfStream;
-#ifdef _DEBUG
+#if 0
                 const auto log = std::format(
                     "[Audio] Queue: <Completed> Index={} Bytes={} Size={} Frames={} EndOfStream={}",
                     i,
