@@ -12,9 +12,7 @@
 #include <mmreg.h>
 
 // 6. C++ Standard Libraries
-#include <compare>
 #include <cstdint>
-#include <ostream>
 
 namespace N503::Audio
 {

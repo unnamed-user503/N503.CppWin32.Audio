@@ -2,7 +2,7 @@
 #include "Metadata.hpp"
 
 // 1. Project Headers
-#include <N503/Audio/Format.hpp>
+#include <N503/Audio/Types.hpp>
 
 // 2. Project Dependencies
 

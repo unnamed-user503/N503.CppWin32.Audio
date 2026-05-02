@@ -8,7 +8,7 @@
 #include "SourceReader.hpp"
 
 // 2. Project Dependencies
-#include <N503/Audio/Format.hpp>
+#include <N503/Audio/Types.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
