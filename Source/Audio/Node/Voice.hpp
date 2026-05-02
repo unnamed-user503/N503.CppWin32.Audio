@@ -76,16 +76,15 @@ namespace N503::Audio::Node
                         }
                     }.template operator()<TNodes>(), ...);
                     // clang-format on
-
-                    return false;
                 }
-
-                // このパスを停止させる
-                ImmediateStop();
+                else
+                {
+                    ImmediateStop();
 #ifdef _DEBUG
-                Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio]<Voice::Process>: All nodes finished. Process terminal.");
+                    Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio]<Voice::Process>: All nodes finished. Process terminal.");
 #endif
-                return true;
+                    return true;
+                }
             }
 
             return false; // 誰か一人でも false (継続) を返している間は再生を維持
@@ -249,7 +248,7 @@ namespace N503::Audio::Node
             // 1. まず現在のノードを動かす
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
 
-#if 0
+#if 1
             ::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
 #endif
 
@@ -259,7 +258,7 @@ namespace N503::Audio::Node
                 currentFinished &= Update<Index - 1>(context);
             }
 
-#if 0
+#if 1
             if (Index == 0)
             {
                 ::OutputDebugStringA("\n");
