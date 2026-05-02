@@ -3,7 +3,7 @@
 
 // 1. Project Headers
 #include "../../Engine.hpp"
-#include "../../Processor.hpp"
+#include "../../System/Processor.hpp"
 #include "../Context.hpp"
 
 // 2. Project Dependencies
@@ -24,7 +24,7 @@ namespace N503::Audio::Message::Packets
     {
         if (auto asset = context.ResourceContainer.GetAsset(Handle))
         {
-            if (auto handle = Audio::Engine::GetInstance().GetAudioProcessor().Play(asset))
+            if (auto handle = context.SystemProcessor.Play(asset))
             {
                 *Result = handle;
             }

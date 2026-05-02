@@ -30,7 +30,7 @@ namespace N503::Audio::Device
     class MasterVoice;
 }
 
-namespace N503::Audio
+namespace N503::Audio::System
 {
     class Processor;
 }
@@ -52,24 +52,14 @@ namespace N503::Audio
 
         auto Wait() -> bool;
 
-        auto GetMessageQueue() const noexcept -> Message::Queue&
+        auto GetMessageQueue() const noexcept -> Audio::Message::Queue&
         {
             return *m_MessageQueue;
         }
 
-        auto GetResourceContainer() const noexcept -> Resource::Container&
-        {
-            return *m_ResourceContainer;
-        }
-
-        auto GetMasterVoice() const noexcept -> Device::MasterVoice&
+        auto GetMasterVoice() const noexcept -> Audio::Device::MasterVoice&
         {
             return *m_MasterVoice;
-        }
-
-        auto GetAudioProcessor() noexcept -> Audio::Processor&
-        {
-            return *m_AudioProcessor;
         }
 
         auto GetDiagnosticsReporter() noexcept -> Diagnostics::Reporter&
@@ -93,7 +83,7 @@ namespace N503::Audio
 
         std::unique_ptr<Device::MasterVoice> m_MasterVoice;
 
-        std::unique_ptr<Audio::Processor> m_AudioProcessor;
+        std::unique_ptr<Audio::System::Processor> m_SystemProcessor;
 
         std::unique_ptr<Diagnostics::Reporter> m_DiagnosticsReporter;
 

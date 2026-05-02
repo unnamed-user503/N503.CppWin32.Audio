@@ -16,16 +16,19 @@
 // 6. C++ Standard Libraries
 #include <string_view>
 
+// Forward Declarations
+namespace N503::Audio::Resource
+{
+    struct Asset;
+}
+
+// Declaration
 namespace N503::Audio::Node
 {
 
     struct Descriptor final
     {
-        Audio::Resource::Handle Handle{ Identity::ResourceID::Invalid };
-
-        std::string_view Path{};
-
-        Audio::Type Type{ Audio::Type::None };
+        const Audio::Resource::Asset* Asset{ nullptr };
 
         Audio::Status Status{ Audio::Status::Stopped };
 

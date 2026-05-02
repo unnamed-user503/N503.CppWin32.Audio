@@ -28,6 +28,11 @@ namespace N503::Audio::Node
     {
     }
 
+    auto Static::OnPlay(const Audio::Node::Descriptor& descriptor)
+    {
+        m_Asset = descriptor.Asset;
+    }
+
     auto Static::Update(Context& context) -> bool
     {
         if (context.Descriptor.Status == Audio::Status::Stopping)
@@ -42,8 +47,6 @@ namespace N503::Audio::Node
 
         if (!m_Asset)
         {
-            m_Asset = Audio::Engine::GetInstance().GetResourceContainer().GetAsset(context.Descriptor.Handle);
-
             if (!m_Asset)
             {
 #ifdef _DEBUG

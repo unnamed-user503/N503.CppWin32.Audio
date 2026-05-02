@@ -6,7 +6,7 @@
 #include "Message/Context.hpp"
 #include "Message/Dispatcher.hpp"
 #include "Message/Queue.hpp"
-#include "Processor.hpp"
+#include "System/Processor.hpp"
 #include "Resource/Container.hpp"
 
 // 2. Project Dependencies
@@ -145,13 +145,13 @@ namespace N503::Audio
     auto Engine::Run(const std::stop_token stopToken) -> void
     {
         Message::Dispatcher messageDispatcher;
-        m_MasterVoice    = std::make_unique<Device::MasterVoice>();
-        m_AudioProcessor = std::make_unique<Audio::Processor>();
+        m_MasterVoice    = std::make_unique<Audio::Device::MasterVoice>();
+        m_SystemProcessor = std::make_unique<Audio::System::Processor>();
 
         auto cleanup = wil::scope_exit(
             [&]
             {
-                m_AudioProcessor.reset();
+                m_SystemProcessor.reset();
                 m_MasterVoice.reset();
 
                 m_IsRunning.store(false, std::memory_order_release);
@@ -188,17 +188,17 @@ namespace N503::Audio
             {
                 if (!ProcessMessage())
                 {
-                    m_AudioProcessor->WaitForAllStop(); // [重要] XAudio2がリソースを参照中なのにリソースを解放してはいけない
+                    m_SystemProcessor->WaitForAllStop(); // [重要] XAudio2がリソースを参照中なのにリソースを解放してはいけない
                     return;
                 }
             }
             else if (result >= WAIT_OBJECT_0 && result < (WAIT_OBJECT_0 + count))
             {
-                Message::Context context = { *m_ResourceContainer };
+                Message::Context context = { *m_ResourceContainer, *m_SystemProcessor };
                 messageDispatcher.Dispatch(*m_MessageQueue, context);
             }
 
-            isAnyActive = m_AudioProcessor->Process();
+            isAnyActive = m_SystemProcessor->Process();
 
             m_DiagnosticsReporter->Report();
         }

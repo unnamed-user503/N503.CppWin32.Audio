@@ -2,10 +2,10 @@
 #include "Processor.hpp"
 
 // 1. Project Headers
-#include "Node/Descriptor.hpp"
-#include "Node/Effect.hpp"
-#include "Node/Queue.hpp"
-#include "Resource/Asset.hpp"
+#include "../Node/Descriptor.hpp"
+#include "../Node/Effect.hpp"
+#include "../Node/Queue.hpp"
+#include "../Resource/Asset.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -28,20 +28,20 @@
 #include <variant>
 #include <vector>
 
-namespace N503::Audio
+namespace N503::Audio::System
 {
 
     Processor::Processor()
     {
         for (std::uint64_t i = 0; i < MaxStaticVoices; ++i)
         {
-            m_Voices[i].emplace<Audio::StaticVoiceNode>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_Voices[i].emplace<Audio::System::StaticVoiceNode>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
             m_StaticTicketQueue.emplace(static_cast<Identity::Ticket>(i));
         }
 
         for (std::uint64_t i = 0; i < MaxStreamVoices; ++i)
         {
-            m_Voices[MaxStaticVoices + i].emplace<Audio::StreamVoiceNode>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_Voices[MaxStaticVoices + i].emplace<Audio::System::StreamVoiceNode>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
             m_StreamTicketQueue.emplace(static_cast<Identity::Ticket>(MaxStaticVoices + i));
         }
 
@@ -169,9 +169,7 @@ namespace N503::Audio
                 else
                 {
                     Node::Descriptor descriptor{
-                        .Handle = asset->Handle,
-                        .Path   = asset->Metadata.Path,
-                        .Type   = asset->Metadata.Type,
+                        .Asset  = asset,
                         .Volume = 1.0f,
                         .Repeat = asset->Metadata.Type == Audio::Type::Stream ? true : false,
                     };

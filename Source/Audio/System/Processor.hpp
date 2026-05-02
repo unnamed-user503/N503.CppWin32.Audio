@@ -1,14 +1,14 @@
 #pragma once
 
 // 1. Project Headers
-#include "Node/Effect.hpp"
-#include "Node/Endpoint.hpp"
-#include "Node/Passthrough.hpp"
-#include "Node/Voice.hpp"
-#include "Node/Queue.hpp"
-#include "Node/Static.hpp"
-#include "Node/Stream.hpp"
-#include "Resource/Asset.hpp"
+#include "../Node/Effect.hpp"
+#include "../Node/Endpoint.hpp"
+#include "../Node/Passthrough.hpp"
+#include "../Node/Voice.hpp"
+#include "../Node/Queue.hpp"
+#include "../Node/Static.hpp"
+#include "../Node/Stream.hpp"
+#include "../Resource/Asset.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
@@ -27,13 +27,17 @@
 #include <variant>
 #include <vector>
 
-namespace N503::Audio
+// Forward Declarations
+namespace N503::Audio::System
 {
-
     using StaticVoiceNode = Node::Voice<Node::Static, Node::Effect, Node::Passthrough, Node::Endpoint>;
     using StreamVoiceNode = Node::Voice<Node::Stream, Node::Effect, Node::Queue, Node::Endpoint>;
+    using VoiceNode       = std::variant<std::monostate, StaticVoiceNode, StreamVoiceNode>;
+}
 
-    using VoiceNode = std::variant<std::monostate, StaticVoiceNode, StreamVoiceNode>;
+// Declaration
+namespace N503::Audio::System
+{
 
     class Processor final
     {
@@ -61,7 +65,7 @@ namespace N503::Audio
         auto WaitForAllStop() -> void;
 
     private:
-        std::array<Audio::VoiceNode, MaxVoices> m_Voices{};
+        std::array<Audio::System::VoiceNode, MaxVoices> m_Voices{};
 
         std::array<Audio::Identity::Generation, MaxVoices> m_Generations{};
 

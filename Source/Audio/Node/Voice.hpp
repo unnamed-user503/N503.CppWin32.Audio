@@ -149,7 +149,7 @@ namespace N503::Audio::Node
             }
 
             // Audio::TypeがStaticの場合フェード処理は必用ないので直接Stopを行う
-            if (m_Context->Descriptor.Type == Audio::Type::Static)
+            if (m_Context->Descriptor.Asset->Metadata.Type == Audio::Type::Static)
             {
                 return ImmediateStop();
             }
@@ -253,7 +253,7 @@ namespace N503::Audio::Node
                 return {};
             }
 
-            return m_Context->Descriptor.Handle;
+            return m_Context->Descriptor.Asset->Handle;
         }
 
     private:

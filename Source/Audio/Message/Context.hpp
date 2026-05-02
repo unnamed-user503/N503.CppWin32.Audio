@@ -18,6 +18,11 @@ namespace N503::Audio::Resource
     class Container;
 }
 
+namespace N503::Audio::System
+{
+    class Processor;
+}
+
 // Declarations
 namespace N503::Audio::Message
 {
@@ -25,6 +30,7 @@ namespace N503::Audio::Message
     struct Context
     {
         Audio::Resource::Container& ResourceContainer;
+        Audio::System::Processor& SystemProcessor;
     };
 
 } // namespace N503::Audio::Message

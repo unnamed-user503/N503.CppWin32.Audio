@@ -42,7 +42,7 @@ namespace N503::Audio::Node
 #ifdef _DEBUG
         Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Stream: OnPlay called.");
 #endif
-        m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Path);
+        m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Asset->Metadata.Path);
     }
 
     auto Stream::OnStop() -> void
@@ -75,13 +75,13 @@ namespace N503::Audio::Node
 
         if (!m_Decoder)
         {
-            if (context.Descriptor.Type != Audio::Type::Stream)
+            if (context.Descriptor.Asset->Metadata.Type != Audio::Type::Stream)
             {
                 context.Descriptor.Status = Audio::Status::Error;
                 return true; // 再生処理を終了する
             }
 
-            if (context.Descriptor.Path.empty())
+            if (context.Descriptor.Asset->Metadata.Path.empty())
             {
                 context.Descriptor.Status = Audio::Status::Error;
                 return true; // 再生処理を終了する
@@ -89,7 +89,7 @@ namespace N503::Audio::Node
 
             try
             {
-                m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(context.Descriptor.Path);
+                m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(context.Descriptor.Asset->Metadata.Path);
             }
             catch (...)
             {

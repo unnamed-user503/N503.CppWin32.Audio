@@ -3,7 +3,7 @@
 
 // 1. Project Headers
 #include "../../Engine.hpp"
-#include "../../Processor.hpp"
+#include "../../System/Processor.hpp"
 #include "../Context.hpp"
 
 // 2. Project Dependencies
@@ -21,7 +21,7 @@ namespace N503::Audio::Message::Packets
 
     auto Pause::operator()(const Context& context) const -> void
     {
-        Audio::Engine::GetInstance().GetAudioProcessor().Pause(Handle);
+        context.SystemProcessor.Pause(Handle);
     }
 
 } // namespace N503::Audio::Message::Packets
