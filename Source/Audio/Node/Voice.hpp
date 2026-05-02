@@ -1,6 +1,7 @@
 #pragma once
 
 // 1. Project Headers
+#include "../Engine.hpp"
 #include "Context.hpp"
 #include "Descriptor.hpp"
 
@@ -73,7 +74,7 @@ namespace N503::Audio::Node
                 // このパスを停止させる
                 ImmediateStop();
 #ifdef _DEBUG
-                ::OutputDebugStringA("[Audio] Node::Voice: All nodes finished. Process terminal.\n");
+                Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio]<Voice::Process>: All nodes finished. Process terminal.");
 #endif
                 return true;
             }
@@ -220,22 +221,15 @@ namespace N503::Audio::Node
         {
             using TNode = std::tuple_element_t<Index, std::tuple<TNodes...>>;
 
-            // 先に現在のノードを動かす
+            // 1. まず現在のノードを動かす
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
-#ifdef _DEBUG
-            //::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
-            std::cout << std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x");
-#endif
+
+            // 2. 前方のノードがあれば実行し、結果を蓄積する（&= により短絡評価を防止）
             if constexpr (Index > 0)
             {
-                // 次のノードの結果を先に取得し、短絡評価を防ぐ
-                bool forwardFinished = Update<Index - 1>(context);
-                return currentFinished && forwardFinished;
+                currentFinished &= Update<Index - 1>(context);
             }
-#ifdef _DEBUG
-            //::OutputDebugStringA("\n");
-            std::cout << std::endl;
-#endif
+
             return currentFinished;
         }
 
