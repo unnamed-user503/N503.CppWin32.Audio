@@ -23,6 +23,10 @@ namespace N503::Audio::Node
 
     Passthrough::Passthrough()
     {
+    }
+
+    auto Passthrough::OnPlay() -> bool
+    {
         m_Entry.Frames = &m_Buffer;
         m_Entry.Signal = &m_Signal;
         m_Entry.Status = Node::Entry::Status::Empty;
@@ -33,16 +37,22 @@ namespace N503::Audio::Node
         m_Buffer.Bytes         = {};
         m_Buffer.Count         = 0;
         m_Buffer.IsEndOfStream = false;
+
+        return true;
     }
 
     auto Passthrough::Update(Context& context) -> bool
     {
-        if (context.Descriptor.Status == Audio::Status::Paused)
+        if (context.Descriptor.Status == Audio::Status::Stopped || context.Descriptor.Status == Audio::Status::Stopping)
+        {
+            return true; // 再生処理を終了する
+        }
+        else if (context.Descriptor.Status == Audio::Status::Paused)
         {
             return false;
         }
 
-        if (context.Descriptor.Status == Audio::Status::Stopping)
+        if (m_Entry.Status == Node::Entry::Status::Completed)
         {
             return true; // 再生処理を終了する
         }

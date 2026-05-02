@@ -99,7 +99,7 @@ namespace N503::Audio::Node
             m_Context->Effect                = {};
             m_Context->Effect.Fade.Threshold = std::chrono::milliseconds(320);
             m_Context->Effect.Fade.Elapsed   = std::chrono::milliseconds(0);
-            m_Context->Effect.Fade.Direction = std::chrono::milliseconds(-16);
+            m_Context->Effect.Fade.Direction = std::chrono::milliseconds(16);
 
             m_Context->Time     = {};
             m_Context->Position = {};
@@ -129,7 +129,11 @@ namespace N503::Audio::Node
             }.template operator()<TNodes>(), ...);
             // clang-format on
 
-            if (!result)
+            if (result)
+            {
+                m_Context->Descriptor.Status = Audio::Status::Playing;
+            }
+            else
             {
                 m_Context->Descriptor.Status = Audio::Status::Error;
             }
@@ -167,7 +171,7 @@ namespace N503::Audio::Node
 
             m_Context->Effect.Fade.Threshold = std::chrono::microseconds(640);
             m_Context->Effect.Fade.Elapsed   = std::chrono::microseconds(0);
-            m_Context->Effect.Fade.Direction = std::chrono::microseconds(16);
+            m_Context->Effect.Fade.Direction = std::chrono::microseconds(-16);
 
             return true;
         }
@@ -234,10 +238,17 @@ namespace N503::Audio::Node
             // 1. まず現在のノードを動かす
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
 
+            ::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
+
             // 2. 前方のノードがあれば実行し、結果を蓄積する（&= により短絡評価を防止）
             if constexpr (Index > 0)
             {
                 currentFinished &= Update<Index - 1>(context);
+            }
+
+            if (Index == 0)
+            {
+                ::OutputDebugStringA("\n");
             }
 
             return currentFinished;

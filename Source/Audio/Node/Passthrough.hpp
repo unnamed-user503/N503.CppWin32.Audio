@@ -24,6 +24,8 @@ namespace N503::Audio::Node
     public:
         Passthrough();
 
+        auto OnPlay() -> bool;
+
         auto Update(Context& context) -> bool;
 
     private:

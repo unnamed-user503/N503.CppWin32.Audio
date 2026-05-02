@@ -30,14 +30,14 @@
 namespace N503::Audio
 {
 
-    Source::Source(std::string_view filepath)
+    Source::Source(std::string_view filepath, Audio::Type audioType)
     {
         m_Entity = std::make_unique<Source::Entity>();
 
         auto packet = Message::Packets::CreateResource{
             .Result = &m_Entity->AssetHandle,
             .Format = Audio::Format::Default(),
-            .Type   = Audio::Type::Stream,
+            .Type   = audioType,
             .Path   = filepath.data(),
         };
 

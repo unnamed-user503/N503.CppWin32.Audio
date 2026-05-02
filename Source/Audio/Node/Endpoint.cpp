@@ -34,7 +34,7 @@ namespace N503::Audio::Node
         if (!m_SourceVoice)
         {
             m_SourceVoice = Audio::Engine::GetInstance().GetMasterVoice().AcquireSourceVoice(format);
-            m_SourceVoice->SetVolume(1.0f);
+            m_SourceVoice->SetVolume(0.0f);
             m_SourceVoice->Start();
         }
 
@@ -56,25 +56,13 @@ namespace N503::Audio::Node
 
     auto Endpoint::Update(Context& context) -> bool
     {
-        if (!m_SourceVoice)
+        if (context.Descriptor.Status == Audio::Status::Stopped)
         {
             return true;
         }
 
         if (context.Descriptor.Status == Audio::Status::Stopping)
         {
-            // フェード時間が 0 (即時切断) の場合
-            if (context.Effect.Fade.Threshold == std::chrono::microseconds(0))
-            {
-                m_SourceVoice->Stop();  // 鳴らすのを止める
-                m_SourceVoice->Flush(); // キューにあるバッファを全部捨てる
-            }
-            else
-            {
-                // フェードアウトさせる場合、XAudio2 が動いている必要がある
-                m_SourceVoice->Start();
-            }
-
             // Flush されたか、鳴りきればここを通過してノードが解体される
             if (m_SourceVoice->GetBuffersQueued() == 0)
             {
@@ -121,11 +109,6 @@ namespace N503::Audio::Node
         context.Buffers.Submit->Status = Node::Entry::Status::Submitted;
 
         return false; // 再生処理を継続する
-    }
-
-    auto Endpoint::Submit(Context& context) -> bool
-    {
-        return false;
     }
 
 } // namespace N503::Audio::Node

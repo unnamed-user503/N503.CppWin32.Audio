@@ -4,6 +4,7 @@
 
 // 2. Project Dependencies
 #include <N503/Abi/Api.hpp>
+#include <N503/Audio/Types.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -21,7 +22,7 @@ namespace N503::Audio
     class N503_API Source final
     {
     public:
-        explicit Source(std::string_view filepath);
+        explicit Source(std::string_view filepath, Audio::Type audioType = Audio::Type::Stream);
 
         ~Source();
 

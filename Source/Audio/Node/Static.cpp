@@ -46,26 +46,31 @@ namespace N503::Audio::Node
             return false; // 再生処理を継続する
         }
 
+        // Ready以外ここでは処理しない
+        if (context.Buffers.Cache->Status == Node::Entry::Status::Empty)
+        {
+            return false; // 再生処理を継続する
+        }
+        else if (context.Buffers.Cache->Status != Node::Entry::Status::Ready)
+        {
+            return true; // 再生処理を終了する
+        }
+
         if (!m_Asset)
         {
             if (!m_Asset)
             {
 #ifdef _DEBUG
-                Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Node::Static: invalid audio handle.");
+                Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Node::Static: invalid audio handle.");
 #endif
                 return true; // 再生処理を終了する
             }
         }
 
-        if (!context.Buffers.Cache || context.Buffers.Cache->Status != Node::Entry::Status::Ready)
-        {
-            return false; // 再生処理を継続する
-        }
-
         if (m_Asset->Frames.Bytes.empty())
         {
 #ifdef _DEBUG
-            Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Node::Static: invalid audio frames.");
+            Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Node::Static: invalid audio frames.");
 #endif
             return true; // 再生処理を終了する
         }
