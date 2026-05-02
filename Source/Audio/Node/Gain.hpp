@@ -16,7 +16,7 @@
 namespace N503::Audio::Node
 {
 
-    class Effect
+    class Gain
     {
     public:
         struct Parameters
@@ -24,7 +24,7 @@ namespace N503::Audio::Node
         };
 
     public:
-        Effect(Parameters parameters);
+        Gain(Parameters parameters);
 
         auto Update(Context& context) -> bool;
 

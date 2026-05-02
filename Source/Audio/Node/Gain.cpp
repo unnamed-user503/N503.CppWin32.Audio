@@ -1,5 +1,5 @@
 #include "Pch.hpp"
-#include "Effect.hpp"
+#include "Gain.hpp"
 
 // 1. Project Headers
 #include "Context.hpp"
@@ -21,11 +21,11 @@
 namespace N503::Audio::Node
 {
 
-    Effect::Effect(Parameters parameters)
+    Gain::Gain(Parameters parameters)
     {
     }
 
-    auto Effect::Update(Context& context) -> bool
+    auto Gain::Update(Context& context) -> bool
     {
         // 一時停止中は「まだ仕事の途中」なので false
         if (context.Descriptor.Status == Audio::Status::Paused)

@@ -1,7 +1,7 @@
 #pragma once
 
 // 1. Project Headers
-#include "../Node/Effect.hpp"
+#include "../Node/Gain.hpp"
 #include "../Node/Endpoint.hpp"
 #include "../Node/Passthrough.hpp"
 #include "../Node/Voice.hpp"
@@ -30,8 +30,8 @@
 // Forward Declarations
 namespace N503::Audio::System
 {
-    using StaticVoiceNode = Node::Voice<Node::Static, Node::Effect, Node::Passthrough, Node::Endpoint>;
-    using StreamVoiceNode = Node::Voice<Node::Stream, Node::Effect, Node::Queue, Node::Endpoint>;
+    using StaticVoiceNode = Node::Voice<Node::Static, Node::Gain, Node::Passthrough, Node::Endpoint>;
+    using StreamVoiceNode = Node::Voice<Node::Stream, Node::Gain, Node::Queue, Node::Endpoint>;
     using VoiceNode       = std::variant<std::monostate, StaticVoiceNode, StreamVoiceNode>;
 }
 
