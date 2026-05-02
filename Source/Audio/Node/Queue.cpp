@@ -81,6 +81,7 @@ namespace N503::Audio::Node
     {
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
+            m_Entries[i].Frames->Bytes         = {};
             m_Entries[i].Frames->Count         = 0;
             m_Entries[i].Frames->IsEndOfStream = false;
             m_Entries[i].Signal->Notify.store(false, std::memory_order_relaxed);

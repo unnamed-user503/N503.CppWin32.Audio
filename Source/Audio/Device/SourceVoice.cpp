@@ -125,7 +125,7 @@ namespace N503::Audio::Device
         }
 
         // 送信直前のログ記録
-#ifdef _DEBUG
+#if 0
         const auto log = std::format(
             "[SourceVoice] SubmitSourceBuffer AudioBytes={} pAudioData={} pContext={} EndOfStream={}",
             sourceBuffer.AudioBytes,

@@ -43,6 +43,12 @@ namespace N503::Audio::Node
 
         auto Process() -> bool
         {
+            // Stopped 状態では一切処理しない
+            if (m_Context->Descriptor.Status == Audio::Status::Stopped)
+            {
+                return true;
+            }
+
             // 内部でエラーが発生しているので強制終了
             if (m_Context->Descriptor.Status == Audio::Status::Error)
             {
@@ -94,12 +100,17 @@ namespace N503::Audio::Node
 
             // Context のリセットとセットアップ (Statisticsは維持する)
             m_Context->Descriptor        = descriptor;
+            m_Context->Descriptor.Volume = 0.0f;
             m_Context->Descriptor.Status = Audio::Status::Loading;
 
-            m_Context->Effect                = {};
-            m_Context->Effect.Fade.Threshold = std::chrono::milliseconds(320);
-            m_Context->Effect.Fade.Elapsed   = std::chrono::milliseconds(0);
-            m_Context->Effect.Fade.Direction = std::chrono::milliseconds(16);
+            m_Context->Effect = {};
+
+            if (descriptor.Asset->Metadata.Type == Audio::Type::Stream)
+            {
+                m_Context->Effect.Fade.Threshold = std::chrono::microseconds(640000);
+                m_Context->Effect.Fade.Elapsed   = std::chrono::microseconds(0);
+                m_Context->Effect.Fade.Direction = std::chrono::microseconds(1);
+            }
 
             m_Context->Time     = {};
             m_Context->Position = {};
@@ -149,9 +160,9 @@ namespace N503::Audio::Node
             if (m_Context->Descriptor.Status == Audio::Status::Paused)
             {
                 m_Context->Descriptor.Status     = Audio::Status::Stopping;
-                m_Context->Effect.Fade.Threshold = std::chrono::microseconds(320);
+                m_Context->Effect.Fade.Threshold = std::chrono::microseconds(320000);
                 m_Context->Effect.Fade.Elapsed   = std::chrono::microseconds(0);
-                m_Context->Effect.Fade.Direction = std::chrono::microseconds(-16);
+                m_Context->Effect.Fade.Direction = std::chrono::microseconds(-1);
                 return true;
             }
             else if (m_Context->Descriptor.Status != Audio::Status::Playing)
@@ -169,10 +180,10 @@ namespace N503::Audio::Node
                 return ImmediateStop();
             }
 
-            m_Context->Effect.Fade.Threshold = std::chrono::microseconds(640);
+            m_Context->Effect.Fade.Threshold = std::chrono::microseconds(320000);
             m_Context->Effect.Fade.Elapsed   = std::chrono::microseconds(0);
-            m_Context->Effect.Fade.Direction = std::chrono::microseconds(-16);
-
+            m_Context->Effect.Fade.Direction = std::chrono::microseconds(-1);
+ 
             return true;
         }
 
@@ -180,6 +191,7 @@ namespace N503::Audio::Node
         {
             // 停止要求時にリピートフラグを下ろしておく事でスムーズに停止へ遷移できる
             m_Context->Descriptor.Repeat = false;
+            m_Context->Descriptor.Volume = 0.0f;
 
             if (m_Context->Descriptor.Status == Audio::Status::Stopped)
             {
@@ -238,7 +250,9 @@ namespace N503::Audio::Node
             // 1. まず現在のノードを動かす
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
 
+#if 0
             ::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
+#endif
 
             // 2. 前方のノードがあれば実行し、結果を蓄積する（&= により短絡評価を防止）
             if constexpr (Index > 0)
@@ -246,11 +260,12 @@ namespace N503::Audio::Node
                 currentFinished &= Update<Index - 1>(context);
             }
 
+#if 0
             if (Index == 0)
             {
                 ::OutputDebugStringA("\n");
             }
-
+#endif
             return currentFinished;
         }
 
