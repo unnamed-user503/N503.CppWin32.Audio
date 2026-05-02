@@ -215,32 +215,6 @@ namespace N503::Audio::Node
             return true;
         }
 
-        auto Fade(std::chrono::microseconds threshold, std::chrono::microseconds direction) -> bool
-        {
-            if (m_Context->Descriptor.Status != Audio::Status::Playing)
-            {
-                return false;
-            }
-
-            m_Context->Effect.Fade.Threshold = threshold;
-            m_Context->Effect.Fade.Direction = direction;
-
-            // clang-format off
-            ([&]<typename T>()
-            {
-                auto& node = static_cast<T&>(*this);
-
-                if constexpr (requires { node.OnFade(threshold, direction); })
-                {
-                    node.OnFade(threshold, direction);
-                }
-
-            }.template operator()<TNodes>(), ...);
-            // clang-format on
-
-            return true;
-        }
-
     private:
         template <std::size_t Index> auto Update(Context& context) -> bool
         {
