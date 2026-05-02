@@ -35,13 +35,13 @@ namespace N503::Audio
     {
         for (std::uint64_t i = 0; i < MaxStaticVoices; ++i)
         {
-            m_Voices[i].emplace<Audio::StaticVoice>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_Voices[i].emplace<Audio::StaticVoiceNode>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
             m_StaticTicketQueue.emplace(static_cast<Identity::Ticket>(i));
         }
 
         for (std::uint64_t i = 0; i < MaxStreamVoices; ++i)
         {
-            m_Voices[MaxStaticVoices + i].emplace<Audio::StreamVoice>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_Voices[MaxStaticVoices + i].emplace<Audio::StreamVoiceNode>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
             m_StreamTicketQueue.emplace(static_cast<Identity::Ticket>(MaxStaticVoices + i));
         }
 

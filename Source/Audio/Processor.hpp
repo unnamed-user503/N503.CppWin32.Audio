@@ -30,10 +30,10 @@
 namespace N503::Audio
 {
 
-    using StaticVoice = Node::Voice<Node::Static, Node::Effect, Node::Passthrough, Node::Endpoint>;
-    using StreamVoice = Node::Voice<Node::Stream, Node::Effect, Node::Queue, Node::Endpoint>;
+    using StaticVoiceNode = Node::Voice<Node::Static, Node::Effect, Node::Passthrough, Node::Endpoint>;
+    using StreamVoiceNode = Node::Voice<Node::Stream, Node::Effect, Node::Queue, Node::Endpoint>;
 
-    using Voice = std::variant<std::monostate, StaticVoice, StreamVoice>;
+    using VoiceNode = std::variant<std::monostate, StaticVoiceNode, StreamVoiceNode>;
 
     class Processor final
     {
@@ -61,7 +61,7 @@ namespace N503::Audio
         auto WaitForAllStop() -> void;
 
     private:
-        std::array<Audio::Voice, MaxVoices> m_Voices{};
+        std::array<Audio::VoiceNode, MaxVoices> m_Voices{};
 
         std::array<Audio::Identity::Generation, MaxVoices> m_Generations{};
 
