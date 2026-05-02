@@ -27,12 +27,12 @@
 namespace N503::Audio::Node
 {
 
-    template <typename... TNodes> class Path : public TNodes...
+    template <typename... TNodes> class Voice : public TNodes...
     {
     public:
         // 各ノードのコンストラクタに必要な引数を、それぞれの基底クラスへ転送
         // TArgs... は各ノードの初期化用オブジェクトなどを想定
-        template <typename... TArgs> explicit Path(TArgs&&... args) : TNodes(std::forward<TArgs>(args))... // 各基底クラスを初期化
+        template <typename... TArgs> explicit Voice(TArgs&&... args) : TNodes(std::forward<TArgs>(args))... // 各基底クラスを初期化
         {
             m_Context = std::make_unique<Node::Context>();
         }
@@ -73,7 +73,7 @@ namespace N503::Audio::Node
                 // このパスを停止させる
                 ImmediateStop();
 #ifdef _DEBUG
-                ::OutputDebugStringA("[Audio] Node::Path: All nodes finished. Process terminal.\n");
+                ::OutputDebugStringA("[Audio] Node::Voice: All nodes finished. Process terminal.\n");
 #endif
                 return true;
             }
@@ -288,6 +288,6 @@ namespace N503::Audio::Node
         Audio::Format m_Format{};
     };
 
-    template <typename... TArgs> Path(std::unique_ptr<Context>, TArgs&&...) -> Path<std::decay_t<TArgs>...>;
+    template <typename... TArgs> Voice(std::unique_ptr<Context>, TArgs&&...) -> Voice<std::decay_t<TArgs>...>;
 
 } // namespace N503::Audio::Node

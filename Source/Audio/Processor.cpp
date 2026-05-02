@@ -33,19 +33,19 @@ namespace N503::Audio
 
     Processor::Processor()
     {
-        for (std::uint64_t i = 0; i < MaxStaticVoicePaths; ++i)
+        for (std::uint64_t i = 0; i < MaxStaticVoices; ++i)
         {
-            m_VoicePaths[i].emplace<Node::StaticVoicePath>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_Voices[i].emplace<Audio::StaticVoice>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
             m_StaticTicketQueue.emplace(static_cast<Identity::Ticket>(i));
         }
 
-        for (std::uint64_t i = 0; i < MaxStreamVoicePaths; ++i)
+        for (std::uint64_t i = 0; i < MaxStreamVoices; ++i)
         {
-            m_VoicePaths[MaxStaticVoicePaths + i].emplace<Node::StreamVoicePath>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
-            m_StreamTicketQueue.emplace(static_cast<Identity::Ticket>(MaxStaticVoicePaths + i));
+            m_Voices[MaxStaticVoices + i].emplace<Audio::StreamVoice>(nullptr, Node::Effect::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_StreamTicketQueue.emplace(static_cast<Identity::Ticket>(MaxStaticVoices + i));
         }
 
-        for (std::uint32_t i = 0; i < MaxVoicePaths; ++i)
+        for (std::uint32_t i = 0; i < MaxVoices; ++i)
         {
             m_Generations[i] = Identity::Generation::Initial;
         }
@@ -61,7 +61,7 @@ namespace N503::Audio
                 tickets,
                 [this](Identity::Ticket ticket)
                 {
-                    auto& path = m_VoicePaths[static_cast<std::uint64_t>(ticket)];
+                    auto& path = m_Voices[static_cast<std::uint64_t>(ticket)];
 
                     const bool isFinished = std::visit(
                         [](auto& node) -> bool
@@ -86,7 +86,7 @@ namespace N503::Audio
                         ++m_Generations[index];
 
                         // チケットをキューに戻す
-                        auto& queue = (index < MaxStaticVoicePaths) ? m_StaticTicketQueue : m_StreamTicketQueue;
+                        auto& queue = (index < MaxStaticVoices) ? m_StaticTicketQueue : m_StreamTicketQueue;
                         queue.push(ticket);
                         return true;
                     }
@@ -122,7 +122,7 @@ namespace N503::Audio
         }
 
         // Stream再生のみ重複再生を許可しない
-        for (std::size_t i = 0; i < MaxStreamVoicePaths; ++i)
+        for (std::size_t i = 0; i < MaxStreamVoices; ++i)
         {
             bool found = std::visit(
                 [&](auto& node) -> bool
@@ -137,7 +137,7 @@ namespace N503::Audio
                         return (node.GetAssetHandle().ResourceID == asset->Handle.ResourceID);
                     }
                 },
-                m_VoicePaths[MaxStaticVoicePaths + i]
+                m_Voices[MaxStaticVoices + i]
             );
 
             if (found)
@@ -179,7 +179,7 @@ namespace N503::Audio
                     return node.Play(descriptor, asset->Metadata.Format);
                 }
             },
-            m_VoicePaths[index]
+            m_Voices[index]
         );
 
         if (!played)
@@ -233,7 +233,7 @@ namespace N503::Audio
                     node.Stop();
                 }
             },
-            m_VoicePaths[index]
+            m_Voices[index]
         );
     }
 
@@ -254,7 +254,7 @@ namespace N503::Audio
                             node.Stop();
                         }
                     },
-                    m_VoicePaths[static_cast<std::uint64_t>(ticket)]
+                    m_Voices[static_cast<std::uint64_t>(ticket)]
                 );
             }
         );
@@ -283,7 +283,7 @@ namespace N503::Audio
                     node.Pause();
                 }
             },
-            m_VoicePaths[index]
+            m_Voices[index]
         );
     }
 
@@ -310,7 +310,7 @@ namespace N503::Audio
                     node.Resume();
                 }
             },
-            m_VoicePaths[index]
+            m_Voices[index]
         );
     }
 
