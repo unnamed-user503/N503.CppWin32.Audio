@@ -105,9 +105,13 @@ namespace N503::Audio::Node
         }
 
         // Contextに書き込み用バッファ(Submit)と読み取り用バッファ(Cache)を渡す
-        if (!context.Buffers.Submit && !context.Buffers.Cache)
+        if (!context.Buffers.Submit)
         {
             context.Buffers.Submit = &m_Entries[0];
+        }
+
+        if (!context.Buffers.Cache)
+        {
             context.Buffers.Cache  = &m_Entries[MaxBuffersQueue - 1];
         }
 

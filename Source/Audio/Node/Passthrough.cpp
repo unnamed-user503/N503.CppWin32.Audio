@@ -126,11 +126,13 @@ namespace N503::Audio::Node
         // 再生完了したスロットのクリーンアップ
         if (m_Entry.Status == Node::Entry::Status::Completed)
         {
+            const bool wasEndOfStream = m_Entry.Frames->IsEndOfStream;
+
             m_Entry.Frames->Count = 0;
             m_Entry.Status        = Node::Entry::Status::Empty;
 
             // 終端フラグが立っているバッファを回収したなら、ストリーム全体の終了とみなす
-            if (m_Entry.Frames->IsEndOfStream)
+            if (wasEndOfStream)
             {
                 return false; // 以降の Update 処理を停止させる
             }

@@ -37,7 +37,7 @@ namespace N503::Audio::Node
 
         if (context.Descriptor.Status == Audio::Status::Paused)
         {
-            return false; // 再異性処理を継続する
+            return false; // 再生処理を継続する
         }
 
         if (!m_Asset)

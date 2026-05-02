@@ -75,7 +75,7 @@ namespace N503::Audio::Node
             else
             {
                 // フェードイン完了時は「通常再生」に移行するだけなので、仕事は続く
-                // (何度も計算しないよう、ここで設定を無効化するなどの処理が望ましい)
+                fade.Threshold = std::chrono::microseconds(0);
                 return false;
             }
         }

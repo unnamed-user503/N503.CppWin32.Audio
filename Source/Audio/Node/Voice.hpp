@@ -139,7 +139,7 @@ namespace N503::Audio::Node
                 m_Context->Effect.Fade.Direction = std::chrono::microseconds(-16);
                 return true;
             }
-            else if (m_Context->Descriptor.Status != Audio::Status::Playing || m_Context->Descriptor.Status == Audio::Status::Stopping)
+            else if (m_Context->Descriptor.Status != Audio::Status::Playing)
             {
                 return false;
             }
@@ -172,7 +172,7 @@ namespace N503::Audio::Node
             }
 
             // clang-format off
-            ([&]<typename T>()
+            ([&]<typename TNodes>()
             {
                 using TNode = TNodes;
                 auto& node = static_cast<TNode&>(*this);
