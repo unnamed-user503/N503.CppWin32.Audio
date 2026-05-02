@@ -156,7 +156,7 @@ namespace N503::Audio::Node
             }
         }
 
-        return true; // 再生処理を継続する
+        return false; // 再生処理を継続する
     }
 
     auto Queue::Sweep(Context& context) -> bool
