@@ -38,10 +38,10 @@ namespace N503::Audio::Node
     auto Gain::Update(Context& context) -> bool
     {
         // --- Time.Delta の計測（仮実装、後で Time ノードへ移行予定）---
-        const auto now = std::chrono::steady_clock::now();
-        context.Time.Delta = now - m_LastTime;
+        const auto now        = std::chrono::steady_clock::now();
+        context.Time.Delta    = now - m_LastTime;
         context.Time.Elapsed += context.Time.Delta;
-        m_LastTime = now;
+        m_LastTime            = now;
         // ---------------------------------------------------------------
 
         auto& fade = context.Effect.Fade;
@@ -69,8 +69,7 @@ namespace N503::Audio::Node
         fade.Elapsed = std::clamp(fade.Elapsed, std::chrono::microseconds{ 0 }, fade.Threshold);
 
         // 正規化された音量を計算 (0.0f 〜 1.0f)
-        const float t = static_cast<float>(fade.Elapsed.count()) /
-                        static_cast<float>(fade.Threshold.count());
+        const float t = static_cast<float>(fade.Elapsed.count()) / static_cast<float>(fade.Threshold.count());
 
         context.Descriptor.Volume = t;
 
@@ -85,7 +84,7 @@ namespace N503::Audio::Node
         if (fade.Direction > std::chrono::microseconds{ 0 } && fade.Elapsed >= fade.Threshold)
         {
             context.Descriptor.Volume = 1.0f;
-            fade.Direction = std::chrono::microseconds{ 0 }; // 以降は維持
+            fade.Direction            = std::chrono::microseconds{ 0 }; // 以降は維持
         }
 
         return true;

@@ -182,7 +182,7 @@ namespace N503::Audio::Node
             m_Context->Effect.Fade.Threshold = std::chrono::microseconds(320000);
             m_Context->Effect.Fade.Elapsed   = std::chrono::microseconds(0);
             m_Context->Effect.Fade.Direction = std::chrono::microseconds(-1);
- 
+
             return true;
         }
 

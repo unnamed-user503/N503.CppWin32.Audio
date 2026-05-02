@@ -19,8 +19,8 @@
 
 // 6. C++ Standard Libraries
 #include <cstddef>
-#include <memory>
 #include <format>
+#include <memory>
 
 namespace N503::Audio::Node
 {
@@ -31,12 +31,12 @@ namespace N503::Audio::Node
 
     auto Queue::OnPlay(const Audio::Format& format) -> bool
     {
-        const std::size_t framesPerBuffer = 4096;
+        const std::size_t framesPerBuffer    = 4096;
         const std::size_t requiredBufferSize = framesPerBuffer * format.BlockAlign;
 
         if (m_BytesPerFrame != format.BlockAlign || m_CurrentBufferSize != requiredBufferSize)
         {
-            m_BytesPerFrame = format.BlockAlign;
+            m_BytesPerFrame     = format.BlockAlign;
             m_CurrentBufferSize = requiredBufferSize;
 
             m_Storage = std::make_unique<N503::Memory::Storage::Queue>(m_CurrentBufferSize, MaxBuffersQueue);
@@ -120,7 +120,7 @@ namespace N503::Audio::Node
 
         if (!context.Buffers.Cache)
         {
-            context.Buffers.Cache  = &m_Entries[MaxBuffersQueue - 1];
+            context.Buffers.Cache = &m_Entries[MaxBuffersQueue - 1];
         }
 
         // 読み取りが終わったバッファ(Status::Present)があればSubmitバッファとして使用する
