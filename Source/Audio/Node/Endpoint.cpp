@@ -31,12 +31,14 @@ namespace N503::Audio::Node
 
     auto Endpoint::OnPlay(const Audio::Format& format) -> bool
     {
-        if (!m_SourceVoice)
+        if (m_SourceVoice)
         {
-            m_SourceVoice = Audio::Engine::GetInstance().GetMasterVoice().AcquireSourceVoice(format);
-            m_SourceVoice->SetVolume(0.0f);
-            m_SourceVoice->Start();
+            Audio::Engine::GetInstance().GetMasterVoice().ReleaseSourceVoice(m_SourceVoice);
         }
+
+        m_SourceVoice = Audio::Engine::GetInstance().GetMasterVoice().AcquireSourceVoice(format);
+        m_SourceVoice->SetVolume(0.0f);
+        m_SourceVoice->Start();
 
         return true;
     }

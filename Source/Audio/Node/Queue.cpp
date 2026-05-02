@@ -27,6 +27,13 @@ namespace N503::Audio::Node
 
     Queue::Queue()
     {
+        const std::size_t framesPerBuffer    = 4096;
+        const std::size_t requiredBufferSize = framesPerBuffer * Audio::Format::Default().BlockAlign;
+
+        m_BytesPerFrame     = Audio::Format::Default().BlockAlign;
+        m_CurrentBufferSize = requiredBufferSize;
+
+        m_Storage = std::make_unique<N503::Memory::Storage::Queue>(m_CurrentBufferSize, MaxBuffersQueue);
     }
 
     auto Queue::OnPlay(const Audio::Format& format) -> bool
@@ -85,6 +92,8 @@ namespace N503::Audio::Node
             m_Entries[i].Signal->Notify.store(false, std::memory_order_relaxed);
             m_Entries[i].Status = Node::Entry::Status::Empty;
         }
+
+        m_Storage->Reset();
 #ifdef _DEBUG
         Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio]<Node::Queue>: Initialized entries and signals.");
 #endif
