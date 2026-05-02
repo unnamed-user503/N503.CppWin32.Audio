@@ -18,61 +18,67 @@
 // 5. Windows Headers
 
 // 6. C++ Standard Libraries
-#include <chrono>
 #include <cstddef>
+#include <memory>
 #include <format>
 
 namespace N503::Audio::Node
 {
 
-    Queue::Queue(const std::size_t bytesPerFrame) : m_Storage{ bytesPerFrame, MaxBuffersQueue }, m_BytesPerFrame{ bytesPerFrame }
+    Queue::Queue()
     {
-        for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
-        {
-            m_Entries[i].Frames = &m_Buffers[i];
-            m_Entries[i].Signal = &m_Signals[i];
-            m_Entries[i].Status = Node::Entry::Status::Empty;
-
-            m_Signals[i].Notify.store(false, std::memory_order_relaxed);
-            m_Signals[i].Event.store(Device::Signal::Event::None, std::memory_order_relaxed);
-
-            m_Buffers[i].Bytes         = {};
-            m_Buffers[i].Count         = 0;
-            m_Buffers[i].IsEndOfStream = false;
-        }
     }
 
-    auto Queue::OnPlay() -> void
+    auto Queue::OnPlay(const Audio::Format& format) -> bool
     {
-#ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Queue: OnPlay called.");
-#endif
+        const std::size_t framesPerBuffer = 4096;
+        const std::size_t requiredBufferSize = framesPerBuffer * format.BlockAlign;
+
+        if (m_BytesPerFrame != format.BlockAlign || m_CurrentBufferSize != requiredBufferSize)
+        {
+            m_BytesPerFrame = format.BlockAlign;
+            m_CurrentBufferSize = requiredBufferSize;
+
+            m_Storage = std::make_unique<N503::Memory::Storage::Queue>(m_CurrentBufferSize, MaxBuffersQueue);
+
+            for (auto& buffer : m_Buffers)
+            {
+                buffer.Bytes = {};
+            }
+        }
+
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
             if (m_Buffers[i].Bytes.empty())
             {
-                auto* address = m_Storage.AllocateBytes(m_BytesPerFrame, static_cast<std::size_t>(16));
+                auto* address = m_Storage->AllocateBytes(m_CurrentBufferSize, 16);
 
                 if (!address)
                 {
-                    break;
+#ifdef _DEBUG
+                    Audio::Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio] Queue: Failed to allocate buffer memory.");
+#endif
+                    return false;
                 }
 
-                m_Buffers[i].Bytes         = { static_cast<std::byte*>(address), m_BytesPerFrame };
+                m_Buffers[i].Bytes         = { static_cast<std::byte*>(address), m_CurrentBufferSize };
                 m_Buffers[i].Count         = 0;
                 m_Buffers[i].IsEndOfStream = false;
             }
 
             m_Entries[i].Frames = &m_Buffers[i];
             m_Entries[i].Signal = &m_Signals[i];
+            m_Entries[i].Status = Node::Entry::Status::Empty;
+
+            m_Signals[i].Notify.store(false, std::memory_order_relaxed);
+            m_Signals[i].Event.store(Device::Signal::Event::None, std::memory_order_relaxed);
         }
+
+        return true;
     }
 
     auto Queue::OnStop() -> void
     {
-#ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Queue: OnStop called.");
-#endif
         for (std::size_t i = 0; i < MaxBuffersQueue; ++i)
         {
             m_Entries[i].Frames->Count         = 0;
@@ -80,6 +86,9 @@ namespace N503::Audio::Node
             m_Entries[i].Signal->Notify.store(false, std::memory_order_relaxed);
             m_Entries[i].Status = Node::Entry::Status::Empty;
         }
+#ifdef _DEBUG
+        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio]<Queue::OnStop>: Initialized entries and signals.");
+#endif
     }
 
     auto Queue::Update(Context& context) -> bool
@@ -158,7 +167,7 @@ namespace N503::Audio::Node
         {
             if (m_Entries[i].Signal->Notify.load(std::memory_order_acquire))
             {
-                auto event = m_Entries[i].Signal->Event.load(std::memory_order_relaxed);
+                auto event = m_Entries[i].Signal->Event.load(std::memory_order_acquire);
 
                 switch (event)
                 {

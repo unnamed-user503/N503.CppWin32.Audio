@@ -24,13 +24,14 @@
 namespace N503::Audio::Node
 {
 
-    Static::Static(const Node::Descriptor* descriptor)
+    Static::Static()
     {
     }
 
-    auto Static::OnPlay(const Audio::Node::Descriptor& descriptor)
+    auto Static::OnPlay(const Audio::Node::Descriptor& descriptor) -> bool
     {
         m_Asset = descriptor.Asset;
+        return true;
     }
 
     auto Static::Update(Context& context) -> bool

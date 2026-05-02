@@ -21,7 +21,7 @@
 namespace N503::Audio::Node
 {
 
-    Passthrough::Passthrough(const std::size_t bytesPerFrame)
+    Passthrough::Passthrough()
     {
         m_Entry.Frames = &m_Buffer;
         m_Entry.Signal = &m_Signal;

@@ -22,7 +22,7 @@ namespace N503::Audio::Node
     class Passthrough
     {
     public:
-        Passthrough(const std::size_t bytesPerFrame);
+        Passthrough();
 
         auto Update(Context& context) -> bool;
 

@@ -33,23 +33,27 @@
 namespace N503::Audio::Node
 {
 
-    Stream::Stream(const Node::Descriptor* descriptor)
+    Stream::Stream()
     {
     }
 
-    auto Stream::OnPlay(const Node::Descriptor& descriptor) -> void
+    auto Stream::OnPlay(const Node::Descriptor& descriptor) -> bool
     {
-#ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Stream: OnPlay called.");
-#endif
-        m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Asset->Metadata.Path);
+        try
+        {
+            m_Decoder = std::make_unique<Codec::MediaFoundationDecoder>(descriptor.Asset->Metadata.Path);
+        }
+        catch (...)
+        {
+            Engine::GetInstance().GetDiagnosticsReporter().Error("[Audio]<Stream::OnPlay>: MediaFoundationDecoder creation failed.");
+            return false;
+        }
+
+        return true;
     }
 
     auto Stream::OnStop() -> void
     {
-#ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Stream: OnStop called.");
-#endif
         m_Decoder.reset();
     }
 

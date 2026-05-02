@@ -21,7 +21,7 @@
 namespace N503::Audio::Node
 {
 
-    Gain::Gain(Parameters parameters)
+    Gain::Gain()
     {
     }
 

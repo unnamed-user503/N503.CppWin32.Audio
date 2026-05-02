@@ -21,9 +21,9 @@ namespace N503::Audio::Node
     class Endpoint
     {
     public:
-        explicit Endpoint(Device::SourceVoice* sourceVoice);
+        explicit Endpoint();
 
-        auto OnPlay(const Audio::Format& format) -> void;
+        auto OnPlay(const Audio::Format& format) -> bool;
 
         auto OnStop() -> void;
 
@@ -33,7 +33,7 @@ namespace N503::Audio::Node
         auto Submit(Context& context) -> bool;
 
     private:
-        Device::SourceVoice* m_SourceVoice;
+        Device::SourceVoice* m_SourceVoice{ nullptr };
     };
 
 } // namespace N503::Audio::Node

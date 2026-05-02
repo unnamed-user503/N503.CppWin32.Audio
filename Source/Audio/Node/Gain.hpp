@@ -19,17 +19,9 @@ namespace N503::Audio::Node
     class Gain
     {
     public:
-        struct Parameters
-        {
-        };
-
-    public:
-        Gain(Parameters parameters);
+        Gain();
 
         auto Update(Context& context) -> bool;
-
-    private:
-        Parameters m_Parameters;
     };
 
 } // namespace N503::Audio::Node

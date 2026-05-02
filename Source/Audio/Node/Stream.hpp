@@ -22,11 +22,11 @@ namespace N503::Audio::Node
     class Stream
     {
     public:
-        explicit Stream(const Node::Descriptor* descriptor = nullptr);
+        explicit Stream();
 
         ~Stream() = default;
 
-        auto OnPlay(const Node::Descriptor& descriptor) -> void;
+        auto OnPlay(const Node::Descriptor& descriptor) -> bool;
 
         auto OnStop() -> void;
 

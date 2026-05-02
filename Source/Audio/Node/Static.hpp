@@ -21,9 +21,9 @@ namespace N503::Audio::Node
     class Static
     {
     public:
-        explicit Static(const Node::Descriptor* descriptor = nullptr);
+        explicit Static();
 
-        auto OnPlay(const Audio::Node::Descriptor& descriptor);
+        auto OnPlay(const Audio::Node::Descriptor& descriptor) -> bool;
 
         ~Static() = default;
 

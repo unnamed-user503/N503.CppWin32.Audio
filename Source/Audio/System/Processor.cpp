@@ -35,13 +35,13 @@ namespace N503::Audio::System
     {
         for (std::uint64_t i = 0; i < MaxStaticVoices; ++i)
         {
-            m_Voices[i].emplace<Audio::System::StaticVoiceNode>(nullptr, Node::Gain::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_Voices[i].emplace<Audio::System::StaticVoiceNode>();
             m_StaticTicketQueue.emplace(static_cast<Identity::Ticket>(i));
         }
 
         for (std::uint64_t i = 0; i < MaxStreamVoices; ++i)
         {
-            m_Voices[MaxStaticVoices + i].emplace<Audio::System::StreamVoiceNode>(nullptr, Node::Gain::Parameters{}, Node::Queue::MaxBufferSize, nullptr);
+            m_Voices[MaxStaticVoices + i].emplace<Audio::System::StreamVoiceNode>();
             m_StreamTicketQueue.emplace(static_cast<Identity::Ticket>(MaxStaticVoices + i));
         }
 

@@ -25,28 +25,24 @@
 namespace N503::Audio::Node
 {
 
-    Endpoint::Endpoint(Device::SourceVoice* sourceVoice) : m_SourceVoice{ sourceVoice }
+    Endpoint::Endpoint()
     {
     }
 
-    auto Endpoint::OnPlay(const Audio::Format& format) -> void
+    auto Endpoint::OnPlay(const Audio::Format& format) -> bool
     {
-#ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Endpoint: OnPlay called.");
-#endif
         if (!m_SourceVoice)
         {
             m_SourceVoice = Audio::Engine::GetInstance().GetMasterVoice().AcquireSourceVoice(format);
             m_SourceVoice->SetVolume(1.0f);
             m_SourceVoice->Start();
         }
+
+        return true;
     }
 
     auto Endpoint::OnStop() -> void
     {
-#ifdef _DEBUG
-        Audio::Engine::GetInstance().GetDiagnosticsReporter().Verbose("[Audio] Endpoint: OnStop called.");
-#endif
         if (m_SourceVoice)
         {
             m_SourceVoice->SetVolume(0.0f);

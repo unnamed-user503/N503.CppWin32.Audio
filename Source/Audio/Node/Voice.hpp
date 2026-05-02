@@ -31,8 +31,11 @@ namespace N503::Audio::Node
     template <typename... TNodes> class Voice : public TNodes...
     {
     public:
-        // 各ノードのコンストラクタに必要な引数を、それぞれの基底クラスへ転送
-        // TArgs... は各ノードの初期化用オブジェクトなどを想定
+        template <typename... TArgs> explicit Voice()
+        {
+            m_Context = std::make_unique<Node::Context>();
+        }
+
         template <typename... TArgs> explicit Voice(TArgs&&... args) : TNodes(std::forward<TArgs>(args))... // 各基底クラスを初期化
         {
             m_Context = std::make_unique<Node::Context>();
@@ -104,25 +107,32 @@ namespace N503::Audio::Node
             m_Format = format;
 
             // clang-format off
-            ([&]<typename T>()
+            auto result = ([&]<typename T>()
             {
                 auto& node = static_cast<T&>(*this);
+                auto result = false;
 
                 if constexpr (requires { node.OnPlay(format); })
                 {
-                    node.OnPlay(format);
+                    result = node.OnPlay(format);
                 }
-                if constexpr (requires { node.OnPlay(descriptor); })
+                else if constexpr (requires { node.OnPlay(descriptor); })
                 {
-                    node.OnPlay(descriptor);
+                    result = node.OnPlay(descriptor);
                 }
-                if constexpr (requires { node.OnPlay(); })
+                else if constexpr (requires { node.OnPlay(); })
                 {
-                    node.OnPlay();
+                    result = node.OnPlay();
                 }
 
+                return result;
             }.template operator()<TNodes>(), ...);
             // clang-format on
+
+            if (!result)
+            {
+                m_Context->Descriptor.Status = Audio::Status::Error;
+            }
 
             return true;
         }
