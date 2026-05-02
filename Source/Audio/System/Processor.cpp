@@ -6,6 +6,7 @@
 #include "../Node/Gain.hpp"
 #include "../Node/Queue.hpp"
 #include "../Resource/Asset.hpp"
+#include "Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -114,7 +115,7 @@ namespace N503::Audio::System
         return !m_Issued.empty();
     }
 
-    auto Processor::Play(const Resource::Asset* asset) -> Audio::ProcessHandle
+    auto Processor::Play(const Resource::Asset* asset) -> Audio::System::Handle
     {
         if (!asset)
         {
@@ -208,7 +209,7 @@ namespace N503::Audio::System
         return { static_cast<Identity::Tag>(tag), static_cast<Identity::Ticket>(ticket), m_Generations[static_cast<std::size_t>(ticket)] };
     }
 
-    auto Processor::Stop(Audio::ProcessHandle handle) -> void
+    auto Processor::Stop(Audio::System::Handle handle) -> void
     {
         if (!handle)
         {
@@ -258,7 +259,7 @@ namespace N503::Audio::System
         );
     }
 
-    auto Processor::Pause(Audio::ProcessHandle handle) -> void
+    auto Processor::Pause(Audio::System::Handle handle) -> void
     {
         if (!handle)
         {
@@ -285,7 +286,7 @@ namespace N503::Audio::System
         );
     }
 
-    auto Processor::Resume(Audio::ProcessHandle handle) -> void
+    auto Processor::Resume(Audio::System::Handle handle) -> void
     {
         if (!handle)
         {

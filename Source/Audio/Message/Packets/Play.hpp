@@ -2,6 +2,7 @@
 
 // 1. Project Headers
 #include "../../Resource/Handle.hpp"
+#include "../../System/Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -25,7 +26,7 @@ namespace N503::Audio::Message::Packets
 
     struct Play final
     {
-        Audio::ProcessHandle* Result;
+        Audio::System::Handle* Result;
 
         Audio::Resource::Handle Handle;
 

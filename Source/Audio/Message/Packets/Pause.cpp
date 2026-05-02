@@ -2,7 +2,6 @@
 #include "Pause.hpp"
 
 // 1. Project Headers
-#include "../../Engine.hpp"
 #include "../../System/Processor.hpp"
 #include "../Context.hpp"
 

@@ -2,10 +2,10 @@
 
 // 1. Project Headers
 #include "Resource/Handle.hpp"
+#include "System/Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Source.hpp>
-#include <N503/Audio/Types.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -22,7 +22,7 @@ namespace N503::Audio
     {
         Audio::Resource::Handle AssetHandle{};
 
-        Audio::ProcessHandle ProcessHandle{};
+        Audio::System::Handle ProcessHandle{};
     };
 
 } // namespace N503::Audio

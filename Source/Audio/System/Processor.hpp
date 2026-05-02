@@ -9,6 +9,7 @@
 #include "../Node/Static.hpp"
 #include "../Node/Stream.hpp"
 #include "../Resource/Asset.hpp"
+#include "Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Format.hpp>
@@ -52,13 +53,13 @@ namespace N503::Audio::System
 
         auto Process() -> bool;
 
-        auto Play(const Resource::Asset* asset) -> Audio::ProcessHandle;
+        auto Play(const Resource::Asset* asset) -> Audio::System::Handle;
 
-        auto Stop(Audio::ProcessHandle handle) -> void;
+        auto Stop(Audio::System::Handle handle) -> void;
 
-        auto Pause(Audio::ProcessHandle handle) -> void;
+        auto Pause(Audio::System::Handle handle) -> void;
 
-        auto Resume(Audio::ProcessHandle handle) -> void;
+        auto Resume(Audio::System::Handle handle) -> void;
 
         auto Stop() -> void;
 

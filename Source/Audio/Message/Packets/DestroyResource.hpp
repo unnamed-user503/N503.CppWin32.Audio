@@ -2,6 +2,7 @@
 
 // 1. Project Headers
 #include "../../Resource/Handle.hpp"
+#include "../../System/Handle.hpp"
 
 // 2. Project Dependencies
 #include <N503/Audio/Types.hpp>
@@ -27,7 +28,7 @@ namespace N503::Audio::Message::Packets
     {
         Audio::Resource::Handle Handle;
 
-        Audio::ProcessHandle ProcessHandle;
+        Audio::System::Handle ProcessHandle;
 
         auto operator()(const Context& context) const -> void;
     };

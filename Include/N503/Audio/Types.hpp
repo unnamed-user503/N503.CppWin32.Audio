@@ -47,41 +47,20 @@ namespace N503::Audio
         {
             Initial = 0
         };
+
+        inline auto operator++(Identity::Tag& tag) noexcept -> Identity::Tag&
+        {
+            using T = std::underlying_type_t<Identity::Tag>;
+            tag     = static_cast<Identity::Tag>(static_cast<T>(tag) + 1);
+            return tag;
+        }
+
+        inline auto operator++(Identity::Generation& generation) noexcept -> Identity::Generation&
+        {
+            using T    = std::underlying_type_t<Identity::Generation>;
+            generation = static_cast<Identity::Generation>(static_cast<T>(generation) + 1);
+            return generation;
+        }
     } // namespace Identity
-
-    struct ProcessHandle final
-    {
-        Identity::Tag Tag{ Identity::Tag::Invalid };
-
-        Identity::Ticket Ticket{ Identity::Ticket::Invalid };
-
-        Identity::Generation Generation{ Identity::Generation::Initial };
-
-        [[nodiscard]]
-        explicit operator bool() const noexcept
-        {
-            return Ticket != Identity::Ticket::Invalid;
-        }
-
-        [[nodiscard]]
-        bool operator!() const noexcept
-        {
-            return Ticket == Identity::Ticket::Invalid;
-        }
-    };
-
-    inline auto operator++(Identity::Tag& tag) noexcept -> Identity::Tag&
-    {
-        using T = std::underlying_type_t<Identity::Tag>;
-        tag     = static_cast<Identity::Tag>(static_cast<T>(tag) + 1);
-        return tag;
-    }
-
-    inline auto operator++(Identity::Generation& generation) noexcept -> Identity::Generation&
-    {
-        using T    = std::underlying_type_t<Identity::Generation>;
-        generation = static_cast<Identity::Generation>(static_cast<T>(generation) + 1);
-        return generation;
-    }
 
 } // namespace N503::Audio
