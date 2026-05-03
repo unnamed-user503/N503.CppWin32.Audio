@@ -30,7 +30,7 @@ project "N503.CppWin32.Audio"
 
     files
     {
-        "%{prj.name}.dll.manifest", "Include/**.hpp", "Source/**.cpp", "Source/**.hpp",
+        "%{prj.name}.dll.manifest", "Include/**.h", "Include/**.hpp", "Source/**.cpp", "Source/**.hpp",
     }
 
     includedirs

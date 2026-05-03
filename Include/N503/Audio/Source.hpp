@@ -1,69 +1,70 @@
 #pragma once
 
 // 1. Project Headers
-
-// 2. Project Dependencies
-#include <N503/Abi/Api.hpp>
+#include <N503/Audio/Details/Api.h>
 #include <N503/Audio/Types.hpp>
 
-// 3. WIL (Windows Implementation Library)
-
-// 4. Third-party Libraries
-
-// 5. Windows Headers
+// 2. Project Dependencies
 
 // 6. C++ Standard Libraries
-#include <memory>
 #include <string_view>
+#include <utility> // std::exchange 用
 
 namespace N503::Audio
 {
-
-    class N503_API Source final
+    class Source final
     {
     public:
-        explicit Source(std::string_view filepath, Audio::Type audioType = Audio::Type::Stream);
+        /// @brief 指定したファイルからオーディオソースを生成します。
+        explicit Source(std::string_view filepath, Audio::Type audioType = Audio::Type::Stream)
+            : m_Handle(nullptr)
+        {
+            // C-API を呼び出して DLL 内部でインスタンスを生成し、ハンドルを受け取る
+            // string_view を C 文字列 (.data()) として渡し、Enum は uint32_t にキャスト
+            m_Handle = n503_audio_source_create(filepath.data(), static_cast<uint32_t>(audioType));
+        }
 
-        ~Source();
+        /// @brief リソースを解放します。
+        ~Source()
+        {
+            if (m_Handle)
+            {
+                n503_audio_source_destroy(m_Handle);
+                m_Handle = nullptr;
+            }
+        }
 
+        // コピー禁止 (リソースの二重解放防止)
         Source(const Source&) = delete;
-
         auto operator=(const Source&) -> Source& = delete;
 
-        Source(Source&&) = default;
-
-        auto operator=(Source&&) -> Source& = default;
-
-    public:
-        auto Play() -> void;
-
-        auto Stop() -> void;
-
-        auto Pause() -> void;
-
-        auto Resume() -> void;
-
-    public:
-        /// @brief 実装の詳細を隠蔽するための不透明な構造体。
-        struct Entity;
-
-#ifdef N503_DLL_EXPORTS
-        /// @brief 内部の実装実体（Entity）への参照を取得します。
-        /// @note このメソッドはライブラリ内部（DLL境界の内側）でのみ使用されます。
-        /// @return Entity を管理する unique_ptr への参照。
-        [[nodiscard]]
-        auto GetEntity() -> std::unique_ptr<Entity>&
+        // ムーブ許可
+        Source(Source&& other) noexcept
+            : m_Handle(std::exchange(other.m_Handle, nullptr)) 
         {
-            return m_Entity;
         }
-#endif
+
+        auto operator=(Source&& other) noexcept -> Source&
+        {
+            if (this != &other)
+            {
+                // 既存のリソースがあれば破棄
+                if (m_Handle) n503_audio_source_destroy(m_Handle);
+                // ハンドルを奪い取り、相手を空にする
+                m_Handle = std::exchange(other.m_Handle, nullptr);
+            }
+            return *this;
+        }
+
+    public:
+        void Play()   { if (m_Handle) n503_audio_source_play(m_Handle);   }
+        void Stop()   { if (m_Handle) n503_audio_source_stop(m_Handle);   }
+        void Pause()  { if (m_Handle) n503_audio_source_pause(m_Handle);  }
+        void Resume() { if (m_Handle) n503_audio_source_resume(m_Handle); }
 
     private:
-#pragma warning(push)
-#pragma warning(disable : 4251) // DLL境界を越える際の unique_ptr に関する警告を抑制
-        /// @brief
-        std::unique_ptr<Entity> m_Entity;
-#pragma warning(pop)
+        /// @brief DLL 内部の実体へのハンドル
+        n503_audio_source_h m_Handle;
     };
 
 } // namespace N503::Audio

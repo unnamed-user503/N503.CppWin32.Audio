@@ -1,9 +1,9 @@
 #pragma once
 
 // 1. Project Headers
+#include "../Frames/Buffer.hpp"
 
 // 2. Project Dependencies
-#include <Audio/Frames/Buffer.hpp>
 #include <N503/Audio/Types.hpp>
 
 // 3. WIL (Windows Implementation Library)

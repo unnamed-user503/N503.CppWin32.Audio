@@ -1,11 +1,10 @@
 #pragma once
 
 // 1. Project Headers
-#include "Resource/Handle.hpp"
-#include "System/Handle.hpp"
+#include "../../Backend/Audio/Resource/Handle.hpp"
+#include "../../Backend/Audio/System/Handle.hpp"
 
 // 2. Project Dependencies
-#include <N503/Audio/Source.hpp>
 
 // 3. WIL (Windows Implementation Library)
 
@@ -18,7 +17,7 @@
 namespace N503::Audio
 {
 
-    struct Source::Entity final
+    struct SourceEntity final
     {
         Audio::Resource::Handle AssetHandle{};
 

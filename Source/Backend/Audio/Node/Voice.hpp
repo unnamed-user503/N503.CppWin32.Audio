@@ -248,7 +248,7 @@ namespace N503::Audio::Node
             // 1. まず現在のノードを動かす
             bool currentFinished = static_cast<TNode*>(this)->Update(context);
 
-#if 1
+#if 0
             ::OutputDebugStringA(std::format("Node[{}]={}, ", Index, currentFinished ? "o" : "x").data());
 #endif
 
@@ -258,7 +258,7 @@ namespace N503::Audio::Node
                 currentFinished &= Update<Index - 1>(context);
             }
 
-#if 1
+#if 0
             if (Index == 0)
             {
                 ::OutputDebugStringA("\n");
