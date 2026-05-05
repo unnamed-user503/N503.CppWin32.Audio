@@ -26,8 +26,7 @@
 namespace N503::Audio::Codec
 {
 
-    MediaFoundationDecoder::MediaFoundationDecoder(std::string_view url)
-        : m_SourceReader(std::make_unique<SourceReader>(url)), m_BufferAllocator(std::make_unique<BufferAllocator>(1024))
+    MediaFoundationDecoder::MediaFoundationDecoder(std::string_view url) : m_SourceReader(std::make_unique<SourceReader>(url)), m_BufferAllocator(std::make_unique<BufferAllocator>(1024))
     {
     }
 

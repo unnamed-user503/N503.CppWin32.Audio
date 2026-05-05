@@ -6,8 +6,8 @@
 #include "Message/Context.hpp"
 #include "Message/Dispatcher.hpp"
 #include "Message/Queue.hpp"
-#include "System/Processor.hpp"
 #include "Resource/Container.hpp"
+#include "System/Processor.hpp"
 
 // 2. Project Dependencies
 #include <N503/Diagnostics/Reporter.hpp>
@@ -145,7 +145,7 @@ namespace N503::Audio
     auto Engine::Run(const std::stop_token stopToken) -> void
     {
         Message::Dispatcher messageDispatcher;
-        m_MasterVoice    = std::make_unique<Audio::Device::MasterVoice>();
+        m_MasterVoice     = std::make_unique<Audio::Device::MasterVoice>();
         m_SystemProcessor = std::make_unique<Audio::System::Processor>();
 
         auto cleanup = wil::scope_exit(

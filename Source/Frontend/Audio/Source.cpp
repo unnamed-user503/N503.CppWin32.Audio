@@ -28,7 +28,6 @@
 
 extern "C"
 {
-
     n503_audio_source_h n503_audio_source_create(const char* path, uint32_t type)
     {
         using namespace N503::Audio;
@@ -180,5 +179,4 @@ extern "C"
 
         return -1;
     }
-
 }

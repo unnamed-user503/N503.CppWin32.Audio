@@ -58,13 +58,7 @@ namespace N503::Audio
         /// @brief Windows API で使用される WAVEFORMATEX 構造体に変換します
         auto ToRawFormat() const noexcept -> WAVEFORMATEX
         {
-            return { .wFormatTag      = Tag,
-                     .nChannels       = Channels,
-                     .nSamplesPerSec  = SamplePerSecond,
-                     .nAvgBytesPerSec = BytesPerSecond,
-                     .nBlockAlign     = BlockAlign,
-                     .wBitsPerSample  = BitsPerSample,
-                     .cbSize          = 0 };
+            return { .wFormatTag = Tag, .nChannels = Channels, .nSamplesPerSec = SamplePerSecond, .nAvgBytesPerSec = BytesPerSecond, .nBlockAlign = BlockAlign, .wBitsPerSample = BitsPerSample, .cbSize = 0 };
         }
     };
 

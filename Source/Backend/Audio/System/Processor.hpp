@@ -1,13 +1,13 @@
 #pragma once
 
 // 1. Project Headers
-#include "../Node/Gain.hpp"
 #include "../Node/Endpoint.hpp"
+#include "../Node/Gain.hpp"
 #include "../Node/Passthrough.hpp"
-#include "../Node/Voice.hpp"
 #include "../Node/Queue.hpp"
 #include "../Node/Static.hpp"
 #include "../Node/Stream.hpp"
+#include "../Node/Voice.hpp"
 #include "../Resource/Asset.hpp"
 #include "Handle.hpp"
 
@@ -34,7 +34,7 @@ namespace N503::Audio::System
     using StaticVoiceNode = Node::Voice<Node::Static, Node::Gain, Node::Passthrough, Node::Endpoint>;
     using StreamVoiceNode = Node::Voice<Node::Stream, Node::Gain, Node::Queue, Node::Endpoint>;
     using VoiceNode       = std::variant<std::monostate, StaticVoiceNode, StreamVoiceNode>;
-}
+} // namespace N503::Audio::System
 
 // Declaration
 namespace N503::Audio::System
@@ -79,4 +79,4 @@ namespace N503::Audio::System
         std::map<Audio::Identity::Tag, std::vector<Audio::Identity::Ticket>> m_Issued{};
     };
 
-} // namespace N503::Audio
+} // namespace N503::Audio::System

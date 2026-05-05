@@ -65,10 +65,7 @@ namespace N503::Audio::Resource
             const std::size_t totalBytes = asset->Frames.Count * asset->Metadata.Format.BlockAlign;
             auto* persistent             = m_Storage.AllocateBytes(totalBytes, 16);
 
-            decoder.Decode(
-                static_cast<std::uint32_t>(asset->Frames.Count),
-                [&](std::size_t size) { return std::span<std::byte>(static_cast<std::byte*>(persistent), size); }
-            );
+            decoder.Decode(static_cast<std::uint32_t>(asset->Frames.Count), [&](std::size_t size) { return std::span<std::byte>(static_cast<std::byte*>(persistent), size); });
 
             asset->Frames.Bytes         = { static_cast<std::byte*>(persistent), totalBytes };
             asset->Frames.Count         = static_cast<std::uint32_t>(asset->Frames.Count);

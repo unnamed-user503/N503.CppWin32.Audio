@@ -167,9 +167,7 @@ namespace N503::Audio::Message
 
         if (isCongested)
         {
-            Engine::GetInstance().GetDiagnosticsReporter().Warning(
-                std::format(L"EventQueue is congesting: CurrentSize={}, Capacity={}\n", currentSize, capacity)
-            );
+            Engine::GetInstance().GetDiagnosticsReporter().Warning(std::format(L"EventQueue is congesting: CurrentSize={}, Capacity={}\n", currentSize, capacity));
         }
 #endif
         return isCongested;
