@@ -28,7 +28,7 @@
 
 extern "C"
 {
-    n503_audio_source_h n503_audio_source_create(const char* path, uint32_t type)
+    N503Sound N503CreateSound(const char* path, uint32_t type)
     {
         using namespace N503::Audio;
 
@@ -51,14 +51,14 @@ extern "C"
                 throw std::runtime_error("audio creation failed.");
             }
 
-            return reinterpret_cast<n503_audio_source_h>(entity.release());
+            return reinterpret_cast<N503Sound>(entity.release());
         }
         CATCH_LOG();
 
         return nullptr;
     }
 
-    int n503_audio_source_destroy(n503_audio_source_h instance)
+    int N503DestroySound(N503Sound instance)
     {
         using namespace N503::Audio;
 
@@ -82,7 +82,7 @@ extern "C"
         return -1;
     }
 
-    int n503_audio_source_play(n503_audio_source_h instance)
+    int N503PlaySound(N503Sound instance)
     {
         using namespace N503::Audio;
 
@@ -108,7 +108,7 @@ extern "C"
         return -1;
     }
 
-    int n503_audio_source_stop(n503_audio_source_h instance)
+    int N503StopSound(N503Sound instance)
     {
         using namespace N503::Audio;
 
@@ -132,7 +132,7 @@ extern "C"
         return -1;
     }
 
-    int n503_audio_source_resume(n503_audio_source_h instance)
+    int N503ResumeSound(N503Sound instance)
     {
         using namespace N503::Audio;
 
@@ -156,7 +156,7 @@ extern "C"
         return -1;
     }
 
-    int n503_audio_source_pause(n503_audio_source_h instance)
+    int N503PauseSound(N503Sound instance)
     {
         using namespace N503::Audio;
 

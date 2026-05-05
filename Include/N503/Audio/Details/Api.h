@@ -1,25 +1,30 @@
-// Include/N503/Core/Details/Api.h
 #pragma once
 #include <stdint.h>
+
+#ifdef N503_DLL_EXPORTS
+#define N503_API __declspec(dllexport)
+#else
+#define N503_API __declspec(dllimport)
+#endif
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    typedef struct n503_audio_source_t* n503_audio_source_h;
+    typedef struct N503Sound_t* N503Sound;
 
-    __declspec(dllexport) n503_audio_source_h n503_audio_source_create(const char* path, uint32_t type);
+    N503_API N503Sound N503CreateSound(const char* path, uint32_t type);
 
-    __declspec(dllexport) int n503_audio_source_destroy(n503_audio_source_h instance);
+    N503_API int N503DestroySound(N503Sound sound);
 
-    __declspec(dllexport) int n503_audio_source_play(n503_audio_source_h instance);
+    N503_API int N503PlaySound(N503Sound sound);
 
-    __declspec(dllexport) int n503_audio_source_stop(n503_audio_source_h instance);
+    N503_API int N503StopSound(N503Sound sound);
 
-    __declspec(dllexport) int n503_audio_source_resume(n503_audio_source_h instance);
+    N503_API int N503ResumeSound(N503Sound sound);
 
-    __declspec(dllexport) int n503_audio_source_pause(n503_audio_source_h instance);
+    N503_API int N503PauseSound(N503Sound sound);
 
 #ifdef __cplusplus
 }

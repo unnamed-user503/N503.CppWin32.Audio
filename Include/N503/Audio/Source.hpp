@@ -15,30 +15,25 @@ namespace N503::Audio
     class Source final
     {
     public:
-        /// @brief 指定したファイルからオーディオソースを生成します。
-        explicit Source(std::string_view filepath, Audio::Type audioType = Audio::Type::Stream) : m_Handle(nullptr)
+        explicit Source(std::string_view filepath, Audio::Type audioType = Audio::Type::Stream) : m_Instance(nullptr)
         {
-            // C-API を呼び出して DLL 内部でインスタンスを生成し、ハンドルを受け取る
-            // string_view を C 文字列 (.data()) として渡し、Enum は uint32_t にキャスト
-            m_Handle = n503_audio_source_create(filepath.data(), static_cast<uint32_t>(audioType));
+            m_Instance = N503CreateSound(filepath.data(), static_cast<uint32_t>(audioType));
         }
 
-        /// @brief リソースを解放します。
         ~Source()
         {
-            if (m_Handle)
+            if (m_Instance)
             {
-                n503_audio_source_destroy(m_Handle);
-                m_Handle = nullptr;
+                N503DestroySound(m_Instance);
+                m_Instance = nullptr;
             }
         }
 
-        // コピー禁止 (リソースの二重解放防止)
-        Source(const Source&)                    = delete;
+        Source(const Source&) = delete;
+
         auto operator=(const Source&) -> Source& = delete;
 
-        // ムーブ許可
-        Source(Source&& other) noexcept : m_Handle(std::exchange(other.m_Handle, nullptr))
+        Source(Source&& other) noexcept : m_Instance(std::exchange(other.m_Instance, nullptr))
         {
         }
 
@@ -46,50 +41,52 @@ namespace N503::Audio
         {
             if (this != &other)
             {
-                // 既存のリソースがあれば破棄
-                if (m_Handle)
+                if (m_Instance)
                 {
-                    n503_audio_source_destroy(m_Handle);
+                    N503DestroySound(m_Instance);
                 }
-                // ハンドルを奪い取り、相手を空にする
-                m_Handle = std::exchange(other.m_Handle, nullptr);
+
+                m_Instance = std::exchange(other.m_Instance, nullptr);
             }
+
             return *this;
         }
 
     public:
         void Play()
         {
-            if (m_Handle)
+            if (m_Instance)
             {
-                n503_audio_source_play(m_Handle);
+                N503PlaySound(m_Instance);
             }
         }
+
         void Stop()
         {
-            if (m_Handle)
+            if (m_Instance)
             {
-                n503_audio_source_stop(m_Handle);
+                N503StopSound(m_Instance);
             }
         }
-        void Pause()
-        {
-            if (m_Handle)
-            {
-                n503_audio_source_pause(m_Handle);
-            }
-        }
+
         void Resume()
         {
-            if (m_Handle)
+            if (m_Instance)
             {
-                n503_audio_source_resume(m_Handle);
+                N503ResumeSound(m_Instance);
+            }
+        }
+
+        void Pause()
+        {
+            if (m_Instance)
+            {
+                N503PauseSound(m_Instance);
             }
         }
 
     private:
-        /// @brief DLL 内部の実体へのハンドル
-        n503_audio_source_h m_Handle;
+        N503Sound m_Instance;
     };
 
 } // namespace N503::Audio
